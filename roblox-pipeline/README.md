@@ -1,0 +1,2 @@
+# Roblox pipeline starter
+Start here: `docs/ROBLOX_SUCCESS_LOGIC.md` (standing orders — read every session; if anything else fights it, it wins), then PIPELINE.md (the operating plan). New game ideas go in `docs/IDEA_LOG.md`, always, without pausing the active title. CLAUDE.md governs build sessions; skills/ are binding conventions; specs/TEMPLATE.md is the module spec format. `rojo serve` after installing the Rojo plugin in Studio.

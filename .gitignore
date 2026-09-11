@@ -1,0 +1,31 @@
+# --- OS noise ---
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# --- generated, rebuildable (do not version 3.5MB of output) ---
+# rebuild with: node roblox-pipeline/tools/build_map.mjs
+system-map.html
+roblox-pipeline/build.rbxlx
+roblox-pipeline/sourcemap.json
+
+# --- dependencies / build junk ---
+node_modules/
+__pycache__/
+*.pyc
+*.log
+
+# --- credentials: never version, never push ---
+# (doctrine §8: no publish keys, Open Cloud write-to-prod, or .ROBLOSECURITY in any agent context)
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*_secret*
+*secrets*
+*ROBLOSECURITY*
+*api_key*
+*apikey*
+opencloud*.json
