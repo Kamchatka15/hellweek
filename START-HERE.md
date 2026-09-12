@@ -103,6 +103,9 @@ Roblox Business/
 | Anything specific to one title | `roblox-pipeline/games/<slug>/` | Tuning, world, theme, SKUs. If a new game forces an `src/core/` change, make the change generic and fold it into the engine — never leave it in one game. |
 | Module design | `roblox-pipeline/specs/` | Written before the code, from `TEMPLATE.md` |
 | What happened in a build session | `roblox-pipeline/docs/runs/` | `YYYY-MM-DD-run-NN.md`. What was read, refused, stalled on, and written from scratch. |
+| Top-level system architecture | `roblox-pipeline/docs/SYSTEM_ARCHITECTURE.md` | The factory across MANY titles: 4 control layers, what compounds, the gap list |
+| Enforcement rules (hooks) | `.claude/hooks/` + `roblox-pipeline/skills/hooks.md` | One scanner, two triggers. Never a second copy |
+| Where the project stands right now | `roblox-pipeline/docs/runs/STATE.md` | Read into every session automatically. Keep it current |
 | Market / genre research | `roblox-pipeline/research/` | Dated filenames: `YYYY-MM-DD-topic.md` |
 | Reusable mechanic teardown | `roblox-pipeline/research/patterns/` | Shapes we copy; never assets we copy |
 | Work-in-progress art | `roblox-pipeline/art/` | Approved Bot art comes from `GrokBDownloads/` instead |

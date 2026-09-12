@@ -10,6 +10,11 @@ One active title at a time; a second game starts only when Justin says so.
 
 **Ideas are never held back.** If you see a game idea that looks fun, current, attractive, and plausibly successful — pitch it in the reply, log it in `docs/IDEA_LOG.md`, then continue the task you were on. Proposing is not switching: only Justin promotes an idea to the active title. See `skills/idea-intake.md`.
 
+## Enforcement (these are not suggestions)
+The non-negotiables below are enforced by `.claude/hooks/` and a git pre-commit hook — they refuse the write, they do not warn. See `skills/hooks.md`.
+A deliberate exception is `-- @rbx-allow: <RULE_ID> <reason>` and is logged to `docs/runs/hook-allow.log`. Never work around a block silently.
+The system these sit inside — four control layers, what compounds across many titles — is `docs/SYSTEM_ARCHITECTURE.md`.
+
 ## Source of truth
 - **The `Roblox Business` folder on Justin's Mac is the project.** `../START-HERE.md` is its map and routing rule: what every folder is for and where a new file goes. Read it when unsure where something belongs; update it when you add a folder. Anything produced for this project gets written into that folder — never chat-only, never a second copy at a second path.
 - The claude.ai "RB - Business" project holds a read-only mirror of the doctrine and key skills for sessions with no access to the Mac. Folder wins on any disagreement; refresh the mirror rather than editing it.
