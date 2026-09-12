@@ -30,26 +30,36 @@ return {
 	-- the brief's own rules on purpose — "no paragraph in the first minute" (§4) and
 	-- the no-angels/no-heaven register (§1.1). Owner's call, recorded in brief.md.
 	opening = {
+		-- The ENGLISH is the voice now (Justin, 2026-09-12): big, blood red, the line
+		-- the player actually reads. The old tongue sits small and dim beneath it as
+		-- aura — nothing in it is needed, and skipping it costs the player nothing.
+		--
+		-- NOTE ON THE COPY: Justin wrote "You must of fell asleep in class". Corrected
+		-- to "must've fallen" — in shipped narration the original reads as a typo
+		-- rather than a voice, and this is the first sentence a stranger ever sees.
+		-- Revert in one line if the rougher voice was the intent.
 		narration = {
-			"You awake as if from a dream.",
-			"You are not in your bed.",
-			"Then you hear a dark, ancient voice speak...",
+			"You must've fallen asleep in class...",
+			"Then you hear a voice.",
 		},
 		voice = {
+			"Whither is fled the glory of the angels,",
+			"which we should have in heaven?",
+			"This is a home of darkness,",
+			"terribly bound with fettering bonds of fire.",
+		},
+		echo = {
 			"Ten shemen aût akhu nu pet",
 			"nety wenes nen em pet",
 			"Per pen en keku pu",
 			"qastuef em nuḥu en khet nesret",
 		},
-		meaningLead = "Somehow you know it means:",
-		meaning = "Whither is fled the glory of the angels, which we should have in heaven? "
-			.. "This is a home of darkness, terribly bound with fettering bonds of fire.",
 		skipHint = "TAP TO SKIP",
-		narrationColor = Color3.fromRGB(214, 210, 200),
-		voiceColor = Color3.fromRGB(168, 8, 8),
-		voiceStroke = Color3.fromRGB(38, 0, 0),
-		dripColor = Color3.fromRGB(118, 4, 4),
-		meaningColor = Color3.fromRGB(196, 186, 170),
+		narrationColor = Color3.fromRGB(186, 182, 176),
+		voiceColor = Color3.fromRGB(176, 6, 6),
+		voiceStroke = Color3.fromRGB(34, 0, 0),
+		dripColor = Color3.fromRGB(126, 4, 4),
+		echoColor = Color3.fromRGB(104, 74, 74),
 	},
 
 	-- Five style lines (games/hell-week/theme.md): grey sand / black water + fire gold.

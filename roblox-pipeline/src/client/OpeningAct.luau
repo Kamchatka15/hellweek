@@ -1,9 +1,12 @@
 -- OpeningAct — a title card over the black screen at join, from pack data.
 --
 -- Three registers, from theme.opening:
---   narration  — what is happening. Largest. Pale.
---   voice      — what is heard. Bold horror face, blood red, with drips that run.
---   meaning    — what it means. Quiet serif under the voice.
+--   narration  — what is happening. Modest, pale, at the top.
+--   voice      — what is said, IN ENGLISH. The big one: blood red, horror face, with
+--                drips that run. This is the line the player is meant to read.
+--   echo       — the same words in the old tongue, small and dim beneath. It is there
+--                to be FELT, not read: nothing in it is needed, and a player who skips
+--                straight past it has missed nothing.
 -- Any tap/click/key after the first moment skips to the end. The act owns the
 -- screen until it is done; the HUD holds its toasts until then.
 
@@ -18,14 +21,13 @@ local OpeningAct = {}
 export type Spec = {
 	narration: { string },
 	voice: { string },
-	meaningLead: string?,
-	meaning: string?,
+	echo: { string }?,
 	skipHint: string?,
 	narrationColor: Color3?,
 	voiceColor: Color3?,
 	voiceStroke: Color3?,
 	dripColor: Color3?,
-	meaningColor: Color3?,
+	echoColor: Color3?,
 }
 
 local SKIP_AFTER = 1.5
@@ -105,21 +107,21 @@ function OpeningAct.play(gui: ScreenGui, spec: Spec, onDone: () -> ())
 		Parent = gui,
 	})
 
-	local narrationColor = spec.narrationColor or Color3.fromRGB(214, 210, 200)
-	local voiceColor = spec.voiceColor or Color3.fromRGB(168, 8, 8)
-	local voiceStroke = spec.voiceStroke or Color3.fromRGB(38, 0, 0)
-	local dripColor = spec.dripColor or Color3.fromRGB(118, 4, 4)
-	local meaningColor = spec.meaningColor or Color3.fromRGB(196, 186, 170)
+	local narrationColor = spec.narrationColor or Color3.fromRGB(186, 182, 176)
+	local voiceColor = spec.voiceColor or Color3.fromRGB(176, 6, 6)
+	local voiceStroke = spec.voiceStroke or Color3.fromRGB(34, 0, 0)
+	local dripColor = spec.dripColor or Color3.fromRGB(126, 4, 4)
+	local echoColor = spec.echoColor or Color3.fromRGB(104, 74, 74)
 
-	-- Layout: narration stacked at the top third, voice through the middle, meaning
-	-- at the bottom third. Narration lines are ~1.6x the voice lines on purpose.
+	-- Layout, top to bottom: a little narration, then the voice taking the middle of
+	-- the screen, then the echo small underneath it.
 	local narrationLines: { TextLabel } = {}
 	for index, line in spec.narration do
 		narrationLines[index] = label(screen, {
-			Position = UDim2.fromScale(0.5, 0.12 + (index - 1) * 0.085),
+			Position = UDim2.fromScale(0.5, 0.1 + (index - 1) * 0.062),
 			AnchorPoint = Vector2.new(0.5, 0),
-			Size = UDim2.fromScale(0.8, 0.075),
-			Font = Enum.Font.GothamBlack,
+			Size = UDim2.fromScale(0.74, 0.05),
+			Font = Enum.Font.GothamMedium,
 			Text = line,
 			TextColor3 = narrationColor,
 		})
@@ -127,11 +129,13 @@ function OpeningAct.play(gui: ScreenGui, spec: Spec, onDone: () -> ())
 
 	local voiceHolders: { Frame } = {}
 	local voiceLines: { TextLabel } = {}
+	local voiceTop = 0.29
+	local voiceStep = 0.092
 	for index, line in spec.voice do
 		local holder = UIKit.create("Frame", {
-			Position = UDim2.fromScale(0.5, 0.42 + (index - 1) * 0.062),
+			Position = UDim2.fromScale(0.5, voiceTop + (index - 1) * voiceStep),
 			AnchorPoint = Vector2.new(0.5, 0),
-			Size = UDim2.fromScale(0.7, 0.05),
+			Size = UDim2.fromScale(0.86, 0.082),
 			BackgroundTransparency = 1,
 			ZIndex = 12,
 			Parent = screen,
@@ -149,32 +153,24 @@ function OpeningAct.play(gui: ScreenGui, spec: Spec, onDone: () -> ())
 			Color = ColorSequence.new({
 				ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
 				ColorSequenceKeypoint.new(0.55, Color3.new(1, 1, 1)),
-				ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 120, 120)),
+				ColorSequenceKeypoint.new(1, Color3.fromRGB(112, 112, 112)),
 			}),
 			Parent = voiceLines[index],
 		})
 	end
 
-	local lead = if spec.meaningLead
-		then label(screen, {
-			Position = UDim2.fromScale(0.5, 0.72),
+	local echoLines: { TextLabel } = {}
+	local echoTop = voiceTop + #spec.voice * voiceStep + 0.035
+	for index, line in spec.echo or {} do
+		echoLines[index] = label(screen, {
+			Position = UDim2.fromScale(0.5, echoTop + (index - 1) * 0.032),
 			AnchorPoint = Vector2.new(0.5, 0),
-			Size = UDim2.fromScale(0.7, 0.035),
+			Size = UDim2.fromScale(0.5, 0.026),
 			Font = Enum.Font.Garamond,
-			Text = spec.meaningLead,
-			TextColor3 = meaningColor,
+			Text = line,
+			TextColor3 = echoColor,
 		})
-		else nil
-	local meaning = if spec.meaning
-		then label(screen, {
-			Position = UDim2.fromScale(0.5, 0.765),
-			AnchorPoint = Vector2.new(0.5, 0),
-			Size = UDim2.fromScale(0.72, 0.11),
-			Font = Enum.Font.Garamond,
-			Text = spec.meaning,
-			TextColor3 = meaningColor,
-		})
-		else nil
+	end
 
 	local hint = label(screen, {
 		Position = UDim2.fromScale(0.5, 0.93),
@@ -228,33 +224,28 @@ function OpeningAct.play(gui: ScreenGui, spec: Spec, onDone: () -> ())
 		end
 		for _, line in narrationLines do
 			fadeIn(line)
-			if not beat(2.0) then
+			if not beat(2.1) then
 				return
 			end
-		end
-		if not beat(0.7) then
-			return
-		end
-		for index, line in voiceLines do
-			fadeIn(line, 0.2)
-			drip(voiceHolders[index], dripColor, 5)
-			if not beat(1.8) then
-				return
-			end
-		end
-		if not beat(0.8) then
-			return
-		end
-		if lead then
-			fadeIn(lead)
 		end
 		if not beat(0.6) then
 			return
 		end
-		if meaning then
-			fadeIn(meaning)
+		for index, line in voiceLines do
+			fadeIn(line, 0.25)
+			drip(voiceHolders[index], dripColor, 5)
+			if not beat(1.5) then
+				return
+			end
 		end
-		if not beat(6.5) then
+		-- The echo arrives all at once and quietly. It is not a line to work through.
+		if not beat(0.5) then
+			return
+		end
+		for _, line in echoLines do
+			fadeIn(line)
+		end
+		if not beat(6) then
 			return
 		end
 		finish()

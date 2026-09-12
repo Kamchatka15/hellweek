@@ -302,3 +302,12 @@ Day and night are now **two complete rigs**, not one rig with the lamp turned do
 **Night is its own world.** The sky goes out, the haze thickens and cools to blue-grey, the bloom threshold drops so gold and fire are allowed to burn, and the camp's warm lights come back to full. The same monument that read cold and exposed at noon is the only warm thing on the waste — which is the whole point of the game, and it is now something the player watches happen rather than something the design asserts.
 
 Brightness is per-world data, so the later biomes are free to be dark ones.
+
+### 2026-09-12 — The opening act, flipped (Justin, in chat)
+"Change the intro text to 'You must of fell asleep in class…' you hear a voice. Only use the english text, make the text the bloody red and larger. Put the egyptian text beneath and smaller… make it not needed to read, put more to project aura."
+
+The English **is** the voice now. It is the biggest thing on the screen, blood red, in the horror face, with the drips — the line the player actually reads. The old tongue moved beneath it at a third the size and a dim red-grey: it is there to be **felt**, not read, and a player who skips straight past it has missed nothing. The "Somehow you know it means:" bridge is gone, because there is nothing left to bridge.
+
+Measured on screen: narration 25px pale, voice 41px at `rgb(176,6,6)`, echo 13px at `rgb(104,74,74)`.
+
+**One correction, flagged rather than made silently.** The line was written "You must of fell asleep in class" and ships as **"You must've fallen asleep in class..."** — in narration a stranger reads in their first three seconds, the original reads as a typo rather than as a voice. One line in `shared/theme.luau` to revert if the rougher voice was the intent.
