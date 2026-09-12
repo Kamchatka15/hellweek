@@ -333,3 +333,16 @@ All four worlds are generated (`tools/gen_biome.py`): Ashen Waste 1,462 parts, S
 A ward is a second pane of glass that travels with the player. It does not kill, it does not stop the night, it buys the distance to walk home. **If you want something that actually kills the Tempter, say so — it is a different game and I would want to rebuild the night around it rather than bolt a sword on.**
 
 **Collecting** is unchanged and needs no button: walk into a thing and it goes in the sack. Six slots, typed, and the HUD shows what is in it.
+
+### 2026-09-12 — Three buttons, and the verbs become known (Justin, in chat)
+"There needs to be a pickup button, an action button and an info/read button, and those buttons need to be known — like a pull-down with game info and the tasks."
+
+Three buttons, bottom right in thumb reach, **always on screen**: `PICK UP`, `ACTION`, `INFO`. Keyboard E / F / Tab. They are always there and **dim when there is nothing to do**, which is the point — a greyed button teaches what it is for, and a button that only appears when it already works teaches nothing.
+
+They label themselves from what the **server** says is in reach: `PICK UP / Ashwood` when a node is close, and ACTION reads `FEED` at the obelisk, `OFFER` at the table, `OPEN` at a chest.
+
+**Walking over a thing no longer takes it.** The verb belongs to the player now instead of to their feet, and the button plus the label do the teaching that silent auto-collection never did. (One flag: this adds a step to the first minute the brief measures in seconds. Gate A should watch whether a stranger finds the button — if they stand on an Ashwood pressing nothing, auto-pickup comes back as a fallback, which is one line.)
+
+**INFO is the game's only text screen** and it carries three things: the world's name and the one-sentence how-to-play, the seven trials with the finished ones struck through, and **the recipe book** — what the obelisk can make and from what. That last one closes a real hole: a player could carry two cactus forever and never learn what they were for.
+
+**Trust surface.** This loop had zero client→server remotes and now has exactly one, `C2S_Act`, carrying a verb and nothing else — no target, no position, no amount. The server finds what is in range of where the player actually is and acts on that. A forged call can ask to pick something up; it cannot say what, or from where, or more than 12 times in 4 seconds.

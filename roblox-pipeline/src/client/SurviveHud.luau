@@ -15,9 +15,11 @@ local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Format = require(Shared.Format)
+local Net = require(Shared.Net)
 local theme = require(ReplicatedStorage:WaitForChild("Pack").theme)
 local OpeningAct = require(script.Parent.OpeningAct)
 local UIKit = require(script.Parent.UIKit)
+local UserInputService = game:GetService("UserInputService")
 
 local SurviveHud = {}
 
@@ -41,8 +43,13 @@ local trialsButton: TextButton
 local trialsPanel: Frame
 local trialsList: Frame
 local trialRows: { [string]: TextLabel } = {}
+local pickupButton: TextButton
+local actionButton: TextButton
+local infoButton: TextButton
+local recipeRows: Frame
 local trialsOpen = false
 local refreshTrials: (any) -> ()
+local refreshButtons: (any) -> ()
 local tipParts: { [number]: { BasePart } } = {}
 
 local latest: any = nil
@@ -186,7 +193,7 @@ function refreshTrials(packet: any)
 		return
 	end
 	paintPoints(packet.worlds)
-	trialsButton.Text = `{theme.copy.challengeTitle}  {packet.done}/{packet.total}`
+	trialsButton.Text = `{theme.copy.infoLabel}\n{theme.copy.challengeTitle} {packet.done}/{packet.total}`
 	for index, entry in packet.list do
 		local row = trialRows[entry.id]
 		if not row then
@@ -198,7 +205,51 @@ function refreshTrials(packet: any)
 		row.Text = if entry.done then `<s>{entry.label}</s>` else entry.label
 		row.TextColor3 = if entry.done then theme.uiMuted else theme.uiText
 	end
-	trialsPanel.Size = UDim2.fromOffset(280, 38 + #packet.list * 28)
+	trialsPanel.Size = UDim2.fromOffset(300, 30 + #packet.list * 28)
+end
+
+--- The recipe book. Without it the obelisk is a guessing game: a player can carry two
+--- cactus forever and never learn what they are for.
+local function refreshRecipes(list: { any }?)
+	if not list or #recipeRows:GetChildren() > #list then
+		return
+	end
+	for index, entry in list do
+		if recipeRows:FindFirstChild(`r{index}`) then
+			continue
+		end
+		text({
+			Name = `r{index}`,
+			Size = UDim2.new(1, -16, 0, 22),
+			Font = Enum.Font.GothamMedium,
+			TextScaled = false,
+			TextSize = 14,
+			LayoutOrder = index,
+			Text = `{entry.from}  →  {entry.makes}`,
+			TextColor3 = theme.uiMuted,
+			Parent = recipeRows,
+		})
+	end
+end
+
+-- ---------------------------------------------------------------- the three buttons
+-- PICK UP, ACTION and INFO. They are always on screen so the verbs are KNOWN, and they
+-- dim when there is nothing to do — a greyed button teaches what it is for far better
+-- than a button that appears only when it already works.
+local ACTION_WORDS: { [string]: string } = {}
+
+function refreshButtons(state: any)
+	local near = state.near or {}
+
+	local canPick = near.pickup ~= nil
+	pickupButton.Text = if canPick then `{theme.copy.pickupLabel}\n{near.pickup}` else theme.copy.pickupLabel
+	pickupButton.BackgroundColor3 = if canPick then theme.uiGood else theme.uiPanel
+	pickupButton.TextColor3 = if canPick then Color3.new(1, 1, 1) else theme.uiMuted
+
+	local word = near.action and ACTION_WORDS[near.action]
+	actionButton.Text = word or theme.copy.actionFeed
+	actionButton.BackgroundColor3 = if word then theme.accent else theme.uiPanel
+	actionButton.TextColor3 = if word then Color3.fromRGB(30, 22, 10) else theme.uiMuted
 end
 
 function SurviveHud.setState(state: any)
@@ -214,6 +265,8 @@ function SurviveHud.setState(state: any)
 	fuelText.Text = `{string.upper(theme.names.beacon)}  {string.format("%.0f", state.fuel)}`
 
 	refreshTrials(state.challenges)
+	refreshRecipes(state.recipes)
+	refreshButtons(state)
 
 	local sackRatio = if state.carryCap > 0 then math.clamp(state.carry / state.carryCap, 0, 1) else 0
 	sackFill.Size = UDim2.fromScale(sackRatio, 1)
@@ -469,43 +522,139 @@ function SurviveHud.init(): ScreenGui
 	})
 	sackFill = bar(sackFrame, 40, theme.colors.fuel)
 
-	-- trials (upper right, under the sack) -----------------------------------
-	trialsButton = UIKit.create("TextButton", {
-		Name = "Trials",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -16, 0, 86),
-		Size = UDim2.fromOffset(200, 40),
-		BackgroundColor3 = theme.uiPanel,
-		BackgroundTransparency = 0.15,
-		BorderSizePixel = 0,
-		Font = Enum.Font.GothamBold,
-		TextScaled = true,
-		TextColor3 = theme.uiText,
-		Text = `{theme.copy.challengeTitle}  0/0`,
-		AutoButtonColor = true,
-		Parent = gui,
-	}, { UIKit.padding(10) })
-	UIKit.corner(10).Parent = trialsButton
+	-- the three buttons (bottom right, thumb reach) --------------------------
+	-- PICK UP / ACTION / INFO. Always present, always labelled, dimmed when there is
+	-- nothing to do. Keyboard: E, F, Tab. The server decides what each one acts on.
+	ACTION_WORDS = {
+		feed = theme.copy.actionFeed,
+		offer = theme.copy.actionOffer,
+		open = theme.copy.actionOpen,
+	}
 
+	local function bigButton(name: string, order: number, label: string): TextButton
+		local button = UIKit.create("TextButton", {
+			Name = name,
+			AnchorPoint = Vector2.new(1, 1),
+			Position = UDim2.new(1, -18, 1, -18 - (order - 1) * 76),
+			Size = UDim2.fromOffset(178, 66),
+			BackgroundColor3 = theme.uiPanel,
+			BackgroundTransparency = 0.08,
+			BorderSizePixel = 0,
+			Font = Enum.Font.GothamBold,
+			TextScaled = false,
+			TextSize = 18,
+			TextColor3 = theme.uiText,
+			Text = label,
+			AutoButtonColor = true,
+			Parent = gui,
+		}, { UIKit.padding(8) })
+		UIKit.corner(14).Parent = button
+		UIKit.stroke(Color3.fromRGB(0, 0, 0), 2).Parent = button
+		return button
+	end
+
+	pickupButton = bigButton("PickUp", 3, theme.copy.pickupLabel)
+	actionButton = bigButton("Action", 2, theme.copy.actionFeed)
+	infoButton = bigButton("Info", 1, theme.copy.infoLabel)
+
+	local function act(verb: string)
+		Net.get(Net.C2S_Act):FireServer(verb)
+	end
+	pickupButton.Activated:Connect(function()
+		act("pickup")
+	end)
+	actionButton.Activated:Connect(function()
+		act("action")
+	end)
+
+	-- the INFO panel: how to play, the trials, and what the obelisk can make ----
 	trialsPanel = panel({
-		Name = "TrialsPanel",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -16, 0, 130),
-		Size = UDim2.fromOffset(280, 234),
+		Name = "InfoPanel",
+		AnchorPoint = Vector2.new(1, 1),
+		Position = UDim2.new(1, -206, 1, -18),
+		Size = UDim2.fromOffset(420, 470),
 		Visible = false,
 		ZIndex = 4,
 		Parent = gui,
 	})
+	text({
+		Position = UDim2.fromOffset(18, 12),
+		Size = UDim2.new(1, -36, 0, 26),
+		Font = Enum.Font.GothamBlack,
+		TextScaled = false,
+		TextSize = 20,
+		Text = theme.zoneName or theme.title,
+		ZIndex = 4,
+		Parent = trialsPanel,
+	})
+	text({
+		Position = UDim2.fromOffset(18, 40),
+		Size = UDim2.new(1, -36, 0, 40),
+		Font = Enum.Font.GothamMedium,
+		TextScaled = false,
+		TextSize = 14,
+		TextWrapped = true,
+		Text = theme.copy.howToPlay,
+		TextColor3 = theme.uiMuted,
+		ZIndex = 4,
+		Parent = trialsPanel,
+	})
+	text({
+		Position = UDim2.fromOffset(18, 86),
+		Size = UDim2.new(1, -36, 0, 20),
+		Font = Enum.Font.GothamBold,
+		TextScaled = false,
+		TextSize = 15,
+		Text = theme.copy.challengeTitle,
+		TextColor3 = theme.accent,
+		ZIndex = 4,
+		Parent = trialsPanel,
+	})
 	trialsList = UIKit.create("Frame", {
-		Position = UDim2.fromOffset(14, 12),
-		Size = UDim2.new(1, -20, 1, -20),
+		Position = UDim2.fromOffset(18, 108),
+		Size = UDim2.new(1, -36, 0, 210),
 		BackgroundTransparency = 1,
 		ZIndex = 4,
 		Parent = trialsPanel,
 	}, { UIKit.list(2) })
-	trialsButton.Activated:Connect(function()
+	text({
+		Position = UDim2.fromOffset(18, 322),
+		Size = UDim2.new(1, -36, 0, 20),
+		Font = Enum.Font.GothamBold,
+		TextScaled = false,
+		TextSize = 15,
+		Text = theme.copy.recipeTitle,
+		TextColor3 = theme.accent,
+		ZIndex = 4,
+		Parent = trialsPanel,
+	})
+	recipeRows = UIKit.create("Frame", {
+		Position = UDim2.fromOffset(18, 344),
+		Size = UDim2.new(1, -36, 0, 118),
+		BackgroundTransparency = 1,
+		ZIndex = 4,
+		Parent = trialsPanel,
+	}, { UIKit.list(1) })
+
+	trialsButton = infoButton
+	local function toggleInfo()
 		trialsOpen = not trialsOpen
 		trialsPanel.Visible = trialsOpen
+	end
+	infoButton.Activated:Connect(toggleInfo)
+
+	-- keyboard, for anyone not on a phone
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed or input.UserInputType ~= Enum.UserInputType.Keyboard then
+			return
+		end
+		if input.KeyCode == Enum.KeyCode.E then
+			act("pickup")
+		elseif input.KeyCode == Enum.KeyCode.F then
+			act("action")
+		elseif input.KeyCode == Enum.KeyCode.Tab then
+			toggleInfo()
+		end
 	end)
 
 	-- toasts ----------------------------------------------------------------

@@ -57,6 +57,7 @@ local radiusFor: ((Player) -> number)? = nil
 local onCollect: ((Player, number, any?) -> number)? = nil
 local onBlocked: ((Player) -> ())? = nil
 local started = false
+local autoCollect = true
 
 local function ensureGroups()
 	local ok = pcall(function()
@@ -137,6 +138,9 @@ local function sweep()
 		for _, sweeper in sweepers do
 			local offset = position - sweeper.position
 			if offset:Dot(offset) <= sweeper.radiusSq then -- squared compare: no sqrt per pickup
+				if not autoCollect then
+					break -- in range, but nothing happens until the player asks
+				end
 				local accepted = if onCollect then onCollect(sweeper.player, record.value, record.meta) else 0
 				if accepted > 0 then
 					retire(index)
@@ -314,6 +318,48 @@ function PickupService.nearest(position: Vector3, filter: ((any?) -> boolean)?):
 		end
 	end
 	return best
+end
+
+--- Walking over a thing picks it up (the default), or does not, and the player has to
+--- ask. A button loop wants the second: the highlight and the label do the teaching,
+--- and the verb belongs to the player rather than to their feet.
+function PickupService.setAutoCollect(enabled: boolean)
+	autoCollect = enabled
+end
+
+--- The nearest live pickup to a point within `radius`, or nil. `filter` sees the meta.
+function PickupService.nearest2(position: Vector3, radius: number, filter: ((any?) -> boolean)?): (BasePart?, any?)
+	local best: BasePart? = nil
+	local bestMeta: any? = nil
+	local bestDistance = radius
+	for _, record in active do
+		if filter and not filter(record.meta) then
+			continue
+		end
+		local distance = (record.part.Position - position).Magnitude
+		if distance <= bestDistance then
+			bestDistance = distance
+			best = record.part
+			bestMeta = record.meta
+		end
+	end
+	return best, bestMeta
+end
+
+--- Collect one named part on the player's behalf, if it is still live. Returns what the
+--- collect handler accepted. The CALLER proves range; this only does the taking.
+function PickupService.collectPart(player: Player, part: BasePart): number
+	for index = #active, 1, -1 do
+		local record = active[index]
+		if record.part == part then
+			local accepted = if onCollect then onCollect(player, record.value, record.meta) else 0
+			if accepted > 0 then
+				retire(index)
+			end
+			return accepted
+		end
+	end
+	return 0
 end
 
 function PickupService.activeCount(): number

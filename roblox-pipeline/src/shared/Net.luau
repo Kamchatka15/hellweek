@@ -5,8 +5,9 @@
 -- is the server telling the client what is true. Flood and bank are server-detected
 -- zone entries, not remotes, so there is nothing to spam or forge.
 --
--- A loop family that needs no client message at all (the survive loop) simply never
--- binds C2S_Buy. The trust surface is then zero remotes.
+-- The survive loop binds C2S_Act only: the client says "I pressed pickup" and nothing
+-- more. The server finds what is actually in range and decides. A forged message can
+-- ask to pick up; it cannot say what, or from where.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -25,6 +26,7 @@ Net.S2C_Fx = "S2C_Fx" -- a named moment for the client to render (fade, flare, r
 
 -- client -> server (the entire trust surface)
 Net.C2S_Buy = "C2S_Buy"
+Net.C2S_Act = "C2S_Act" -- "pickup" | "action": the player ASKS; the server decides
 
 local ALL = {
 	Net.S2C_State,
@@ -34,6 +36,7 @@ local ALL = {
 	Net.S2C_Shop,
 	Net.S2C_Fx,
 	Net.C2S_Buy,
+	Net.C2S_Act,
 }
 
 local folder: Folder? = nil

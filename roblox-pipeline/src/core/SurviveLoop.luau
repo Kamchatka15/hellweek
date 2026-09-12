@@ -38,7 +38,6 @@ local Net = require(Shared.Net)
 local SurviveLoop = {}
 
 local TOAST_COOLDOWN = 4
-local FEED_POLL = 0.25
 local BOUNDARY_POLL = 0.5
 local OPENING_PUSHES = { 0, 0.5, 1.5, 3 }
 
@@ -61,6 +60,7 @@ local run = {
 }
 
 local insideBeacon: { [Player]: boolean } = {}
+local insideOffering: { [Player]: boolean } = {}
 local nextToastAt: { [Player]: { [string]: number } } = {}
 local joinedAt: { [Player]: number } = {}
 local nudged: { [Player]: boolean } = {}
@@ -1067,10 +1067,6 @@ local function onCollect(player: Player, value: number, meta: any?): number
 		nudgeHighlight:Destroy()
 		nudgeHighlight = nil
 	end
-	-- Already standing on the stone: it burns straight away.
-	if insideBeacon[player] then
-		feed(player)
-	end
 	return 1
 end
 
@@ -1137,6 +1133,71 @@ local function onProfileLoaded(player: Player, profile: any)
 	end
 end
 
+-- ---------------------------------------------------------------- the book
+-- What the obelisk can make, in words, built once. Without this the workbench is a
+-- guessing game: a player can hold two cactus forever and never learn what they are for.
+local recipeBook: { any } = {}
+
+local function buildRecipeBook()
+	recipeBook = {}
+	for _, recipe in config.recipes do
+		local inputs = {}
+		for kind, count in recipe.inputs do
+			local def = config.items[kind]
+			table.insert(inputs, `{count} {if def then def.label else kind}`)
+		end
+		table.sort(inputs)
+		local out = recipe.tool
+		if not out then
+			for kind, count in recipe.outputs or {} do
+				local def = config.items[kind]
+				out = `{count} {if def then def.label else kind}`
+			end
+		end
+		table.insert(recipeBook, { makes = out or recipe.label, from = table.concat(inputs, " + ") })
+	end
+end
+
+-- ---------------------------------------------------------------- what is in reach
+-- The server works out what a player could pick up or act on, sends it so the buttons
+-- can name themselves, and uses the SAME answer when the button is pressed. The client
+-- never says what it is reaching for — only that it reached.
+
+local function nearestPickable(player: Player): (BasePart?, any?)
+	local root = rootOf(player)
+	if not root then
+		return nil, nil
+	end
+	return PickupService.nearest2(root.Position, config.pickupRadius, function(meta)
+		return meta ~= nil and meta.chest ~= true
+	end)
+end
+
+local function nearestChest(player: Player): BasePart?
+	local root = rootOf(player)
+	if not root then
+		return nil
+	end
+	local part = PickupService.nearest2(root.Position, config.pickupRadius, function(meta)
+		return meta ~= nil and meta.chest == true
+	end)
+	return part
+end
+
+--- The one context action available where the player is standing, or nil.
+local function contextFor(player: Player): (string?, BasePart?)
+	if nearestChest(player) then
+		return "open", nearestChest(player)
+	end
+	if insideOffering[player] then
+		return "offer", nil
+	end
+	if insideBeacon[player] then
+		return "feed", nil
+	end
+	return nil, nil
+end
+
 -- ---------------------------------------------------------------- packet
 
 local function packet(player: Player, profile: any): any
@@ -1169,6 +1230,15 @@ local function packet(player: Player, profile: any): any
 		level = BeaconService.level(),
 		bestDay = profile.bestDay or 0,
 		stalker = run.stalkerSeen,
+		near = (function()
+			local _, meta = nearestPickable(player)
+			local context = contextFor(player)
+			local def = meta and meta.kind and config.items[meta.kind]
+			return {
+				pickup = if meta then (if def then def.label else theme.names.fuel) else nil,
+				action = context,
+			}
+		end)(),
 		bowl = (function()
 			local n = 0
 			for _, count in run.bowl do
@@ -1177,6 +1247,7 @@ local function packet(player: Player, profile: any): any
 			return n
 		end)(),
 		challenges = if config.worldId then ChallengeService.packetFor(player, config.worldId) else nil,
+		recipes = recipeBook,
 	}
 end
 
@@ -1282,6 +1353,7 @@ function SurviveLoop.start(loaded: any)
 		ChallengeService.configure(config.worlds)
 	end
 	RecipeService.configure(config.recipes)
+	buildRecipeBook()
 	if config.tools then
 		ToolService.configure(config.tools)
 		ToolService.start()
@@ -1334,6 +1406,45 @@ function SurviveLoop.start(loaded: any)
 
 	StateSync.setBuilder(packet)
 
+	-- THE ONLY CLIENT MESSAGE in this loop family. It carries a verb and nothing else:
+	-- no target, no position, no amount. The server finds what is in range of where the
+	-- player actually IS and acts on that, so a forged call can ask to pick something
+	-- up but cannot say what, or from where, or how often.
+	RemoteGuard.bind(Net.C2S_Act, {
+		limit = 12,
+		window = 4,
+		validate = function(verb)
+			return verb == "pickup" or verb == "action"
+		end,
+	}, function(player, verb)
+		if not run.active then
+			return
+		end
+		if verb == "pickup" then
+			local part = nearestPickable(player)
+			if part then
+				PickupService.collectPart(player, part)
+			else
+				toast(player, "nothing", theme.copy.nothingHere, "info")
+			end
+			return
+		end
+		local context, chest = contextFor(player)
+		if context == "open" and chest then
+			PickupService.collectPart(player, chest)
+		elseif context == "offer" then
+			offer(player)
+		elseif context == "feed" then
+			feed(player)
+		else
+			toast(player, "nothing", theme.copy.nothingHere, "info")
+		end
+	end)
+
+	-- Walking over a thing no longer takes it: the player presses PICK UP. The button
+	-- and the highlight teach the verb, which silent auto-collection never did.
+	PickupService.setAutoCollect(false)
+
 	-- Stand the starting world up before anything else asks where the ground is.
 	if pack.world.biomes then
 		swapBiome(config.worldId)
@@ -1342,15 +1453,25 @@ function SurviveLoop.start(loaded: any)
 	for _, zone in pack.world.zones do
 		local part = pack.zoneParts[zone.id]
 		if part and zone.kind == "offering" then
-			ZoneService.create(part, { onEnter = offer })
+			ZoneService.create(part, {
+				onEnter = function(player)
+					insideOffering[player] = true
+					StateSync.request(player)
+				end,
+				onLeave = function(player)
+					insideOffering[player] = nil
+					StateSync.request(player)
+				end,
+			})
 		elseif part and zone.kind == "beacon" then
 			ZoneService.create(part, {
 				onEnter = function(player)
 					insideBeacon[player] = true
-					feed(player)
+					StateSync.request(player)
 				end,
 				onLeave = function(player)
 					insideBeacon[player] = nil
+					StateSync.request(player)
 				end,
 			})
 		end
@@ -1406,6 +1527,7 @@ function SurviveLoop.start(loaded: any)
 	Players.PlayerRemoving:Connect(function(player)
 		AnalyticsService.summarize(player)
 		insideBeacon[player] = nil
+		insideOffering[player] = nil
 		nextToastAt[player] = nil
 		joinedAt[player] = nil
 		nudged[player] = nil
@@ -1414,7 +1536,6 @@ function SurviveLoop.start(loaded: any)
 	end)
 
 	-- Burn, feed-while-standing, boundary and the idle nudge, on one cheap ticker.
-	local feedAccumulator = 0
 	local boundaryAccumulator = 0
 	RunService.Heartbeat:Connect(function(delta)
 		if not run.active then
@@ -1423,16 +1544,6 @@ function SurviveLoop.start(loaded: any)
 		local before = BeaconService.fuel()
 		BeaconService.step(delta)
 		run.fuelOut += math.max(0, before - BeaconService.fuel())
-
-		feedAccumulator += delta
-		if feedAccumulator >= FEED_POLL then
-			feedAccumulator = 0
-			for player in insideBeacon do
-				if player.Parent and SackService.count(player) > 0 then
-					feed(player)
-				end
-			end
-		end
 
 		boundaryAccumulator += delta
 		if boundaryAccumulator >= BOUNDARY_POLL then
