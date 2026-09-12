@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Game Factory — Business Plan &amp; Technical Architecture</title>
+<style>
+  @font-face { font-family: "Archivo"; font-weight: 500; src: url("FACTORY_PLAN.assets/fonts/archivo/archivo-latin-500-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Archivo"; font-weight: 600; src: url("FACTORY_PLAN.assets/fonts/archivo/archivo-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Archivo"; font-weight: 700; src: url("FACTORY_PLAN.assets/fonts/archivo/archivo-latin-700-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Source Serif 4"; font-weight: 400; src: url("FACTORY_PLAN.assets/fonts/source-serif-4/source-serif-4-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "Source Serif 4"; font-weight: 400; font-style: italic; src: url("FACTORY_PLAN.assets/fonts/source-serif-4/source-serif-4-latin-400-italic.woff2") format("woff2"); }
+  @font-face { font-family: "Source Serif 4"; font-weight: 600; src: url("FACTORY_PLAN.assets/fonts/source-serif-4/source-serif-4-latin-600-normal.woff2") format("woff2"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 400; src: url("FACTORY_PLAN.assets/fonts/jetbrains-mono/jetbrains-mono-latin-400-normal.woff2") format("woff2"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 600; src: url("FACTORY_PLAN.assets/fonts/jetbrains-mono/jetbrains-mono-latin-600-normal.woff2") format("woff2"); }
+
+  :root {
+    --paper: #FFFFFF; --panel: #F1F3F6; --panel-2: #E7EBF0;
+    --ink: #141A21; --ink-soft: #4A5765; --ink-faint: #78879A;
+    --rule: #CBD4DF; --rule-soft: #E1E6EC;
+    --accent: #2C4A7C; --accent-ink: #FFFFFF;
+    --built: #1B7F6B; --built-bg: #DFF0EB;
+    --partial: #8F6115; --partial-bg: #F6EAD3;
+    --missing: #A8443C; --missing-bg: #F7E2E0;
+    --human: #5B3F8C; --human-bg: #ECE5F6;
+    --display: "Archivo", "Liberation Sans", Arial, sans-serif;
+    --body: "Source Serif 4", "Liberation Serif", Georgia, serif;
+    --mono: "JetBrains Mono", "Liberation Mono", monospace;
+  }
+
+  @page { size: Letter; margin: 0.8in 0.75in 0.9in 0.75in; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background: var(--paper); color: var(--ink); }
+  body { font-family: var(--body); font-size: 10.6pt; line-height: 1.5; }
+
+  /* ---------- structure ---------- */
+  .cover { break-after: page; padding-top: 1.6in; }
+  .part { break-before: page; }
+  h1, h2, h3, h4 { font-family: var(--display); letter-spacing: -0.01em; text-wrap: balance; break-after: avoid; }
+  h1 { font-size: 34pt; font-weight: 700; line-height: 1.02; margin: 0 0 14pt; letter-spacing: -0.025em; }
+  h2 { font-size: 19pt; font-weight: 700; margin: 0 0 6pt; padding-bottom: 6pt; border-bottom: 2px solid var(--ink); }
+  h3 { font-size: 13pt; font-weight: 600; margin: 20pt 0 5pt; color: var(--ink); }
+  h4 { font-size: 10.8pt; font-weight: 600; margin: 14pt 0 3pt; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); font-size: 8.4pt; }
+  p { margin: 6pt 0 8pt; max-width: 6.4in; orphans: 3; widows: 3; }
+  p.lede { font-size: 12pt; color: var(--ink-soft); line-height: 1.45; }
+  strong { font-weight: 600; }
+  em { font-style: italic; }
+  ul, ol { margin: 4pt 0 8pt; padding-left: 18pt; max-width: 6.4in; }
+  li { margin: 2pt 0; }
+  code, .path { font-family: var(--mono); font-size: 0.86em; background: var(--panel); padding: 0 3pt; border-radius: 2pt; }
+  .eyebrow { font-family: var(--mono); font-size: 8pt; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 8pt; }
+  .partnum { font-family: var(--mono); font-size: 8.5pt; font-weight: 600; letter-spacing: 0.12em; color: var(--accent); text-transform: uppercase; margin-bottom: 4pt; }
+  .meta { font-family: var(--mono); font-size: 8.4pt; color: var(--ink-faint); line-height: 1.7; }
+  .meta b { color: var(--ink-soft); font-weight: 600; }
+  hr.thin { border: 0; border-top: 1px solid var(--rule); margin: 14pt 0; }
+
+  /* ---------- cover ---------- */
+  .cover .title-block { border-left: 6px solid var(--accent); padding-left: 18pt; margin-bottom: 40pt; }
+  .cover .sub { font-family: var(--display); font-size: 15pt; font-weight: 500; color: var(--ink-soft); margin: 0 0 24pt; }
+  .cover .thesis { font-size: 13pt; line-height: 1.5; max-width: 5.6in; margin: 0 0 40pt; }
+  .cover .metagrid { display: grid; grid-template-columns: auto 1fr; gap: 3pt 18pt; font-family: var(--mono); font-size: 8.8pt; max-width: 5in; }
+  .cover .metagrid dt { color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; font-size: 7.6pt; padding-top: 1.5pt; }
+  .cover .metagrid dd { margin: 0; color: var(--ink); }
+
+  /* ---------- figures ---------- */
+  .fig { break-inside: avoid; margin: 12pt 0 14pt; }
+  .fig .cap { font-family: var(--mono); font-size: 8pt; color: var(--ink-faint); margin-top: 6pt; line-height: 1.5; }
+  .fig .cap b { color: var(--ink-soft); font-weight: 600; }
+
+  .chip { display: inline-block; font-family: var(--mono); font-size: 7.2pt; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; padding: 1.5pt 6pt; border-radius: 2pt; white-space: nowrap; vertical-align: middle; }
+  .chip.built { color: var(--built); background: var(--built-bg); }
+  .chip.partial { color: var(--partial); background: var(--partial-bg); }
+  .chip.missing { color: var(--missing); background: var(--missing-bg); }
+  .chip.human { color: var(--human); background: var(--human-bg); }
+  .chip.accent { color: var(--accent); background: var(--panel-2); }
+
+  .panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 3pt; padding: 10pt 12pt; }
+  .panel.acc { border-left: 4px solid var(--accent); }
+  .panel .plabel { font-family: var(--mono); font-size: 7.4pt; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 0 0 2pt; }
+  .panel .psub { font-family: var(--display); font-size: 8.6pt; color: var(--ink-soft); margin: 0 0 8pt; }
+  .panel ul { list-style: none; padding: 0; margin: 0; }
+  .panel li { font-family: var(--display); font-size: 9pt; line-height: 1.3; padding-left: 10pt; position: relative; margin: 3pt 0; }
+  .panel li::before { content: ""; position: absolute; left: 0; top: 6pt; width: 5pt; height: 1px; background: var(--ink-faint); }
+  .panel li span { display: block; font-family: var(--mono); font-size: 7.4pt; color: var(--ink-faint); }
+
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+  .flowline { display: flex; flex-wrap: wrap; gap: 4pt 12pt; align-items: center; justify-content: center; background: var(--panel-2); border-radius: 3pt; padding: 7pt 10pt; font-family: var(--mono); font-size: 8pt; color: var(--ink-soft); margin-top: 8pt; }
+  .flowline b { color: var(--ink); font-weight: 600; }
+
+  /* flow rows of nodes */
+  .flow { display: flex; align-items: stretch; gap: 0; }
+  .flow .node { flex: 1 1 0; background: var(--paper); border: 1px solid var(--rule); border-radius: 3pt; padding: 7pt 8pt; font-family: var(--display); font-size: 8.6pt; font-weight: 500; line-height: 1.3; position: relative; }
+  .flow .node em { display: block; font-family: var(--mono); font-style: normal; font-size: 7pt; color: var(--ink-faint); margin-top: 2pt; }
+  .flow .node.gate { border: 1.5px solid var(--human); background: var(--human-bg); }
+  .flow .node.gate em { color: var(--human); }
+  .flow .node.key { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .flow .node.key em { color: rgba(255,255,255,0.8); }
+  .flow .node.warn { background: var(--partial-bg); border-color: var(--partial); }
+  .flow .arrow { flex: 0 0 14pt; display: flex; align-items: center; justify-content: center; color: var(--ink-faint); font-size: 10pt; }
+  .flow.vert { flex-direction: column; }
+  .flow.vert .arrow { flex-basis: 12pt; }
+  .loopback { background: var(--panel-2); border: 1px dashed var(--rule); border-radius: 3pt; padding: 6pt 10pt; font-family: var(--mono); font-size: 7.8pt; color: var(--ink-soft); text-align: center; margin-top: 6pt; }
+  .loopback b { color: var(--ink); }
+
+  /* layer stack */
+  .stack { display: flex; flex-direction: column-reverse; gap: 5pt; }
+  .layer { display: grid; grid-template-columns: 30pt 1fr auto; gap: 10pt; align-items: start; background: var(--paper); border: 1px solid var(--rule); border-radius: 3pt; padding: 8pt 10pt; }
+  .layer .n { font-family: var(--mono); font-size: 14pt; font-weight: 600; color: var(--rule); line-height: 1; }
+  .layer h5 { font-family: var(--display); font-size: 10pt; font-weight: 600; margin: 0 0 2pt; }
+  .layer p { margin: 0; font-size: 9pt; color: var(--ink-soft); max-width: none; line-height: 1.4; }
+  .layer .own { display: block; font-family: var(--mono); font-size: 7.2pt; color: var(--ink-faint); margin-top: 4pt; }
+  .layer.l1 { border-left: 4px solid var(--built); }
+  .layer.l2 { border-left: 4px solid var(--partial); }
+  .layer.l3 { border-left: 4px solid var(--missing); }
+  .layer.l4 { border-left: 4px solid var(--human); }
+
+  /* tables */
+  table { border-collapse: collapse; width: 100%; font-family: var(--display); font-size: 8.8pt; margin: 8pt 0 10pt; break-inside: auto; }
+  thead { display: table-header-group; }
+  tr { break-inside: avoid; }
+  th { text-align: left; font-family: var(--mono); font-size: 7.2pt; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); padding: 0 8pt 5pt 0; border-bottom: 1.5px solid var(--ink); vertical-align: bottom; }
+  td { padding: 5.5pt 8pt 5.5pt 0; border-bottom: 1px solid var(--rule-soft); vertical-align: top; line-height: 1.35; }
+  td.name { font-weight: 600; }
+  td.num { font-family: var(--mono); font-size: 8pt; color: var(--ink-faint); white-space: nowrap; }
+  td .path, th .path { font-size: 7.6pt; }
+  table.tight td { padding: 3.5pt 8pt 3.5pt 0; }
+  .needs { color: var(--missing); font-family: var(--mono); font-size: 7.6pt; font-weight: 600; letter-spacing: 0.05em; }
+  .fac { color: var(--accent); font-family: var(--mono); font-size: 7.6pt; font-weight: 600; letter-spacing: 0.05em; }
+  .ttl { color: var(--ink-faint); font-family: var(--mono); font-size: 7.6pt; letter-spacing: 0.05em; }
+
+  /* callouts */
+  .callout { background: var(--panel); border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3pt; padding: 10pt 12pt; margin: 10pt 0 12pt; break-inside: avoid; }
+  .callout.warn { border-top-color: var(--partial); }
+  .callout.bad { border-top-color: var(--missing); }
+  .callout.good { border-top-color: var(--built); }
+  .callout.human { border-top-color: var(--human); }
+  .callout h5 { font-family: var(--display); font-size: 10.5pt; font-weight: 600; margin: 0 0 5pt; }
+  .callout p { margin: 4pt 0; font-size: 9.6pt; max-width: none; }
+  .callout p:last-child { margin-bottom: 0; }
+  .quote { font-size: 12pt; line-height: 1.45; padding-left: 12pt; border-left: 3px solid var(--accent); margin: 8pt 0; max-width: 5.8in; }
+
+  /* status tiles */
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6pt; }
+  .tile { border: 1px solid var(--rule); border-radius: 3pt; padding: 7pt 9pt; background: var(--paper); }
+  .tile b { display: block; font-family: var(--display); font-size: 9.2pt; font-weight: 600; margin-bottom: 2pt; }
+  .tile span { font-family: var(--mono); font-size: 7.2pt; color: var(--ink-faint); display: block; line-height: 1.4; }
+  .tile.built { border-left: 4px solid var(--built); }
+  .tile.partial { border-left: 4px solid var(--partial); }
+  .tile.missing { border-left: 4px solid var(--missing); }
+
+  /* glossary */
+  dl.gloss { display: grid; grid-template-columns: 1.35in 1fr; gap: 4pt 12pt; font-size: 9.4pt; }
+  dl.gloss dt { font-family: var(--display); font-weight: 600; }
+  dl.gloss dd { margin: 0; color: var(--ink-soft); }
+
+  .small { font-size: 9pt; color: var(--ink-soft); }
+  .nb { break-inside: avoid; }
+  svg text { font-family: var(--display); }
+</style>
+</head>
+<body>
+
+<!-- ============================== COVER ============================== -->
+<section class="cover">
+  <p class="eyebrow">Roblox Business · Justin &amp; Hunter · v1.1</p>
+  <div class="title-block">
+    <h1>The Game Factory</h1>
+    <p class="sub">Business plan and technical architecture for a system that builds many Roblox games — and gets better at it every time.</p>
+  </div>
+  <p class="thesis">A game is disposable. The factory is not. Every title that ships or dies must hand something back — a rule that hardened, a bar that rose, a piece of engine, a finding with its context attached — so the fourth game starts smarter than the third. This document says what that factory is, how its parts connect, where it could hurt a good game, and what is still missing.</p>
+  <dl class="metagrid">
+    <dt>Written</dt><dd>12 September 2026 · v1.1 same day, after the second pass (economy simulated, contradictions fixed, digest rewired)</dd>
+    <dt>For</dt><dd>Justin (owner) · Hunter (design, playtest operations) · every future Claude and Grok session</dd>
+    <dt>Governed by</dt><dd>docs/ROBLOX_SUCCESS_LOGIC.md — if this document fights that file, that file wins</dd>
+    <dt>Canonical</dt><dd>roblox-pipeline/docs/FACTORY_PLAN.md · this PDF is a rendering</dd>
+    <dt>Compiled from</dt><dd>the doctrine, PIPELINE, SYSTEM-MAP, GAME_FACTORY, SYSTEM_ARCHITECTURE, run log 01, the idea log, the evidence ledger, and today's session</dd>
+    <dt>Re-check by</dt><dd>12 November 2026 — platform facts go stale in months</dd>
+  </dl>
+</section>
+
+<!-- ============================== PART 0 ============================== -->
+<section class="part">
+  <p class="partnum">Part 0</p>
+  <h2>Why this document exists</h2>
+  <p class="lede">You asked for it in one breath and it was the right ask: <em>"I need to understand that what we have created will improve games and learn from my work and not detract, limit, or distract from a good game project or opportunity."</em></p>
+
+  <p>Here is why you want it, said back to you plainly. You are not a programmer. Over one long day you approved a great deal of infrastructure you cannot read directly — Python hooks that refuse code, a ledger schema, an architecture document, an autonomy contract, a changelog. Each piece was argued for on its own. Nobody has yet shown you the whole thing standing up together and asked the only question that matters: <strong>does this make games better, or does it make a machine that admires itself?</strong></p>
+
+  <p>Your fear all day has been consistent and correct: that the system becomes the thing that gets in the way. That rules make games boring. That AI confuses a process. That Claude gets stuck on an old process. That goalposts hold you back. This document takes that fear as its test. Every mechanism in Part 2 is judged in Part 4 by two questions — <em>how could this hurt a good game?</em> and <em>what stops it?</em> — and where the honest answer is "nothing stops it yet," it says so.</p>
+
+  <h3>How to read it</h3>
+  <ul>
+    <li><strong>Part 1</strong> is the business plan — what we are building, for whom, how it makes money, and what the market actually rewards. No code.</li>
+    <li><strong>Part 2</strong> is the system — every layer, loop, gate and rule, each with a diagram. Skim the figures first; the text explains them.</li>
+    <li><strong>Part 3</strong> is the roster — every agent, mechanism and task, and how they connect. You asked for this list specifically.</li>
+    <li><strong>Part 4</strong> is the re-examination — where the system could detract, the contradictions found between our own documents, and the risks that outrank everything built today.</li>
+    <li><strong>Part 5</strong> is status and the build order — what exists, what is missing, what happens next, and the few decisions that are genuinely yours.</li>
+    <li><strong>The glossary</strong> at the back defines every technical word used here in one line. Nothing in this document requires reading code.</li>
+  </ul>
+
+  <div class="callout good">
+    <h5>The one-paragraph answer</h5>
+    <p>Yes, the system will improve games and learn from your work — <em>if</em> it is now used to build one. Everything built today is scaffolding around a build loop that does not yet exist and a game that has not yet met a stranger. The scaffolding is sound, and Part 4 shows where it could bite. But the single largest risk to this project as of tonight is not any rule in it. It is that the system becomes the project. The test of the factory is a game, and the next session should build one through it.</p>
+  </div>
+</section>
+
+<!-- ============================== PART 1 ============================== -->
+<section class="part">
+  <p class="partnum">Part 1 · Business plan</p>
+  <h2>The intent</h2>
+
+  <h3>1.1 What we are building</h3>
+  <p class="lede">A system that turns a four-paragraph description into a working Roblox game, asks the same questions and applies the same filters every time, learns from each title, and does it for many games across many projects. The product is the factory. Any one game is a test case.</p>
+  <p>This distinction is not cosmetic. It decides where effort goes. A studio that treats each game as the product rebuilds its saving system, its shop, its security and its process every time, differently, and learns nothing transferable. A factory builds those once, keeps them, and spends each new title's effort on the only things that are actually new: the idea, the hook, the theme, the tuning, the art.</p>
+
+  <h3>1.2 Who is building it, and how the work divides</h3>
+  <p>Three parties, with a division of labour that was clarified today and now governs everything:</p>
+  <table>
+    <thead><tr><th>Who</th><th>Brings</th><th>Does not bring, and is not asked to</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Justin</td><td>Product ownership. The five gate decisions. <strong>The cut</strong> — removing what confuses. Every decision that spends money or ships to players. About twelve minutes a weekday.</td><td>Code. Generative taste — inventing a mechanic from nothing.</td></tr>
+      <tr><td class="name">Hunter</td><td>Design input. <strong>Operating the comprehension test</strong> — recruiting kids who have never seen the game and running the script. Playtesting titles he did not help design.</td><td>Being the test subject for a game he helped make — he already knows the answers.</td></tr>
+      <tr><td class="name">Claude</td><td>The only writer of code and the only hand in Studio. Research, design, economy, Luau, documentation, orchestration. Proposing every applicable idea. Filing evidence. Operating within the autonomy contract.</td><td>Publishing. Creating paid products. Killing or switching a title. Spending money. Any of those is a human click.</td></tr>
+      <tr><td class="name">Grok</td><td>A coworker, not a competitor: research, art sheets, clip hooks, a second pass on design and economy, critique. Live X/Twitter discourse if Justin already has access.</td><td>Writing to the repo or the live Studio DataModel while Claude is. No new paid tier is assumed.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <h5>The operating model, in one line</h5>
+    <p class="quote" style="margin:4pt 0 0;font-size:11.5pt;"><strong>The AI proposes everything applicable. Justin removes what is confusing. Neither role is the other one's job.</strong></p>
+    <p>Justin said today that he is "not sure he can supply the taste." He is supplying it — the subtractive half, which is the scarcer one. Almost anyone can add a feature. Almost nobody cuts one. What he is not asked for is invention, and the system is built so he never has to be.</p>
+  </div>
+
+  <h3>1.3 The market we are actually in</h3>
+  <p>These facts come from the doctrine and pipeline documents, verified against Roblox's own material in September 2026. They will need re-verifying by November. They are the reason the system is shaped the way it is.</p>
+  <ul>
+    <li><strong>It is a power-law market.</strong> Most published experiences earn nothing. Of creators who reach the payout programme, the median is on the order of $1,500 a year. A thin slice earns real money; a thinner slice earns $10k+ a month. AI makes production cheaper for everyone at once, so extra content buys no attention. Attention is the scarce thing.</li>
+    <li><strong>Discovery now pays for return, not for clicks.</strong> Roblox's 2026 recommendation rework weights day-1, week-1 and week-4 return, session quality and spend-days — and explicitly devalues thumbnail-driven first clicks. A 200-player community that comes back beats a 5,000-player bounce house.</li>
+    <li><strong>The platform removes manipulative games, including #1.</strong> <em>Steal an Egg</em> was the top game on the platform at roughly 800,000 concurrent players when it was taken down in August 2026 over a forced-engagement mechanic. Simulated gambling is banned at every rating. Paid random items need exact odds shown before purchase and are restricted outright in five countries.</li>
+    <li><strong>The revenue proof points are generous games.</strong> <em>Grow a Garden</em> (a 22-million-concurrent record) runs on offline growth that respects bedtime and Saturday events kids look forward to. <em>Steal a Brainrot</em> runs on drama kids clip for TikTok plus scheduled giveaways. The biggest games retain by being loved and monetise by being loved.</li>
+    <li><strong>The audience is children, which is the most regulated corner of gaming.</strong> The FTC took $520 million from Epic over dark-pattern purchases and children's privacy. Parents control both the wallet and Roblox's parental spend controls. Every feature clears two bars: would Roblox allow it, and would we let Hunter pay for it without us in the room.</li>
+    <li><strong>The money is small per unit and real in aggregate.</strong> DevEx pays about $0.0038 per Robux ($0.0054 for spend from verified adults). 100,000 Robux is roughly $380. Creator Rewards now pays per active spender who plays ten-plus minutes, and a share of the first $100 spent by new players you bring to the platform — so retention and off-platform promotion are line items, not virtues.</li>
+    <li><strong>Clone waves rise in weeks and fade in months.</strong> <em>Steal a Fish</em>: launch, 192,000 peak concurrent, hundreds today — inside a few months. Enter weeks 0–3 or not at all. Speed is the moat, which is what the factory is for.</li>
+  </ul>
+
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">Join<em>first minute</em></div><div class="arrow">→</div>
+      <div class="node key">Hooked<em>first reward under 60s</em></div><div class="arrow">→</div>
+      <div class="node">Daily return<em>one reason for tomorrow</em></div><div class="arrow">→</div>
+      <div class="node">Weekly event<em>appointment viewing</em></div><div class="arrow">→</div>
+      <div class="node">Collector<em>chasing completion, status</em></div><div class="arrow">→</div>
+      <div class="node key">Advocate<em>brings friends, makes clips</em></div>
+    </div>
+    <div class="loopback">↓ &nbsp;Two exits, both in the <b>first minute</b>: confused, or bored. Every retention system exists to push a player one state to the right.</div>
+    <p class="cap"><b>Figure 1 — The player lifecycle.</b> Compiled from SYSTEM-MAP §6. The first sixty seconds decide almost everything, which is why the factory's quality bar is comprehension rather than feature count.</p>
+  </div>
+
+  <h3>1.4 How a game in this factory makes money</h3>
+  <p>Revenue is a lagging indicator of two things: retention, and a fair shop. The doctrine's ordering is locked and this plan does not soften it: <strong>build a loop people reopen → measure it → patch it → clip it → spend last.</strong></p>
+  <p>Justin's own thesis on why kids pay is drawn below as a loop, because it is the operating principle of everything after launch. Kids do not buy a bare catalogue row. A scheduled event creates a specific want; the product attaches to that moment; the payoff is visible to other players or felt in play; and that is what earns the next purchase. Every product is classified against one of four drivers — accelerate fun they already have, show status others see, complete a collection, participate socially — and if it maps to none, it does not ship.</p>
+
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">Scheduled event<em>weekly drop, season</em></div><div class="arrow">→</div>
+      <div class="node">A specific want<em>created by the moment</em></div><div class="arrow">→</div>
+      <div class="node key">Product attached to it<em>never a bare catalogue row</em></div><div class="arrow">→</div>
+      <div class="node">Payoff visible or felt<em>status others see, or fun accelerated</em></div><div class="arrow">→</div>
+      <div class="node">More play<em>more sessions</em></div><div class="arrow">→</div>
+      <div class="node">Allegiance<em>to a game they love</em></div>
+    </div>
+    <div class="loopback">↺ &nbsp;Allegiance is what makes them show up for the <b>next</b> event. The loop closes.</div>
+    <p class="cap"><b>Figure 2 — The monetisation "why" loop.</b> Justin's thesis from SYSTEM-MAP §4. It is also why the factory refuses the coercion catalogue — panic timers, pay-to-stop-suffering, guilt loops — not on ethics alone but because on this platform in 2026 generosity is the winning strategy.</p>
+  </div>
+
+  <h3>1.5 Every game is three loops stacked</h3>
+  <p>A pitch that cannot fill all three boxes will not retain, whatever its art looks like. The core loop is the second-to-second fun. The meta loop is the reason to come back tomorrow. The social loop is the retention engine — it is what turned <em>Steal a Brainrot</em> into 25 million concurrent players, and Roblox's discovery system tracks intentional co-play directly.</p>
+  <div class="fig nb">
+    <div class="split" style="grid-template-columns:1fr 1fr 1fr;">
+      <div class="panel acc"><p class="plabel">Core loop · seconds</p><ul><li>Act: the verb</li><li>Reward: a number goes up</li><li>Upgrade</li><li>↺ back to the verb</li></ul></div>
+      <div class="panel acc"><p class="plabel">Meta loop · days</p><ul><li>Collect, rebirth, build</li><li>Unlock new content</li><li>↺ feeds the core loop</li></ul></div>
+      <div class="panel acc"><p class="plabel">Social loop · the retention engine</p><ul><li>Play with friends</li><li>Trade, steal, gift, show off</li><li>Stories worth telling at school</li><li>↺ pulls them back in</li></ul></div>
+    </div>
+    <p class="cap"><b>Figure 3 — The three nested loops.</b> From SYSTEM-MAP §2. The complexity budget in Part 2 allows exactly one core verb and one return hook in a first slice; the social loop is the one that is hardest to fake and the one that matters most.</p>
+  </div>
+
+  <h3>1.6 A portfolio, built one title at a time</h3>
+  <p>Most titles will be killed at a gate. That is the design, not a failure. The factory only compounds when a title reaches a closeout, so killing is done <em>at a gate, on evidence, with a learnings record</em> — never mid-build because something newer looks fun. That second pattern, twelve half-games that never get a real first session, is bad process labelled as bad luck, and the doctrine names it as the failure to avoid.</p>
+  <p>"Many games" and "one active title" do not conflict. The factory supports any number of titles — live, parked, waiting — across any number of projects. The scarce resource is not the machine; it is build attention. One title in active build; everything else in some other state.</p>
+
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">Soft-launch numbers<em>unlisted, 200–500 cold players</em></div><div class="arrow">→</div>
+      <div class="node gate">Does D1 clear the bar?<em>the portfolio decision</em></div><div class="arrow">→</div>
+      <div class="node" style="background:var(--built-bg);border-color:var(--built);">Clears well<em>scale: events, creator spend, second product lane</em></div>
+    </div>
+    <div class="flow" style="margin-top:5pt;">
+      <div class="node" style="flex:0 0 33%;visibility:hidden;"></div><div class="arrow" style="visibility:hidden;">→</div>
+      <div class="node warn">Close but short<em>iterate the hook, up to three times</em></div><div class="arrow">→</div>
+      <div class="node" style="background:var(--missing-bg);border-color:var(--missing);">Three honest tries failed<em>kill: farewell event, closeout, reuse the engine</em></div>
+    </div>
+    <p class="cap"><b>Figure 4 — Kill or scale.</b> From SYSTEM-MAP §9, with one correction made in Part 4: the three documents that set D1 thresholds disagree with each other, and the doctrine's numbers govern. A fast funeral is a win; it frees the slot for the next wave.</p>
+  </div>
+
+  <h3>1.7 Targets, used as a compass and not a prophecy</h3>
+  <ol>
+    <li><strong>Near-term:</strong> a stranger completes the full earn → spend → progress loop with nobody in voice chat.</li>
+    <li><strong>Next:</strong> the Gate B table mostly green — cold players return.</li>
+    <li><strong>Then:</strong> DevEx-eligible earned Robux. Hobby money is a real win.</li>
+    <li><strong>Not a plan:</strong> $10k a month from the first publish. That tier exists and it is as rare as it was before AI; Claude and Grok only cut the hours in the script editor.</li>
+  </ol>
+
+  <h3>1.8 What it costs</h3>
+  <p>Net additional spend required to operate the factory today: <strong>$0.</strong> Claude and its scheduled tasks run inside the plan already paid for; Studio, its built-in MCP server, Cube 3D, the Creator Store's licensed music, and Roblox's native A/B Experiments are free and first-party. Grok Build and Grok Bots were evaluated and not adopted: at this scale they add subscription cost and coordination overhead without a capability Claude lacks, and would be revisited only at three-plus live games. Optional spend arrives with real gates: an image tool at ≤ $10 a month when a thumbnail matters at G4; a $20–200 micro-creator test after Gate B; small sponsored tiles at Gate C, only after D1 has cleared the bar, and only on the icon that already won.</p>
+</section>
+
+<!-- ============================== INTERLUDE ============================== -->
+<section class="part">
+  <p class="partnum">Interlude</p>
+  <h2>The same system, told as the life of one title</h2>
+  <p class="lede">Part 2 explains the factory by component. This page explains it by time — what actually happens to one game from the four paragraphs to the closeout. If Part 2 is the wiring diagram, this is the story. Both describe the same machine.</p>
+  <div class="fig nb">
+    <div class="flow vert">
+      <div class="node"><b>Hour 0 — four paragraphs.</b><em>Justin describes the game in prose. The intake step drafts the six-question brief from it; he corrects, never fills. The ledger is asked what it already knows about this kind of game.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>Hour 0–1 — expand, then cut.</b><em>Claude and Grok propose every applicable mechanic. Grok runs a confusion pass — "which of these would lose a ten-year-old?" The budget auto-cuts to the caps. Justin moves the line in two minutes. Everything below it goes to the parking list.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>Hour 1–3 — the slice.</b><em>Content pack on the engine, hooks enforcing R1–R7 on every write, one core verb, one return hook, the onboarding artifact. Economy simulated before anyone plays. Two hypotheses written into the brief.</em></div><div class="arrow">↓</div>
+      <div class="node gate"><b>Day 1–3 — Gate A.</b><em>Hunter runs three fresh kids through the verbatim script. Justin does the ten-minute fun-check. Stop-and-patch until they can say what the game is and want a second go. The budget's two questions get answered. First player evidence enters the ledger.</em></div><div class="arrow">↓</div>
+      <div class="node gate"><b>Week 1 — art, then cold players.</b><em>Icon and thumbnail readable at 200px (G4). Then a listed publish with zero spend — Gate B — because an unlisted place meets no strangers. Two hundred to five hundred of them, and the retention table fills in.</em></div><div class="arrow">↓</div>
+      <div class="node warn"><b>Week 2–4 — iterate or kill.</b><em>D1 under the floor: rewrite the hook, up to three times. Still under: kill it at the gate, farewell event, closeout. D1 clears: G5, the human click, then shorts, micro-creators, and only then small ads on the icon that already won.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>Month 2 onward — live-ops.</b><em>Monday digest, Friday numbers, one-line yes, one drop a week. Events give purchases their why. Monthly economy audit. The game is never finished; it is operated.</em></div><div class="arrow">↓</div>
+      <div class="node key"><b>Closeout — the title pays back.</b><em>Hypotheses marked confirmed or refuted. Deviations recorded. Anything written twice moves into the engine. A bar that was beaten becomes the new floor. The next title starts here, not at zero.</em></div>
+    </div>
+    <p class="cap"><b>Figure 16 — The life of a title.</b> Every purple box is where a human stops the machine. Every other box runs on stated defaults. The last box is the only reason the factory exists.</p>
+  </div>
+</section>
+
+<!-- ============================== PART 2 ============================== -->
+<section class="part">
+  <p class="partnum">Part 2 · Technical architecture</p>
+  <h2>The system</h2>
+  <p class="lede">Eight components. Each has a figure, a plain-language explanation, and a status. Nothing here requires reading code; the code that implements it is listed by path so a future session can find it.</p>
+
+  <h3>2.1 The factory and the title are different things</h3>
+  <p>The single most important idea in the architecture. A title is disposable by design. What must never be disposable is what the title leaves behind.</p>
+  <div class="fig nb">
+    <div class="split">
+      <div class="panel acc">
+        <p class="plabel">The factory · permanent</p>
+        <p class="psub">Gets better every cycle. One canonical copy.</p>
+        <ul>
+          <li>Engine <span>src/core/ — 11 modules, reused untouched</span></li>
+          <li>Rules <span>CLAUDE.md + doctrine, enforced by hooks</span></li>
+          <li>Process <span>PIPELINE.md — the five gates</span></li>
+          <li>Evidence <span>evidence/ — the ledger, research, changelog</span></li>
+          <li>Craft assets <span>art kit, UI kit, hooks that landed — needs a home</span></li>
+        </ul>
+      </div>
+      <div class="panel" style="border-style:dashed;">
+        <p class="plabel" style="color:var(--ink-faint);">A title · disposable</p>
+        <p class="psub">Most will be killed at a gate. That is the design.</p>
+        <ul>
+          <li>Content pack <span>games/&lt;slug&gt;/</span></li>
+          <li>Brief, theme, tuning numbers <span>the specific game</span></li>
+          <li>Map, products, icon, thumbnail <span>never reused as-is</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="flowline"><span>A new title starts from <b>all</b> of the left panel</span><span>→</span><span>and must hand <b>evidence</b> back when it ends</span><span>→</span><span>killed at a gate is <b>normal</b>, and still pays back</span></div>
+    <p class="cap"><b>Figure 5 — Factory versus title.</b> Rule: a title is finished when it has handed something back, not when it ships or dies. A title that taught the factory nothing was a wasted cycle even if it made money. Status: the boundary exists in code (engine/pack split, run 01) and is now enforced by hook R7.</p>
+  </div>
+
+  <h3>2.2 Four layers of control</h3>
+  <p>Everything that keeps quality up is one of four kinds of thing. They are not interchangeable, and the common mistake — the one that makes a system heavy without making games better — is trying to solve a higher layer with a lower one.</p>
+  <div class="fig nb">
+    <div class="stack">
+      <div class="layer l1"><span class="n">01</span><div><h5>Safety rails</h5><p>Binary, machine-enforced, no judgment. Can't be exploited, can't lose saves, can't get banned. <strong>A game that passes every one of these can still be boring.</strong></p><span class="own">Owner: seven hooks + a git backstop · automatic, every session, every title</span></div><span class="chip built">Built</span></div>
+      <div class="layer l2"><span class="n">02</span><div><h5>Quality bars</h5><p>Numbers a build has to hit, so "is it good" is evidence rather than opinion. Gate B had hard bars already; Gate A — the gate that fires on every build — got its bars today via the comprehension test.</p><span class="own">Owner: Gates A / B / C in the doctrine</span></div><span class="chip partial">Partial</span></div>
+      <div class="layer l3"><span class="n">03</span><div><h5>The learning loop</h5><p>Does game four start smarter than game three? The ledger that makes this possible exists as of today; the mechanisms that <em>feed</em> it — closeouts, the session-close hook, ledger-aware research — do not yet.</p><span class="own">Owner: evidence/ — substrate built, feeders missing</span></div><span class="chip missing">Missing</span></div>
+      <div class="layer l4"><span class="n">04</span><div><h5>The cut</h5><p>Not "invent the fun" — <strong>remove what confuses.</strong> What is left has to be something we would let Hunter play and pay for with nobody in the room.</p><span class="own">Owner: Justin, from a ranked list · never automated</span></div><span class="chip human">Human</span></div>
+    </div>
+    <p class="cap"><b>Figure 6 — The four layers.</b> Higher layers need judgment; lower layers need none. Layers 1–3 exist to make Layer 4 cheap and fast: get a playable thing in front of real people quickly, then tell the truth about it.</p>
+  </div>
+
+  <div class="callout">
+    <h5>Is the evidence ledger a fifth "wisdom layer"? No — and the reason matters</h5>
+    <p>A control layer has a veto: safety refuses a write, quality passes or fails a build, the cut removes. <strong>The ledger has no veto and must never be given one.</strong> The moment past results can block a new idea, the system becomes conservatism with a database — one finding from one game vetoing the second game — which is exactly the "stuck on an old process" failure Justin named. The ledger is the substrate Layer 3 runs on. Wisdom is not stored in it; wisdom is <em>promoted</em> out of it when a finding is reproduced by a second title and becomes a default.</p>
+  </div>
+
+  <h3>2.3 The pipeline and its gates</h3>
+  <p>One line in at the top — <em>"create a ___ game"</em> — and a live, operated game at the bottom. Five human decisions stop the machine; everything else runs on stated defaults, and silence means proceed for everything except publishing and paid products, which wait forever.</p>
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">Kickoff<em>~60s of questions, once</em></div><div class="arrow">→</div>
+      <div class="node">R · Research sprint<em>market map, loop autopsy, wave timing, policy flags</em></div><div class="arrow">→</div>
+      <div class="node gate">G1<em>pick 1 of 3 scored pitches</em></div><div class="arrow">→</div>
+      <div class="node">D · Design<em>loop diagram, first-session script, economy workbook, KPI contract</em></div><div class="arrow">→</div>
+      <div class="node gate">G2<em>approve prices, products, targets</em></div>
+    </div>
+    <div class="flow" style="margin-top:5pt;">
+      <div class="node">B · Build the slice<em>content pack on the engine</em></div><div class="arrow">→</div>
+      <div class="node">T · Test<em>economy sim, auto-playtest, comprehension test</em></div><div class="arrow">→</div>
+      <div class="node gate">G3 = Gate A<em>fun-check, 10 min · stop-and-patch</em></div><div class="arrow">→</div>
+      <div class="node">A · Art direction<em>icon, thumbnail, one screenshot</em></div><div class="arrow">→</div>
+      <div class="node gate">G4<em>approve the art</em></div>
+    </div>
+    <div class="flow" style="margin-top:5pt;">
+      <div class="node key">Gate B · cold players<em>200–500 strangers · listed, zero spend</em></div><div class="arrow">→</div>
+      <div class="node warn">D1 clears?<em>no → iterate hook ×3 → kill with closeout</em></div><div class="arrow">→</div>
+      <div class="node gate">G5<em>publish + any paid product · ALWAYS a human click</em></div><div class="arrow">→</div>
+      <div class="node">L · Launch<em>shorts, micro-creators, then Gate C ads</em></div><div class="arrow">→</div>
+      <div class="node">O · Live-ops<em>weekly drop · repeats forever</em></div>
+    </div>
+    <p class="cap"><b>Figure 7 — The master pipeline.</b> Compiled from SYSTEM-MAP §1 and PIPELINE §0. Purple boxes are the only places the machine stops for a human. Gate B has no G-number because the original plan assumed publish-then-promote; the doctrine inserted it: <em>cold-player proof happens before any money.</em></p>
+  </div>
+
+  <table>
+    <thead><tr><th>Doctrine</th><th>Pipeline</th><th>What it is</th><th>What passes it</th></tr></thead>
+    <tbody>
+      <tr><td>—</td><td class="name">G1</td><td>Pick the pitch</td><td>Justin chooses one of three one-page pitches scored on session potential, spend clarity, build cost, wave timing, policy risk, differentiation, Hunter-testability</td></tr>
+      <tr><td>—</td><td class="name">G2</td><td>Approve the economy</td><td>Prices, products, KPI targets — one spreadsheet, one reply</td></tr>
+      <tr><td class="name">Gate A</td><td class="name">G3 (+G4 art)</td><td>Internal playtest, no spend</td><td>The comprehension test (§2.4) plus: earn → spend → progress unassisted, one full session with no softlock or data loss</td></tr>
+      <tr><td class="name">Gate B</td><td>(between G4 and G5)</td><td>Cold players — <strong>a listed publish with zero spend.</strong> An unlisted place meets no strangers; Roblox's own new-experience impressions are the cheapest cold traffic there is and exactly the algorithm we want to test. Listing is a G5 click</td><td>Median first session completes the loop + one spend; D1 return ~12%+ (the doctrine floor — PIPELINE's 20/25% are tiers above it); favourites up; a few organic buys with no pleading; stable</td></tr>
+      <tr><td class="name">Gate C</td><td>after G5</td><td>Paid traffic</td><td>Small sponsored test on the winning icon only, capped. High cost-per-play with no return → kill the campaign; the ad did not fail, the game did</td></tr>
+      <tr><td>—</td><td class="name">G5</td><td>Publish · create paid products</td><td>A human click. Never automated. Silence is not approval.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.4 The build loop — describe, expand, prune</h3>
+  <p>This is the stated purpose of the whole project, in Justin's words: <em>write four paragraphs describing a game, and have Claude and Grok put together a working model — asking the same questions and applying the same filters every time, so it moves fast.</em></p>
+  <p>The risk that makes this hard is not that the rules are too strict. It is the opposite. <strong>AI's failure mode on a creative brief is bloat.</strong> Asked for a game, it adds every applicable idea, and the result is a slice nobody can read. A game rarely dies of being too plain; it dies of the player not understanding what to do in the first fifteen seconds. So the loop has an expansion step <em>and</em> a forced contraction step, and neither is optional.</p>
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">1 · Four paragraphs<em>Justin, free prose, no form</em></div><div class="arrow">→</div>
+      <div class="node">2 · The fixed interview<em>same six questions every time · answers drafted FROM the prose · Justin only corrects</em></div><div class="arrow">→</div>
+      <div class="node">3 · Expansion<em>AI adds freely from the ledger, patterns and research · Claude and Grok both propose · nothing rejected · then Grok's confusion pass: "which of these loses a ten-year-old?" — a cheap second opinion from a different model before the cut</em></div>
+    </div>
+    <div class="flow" style="margin-top:5pt;">
+      <div class="node key">4 · Complexity budget<em>the auto-cut, before Justin ever looks · a number, not a judgment</em></div><div class="arrow">→</div>
+      <div class="node">5 · Ranked cut list<em>everything proposed, ordered, one reason each, recommended line drawn</em></div><div class="arrow">→</div>
+      <div class="node gate">6 · Justin moves the line<em>~2 minutes, not 2 hours</em></div><div class="arrow">→</div>
+      <div class="node">7 · Build<em>fixed filters apply automatically</em></div><div class="arrow">→</div>
+      <div class="node">8 · Gates</div>
+    </div>
+    <div class="loopback">↺ &nbsp;Everything below the line goes to a <b>parking list</b> — never deleted, re-read at the next title. That is what lets the AI propose freely without the slice getting worse.</div>
+    <p class="cap"><b>Figure 8 — The build loop.</b> Half exists: the six-question brief is GAME_FACTORY §2 and has been used once. Missing: the paragraphs-to-brief step, the expansion inventory, the budget as code, the ranked cut list. This is gap 0 in Part 5.</p>
+  </div>
+
+  <h4>The complexity budget</h4>
+  <p>A cap is a taste judgment wearing a number's clothing, so nobody is asked to be right about it today. The caps are <strong>provisional defaults with an expiry</strong>: they hold until the first Gate A, which asks two questions about the budget itself — did a cap block something the slice needed (loosen), and did testers get confused inside the caps (tighten). Both file evidence. A cap that survives two titles becomes a real default.</p>
+  <table class="tight">
+    <thead><tr><th>Slot</th><th>First slice allows</th><th>Why this number</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Core verb</td><td class="num">exactly 1</td><td>The one thing the player does second to second</td></tr>
+      <tr><td class="name">Return hook</td><td class="num">exactly 1</td><td>Doctrine §4.5 — one, implemented well</td></tr>
+      <tr><td class="name">Social / clip hook</td><td class="num">at most 1</td><td>The thing a twelve-year-old films</td></tr>
+      <tr><td class="name">Player-facing systems</td><td class="num">at most 4</td><td>Shop, upgrade, zone, collection — count them</td></tr>
+      <tr><td class="name">On-screen numbers</td><td class="num">at most 3</td><td>A fourth counter is where the HUD stops being readable</td></tr>
+      <tr><td class="name">Onboarding artifact</td><td class="num">1, required</td><td>Not "no explanation" — see the comprehension bar</td></tr>
+    </tbody>
+  </table>
+  <p class="small">The budget constrains the <em>first slice</em>, not the game. Games grow through live-ops; the budget is about legibility at first contact, which is where games die. → <code>docs/BUDGET.md</code></p>
+
+  <h4>The onboarding agent and the comprehension bar</h4>
+  <p>Every game ships a walkthrough, intro or how-to, built by a dedicated agent — a standing requirement of the factory and a missing engine component today. The bar is not a stopwatch:</p>
+  <p class="quote"><strong>A ten-year-old who has never seen the game understands it quickly enough to want to keep playing.</strong></p>
+  <p>"Fifteen seconds" sounds rigorous and measures the wrong thing — a game can be understood in five seconds and still be ignored. The real test is comprehension fast enough to produce engagement, and the only instrument for it is an actual ten-year-old. This gives Gate A the numbers it lacked:</p>
+  <table class="tight">
+    <thead><tr><th>Gate A check</th><th>Pass condition</th><th>How it is run</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Goal comprehension</td><td>2 of 3 testers say in their own words what they are trying to do</td><td>Ask after first exposure. Do not explain first</td></tr>
+      <tr><td class="name">First action</td><td>2 of 3 act meaningfully within 60s, unprompted</td><td>Watch. Say nothing</td></tr>
+      <tr><td class="name">Pull</td><td>2 of 3 want a second go, unasked</td><td>Watch. Do not prompt. Do not ask if they liked it</td></tr>
+      <tr><td class="name">Loop completion</td><td>Earn → spend → visible progress, unassisted</td><td>Existing doctrine bar</td></tr>
+      <tr><td class="name">Stability</td><td>One full session, no softlock, no data loss</td><td>Existing doctrine bar</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Subjects: three or more kids who have never seen the game and did not help design it. Operator: Hunter. Nobody: Justin. Verbatim answers matter more than the pass/fail — <em>"you collect the coins before the flood"</em> and <em>"you run from the water"</em> are both passes and describe two different games. → <code>skills/playtest-comprehension.md</code></p>
+
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">Caps as written<em>provisional guesses</em></div><div class="arrow">→</div>
+      <div class="node">Build inside them</div><div class="arrow">→</div>
+      <div class="node gate">Gate A comprehension test<em>3 fresh testers</em></div><div class="arrow">→</div>
+      <div class="node warn">Did the caps get it wrong?<em>confused inside → tighten · blocked something → loosen · neither → hold, n+1</em></div>
+    </div>
+    <div class="loopback">↺ &nbsp;Every outcome files an evidence record and returns to the caps. A cap surviving two titles reaches n=2 and stops being provisional. <b>Nobody has to be right today.</b></div>
+    <p class="cap"><b>Figure 9 — The budget expiry loop.</b> How the goalposts set themselves from evidence instead of from anyone's opinion. Claude may move a cap on its own when a Gate A result justifies it (autonomy contract, §2.7), logging the change.</p>
+  </div>
+
+  <h3>2.5 The enforcement layer</h3>
+  <p>The non-negotiables in <code>CLAUDE.md</code> stopped being sentences a long session can drift past and became code that refuses the write. These seven are the rules that are both <em>catastrophic</em> and <em>detectable in a diff</em> — they fail silently, in production, after a human already approved the build. Nothing here has an opinion about whether a game is fun.</p>
+  <table class="tight">
+    <thead><tr><th>ID</th><th>Rule</th><th>Effect</th><th>The failure it prevents</th></tr></thead>
+    <tbody>
+      <tr><td class="num">R1</td><td class="name">Client-authoritative economy</td><td><span class="chip missing">Block</span></td><td>One player edits their own balance; the economy dies overnight</td></tr>
+      <tr><td class="num">R2</td><td class="name">Raw remote handler</td><td><span class="chip missing">Block</span></td><td>An unvalidated, unthrottled entry point. Everything binds through RemoteGuard</td></tr>
+      <tr><td class="num">R3</td><td class="name">ProcessReceipt without a PurchaseId ledger</td><td><span class="chip missing">Block</span></td><td>Roblox retries receipts. Double-grant (we eat it) or drop it (a kid paid and got nothing)</td></tr>
+      <tr><td class="num">R4</td><td class="name">DataStore access outside DataService</td><td><span class="chip missing">Block</span></td><td>A second writer without the session lock — this is how saves get wiped</td></tr>
+      <tr><td class="num">R5</td><td class="name">Gambling-shaped monetisation</td><td><span class="chip partial">Warn</span></td><td>Banned at every rating. A takedown risk, not a bug — needs a human decision</td></tr>
+      <tr><td class="num">R6</td><td class="name">Third-party IP</td><td><span class="chip partial">Warn</span></td><td>Moderation removes it, and the takedown lands <em>after</em> the title is worth something</td></tr>
+      <tr><td class="num">R7</td><td class="name">Engine module names a specific game</td><td><span class="chip missing">Block</span></td><td>The engine stops being reusable and nothing is portable to a second project</td></tr>
+    </tbody>
+  </table>
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node key">Session starts<em>SessionStart hook loads standing orders + STATE.md</em></div><div class="arrow">→</div>
+      <div class="node">Claude writes code<em>PreToolUse guard reconstructs the resulting file and scans R1–R7 · exit 2 refuses</em></div><div class="arrow">→</div>
+      <div class="node">Claude runs a command<em>loop cap: same command 3× warns, 5× blocks → escalate</em></div><div class="arrow">→</div>
+      <div class="node">git commit<em>pre-commit runs the same scanner on staged files — catches anyone, any tool — and now rojo build + selene + stylua when the engine or a pack changed</em></div>
+    </div>
+    <div class="loopback">Escape hatch: <b>-- @rbx-allow: R4 reason</b> suppresses one rule for one file and is logged to docs/runs/hook-allow.log. An exception is allowed; a silent one is not.</div>
+    <p class="cap"><b>Figure 10 — Where enforcement fires.</b> One scanner, three triggers. Verified: zero findings across the 1,587 existing lines of engine and pack code; each rule proven to fire on a deliberately bad file; a correct receipt handler passes; the git backstop refused a real commit. → <code>.claude/hooks/</code>, <code>.githooks/pre-commit</code>, <code>skills/hooks.md</code></p>
+  </div>
+  <div class="callout warn">
+    <h5>The premise is untested, and it is filed that way</h5>
+    <p>The whole layer rests on the claim that prose rules drift over a long session while enforced ones do not. The first scan of Justin's real code came back clean — consistent both with "prose works fine" and with "one careful run does not test drift." So the claim is filed in the ledger as <strong>E-0005, n=0, an open hypothesis</strong>, where it cannot be cited as a reason for anything. If the guard never fires across three titles, the layer is ceremony and should be simplified. Part 4 returns to this.</p>
+  </div>
+
+  <h3>2.6 The evidence ledger</h3>
+  <p>Justin asked for evidence <em>"recorded in context to that situation and then compared"</em> — a learning matrix, not a filing cabinet. A closeout written as prose cannot be compared to anything. So every finding is a record carrying seven fixed context dimensions, because a finding without its context is a rumour: <em>"offline earnings beat daily login"</em> is not true in general. It was true for a snack-shape collect game aimed at 8–12 during a rising wave. Strip the context and it becomes confident bad advice.</p>
+  <div class="fig nb">
+    <div class="split" style="grid-template-columns: 1.1fr 1fr;">
+      <div class="panel acc">
+        <p class="plabel">One record · evidence/ledger/E-####.md</p>
+        <ul>
+          <li>Claim <span>one sentence, specific enough to be wrong</span></li>
+          <li>Seven context tags <span>domain · loop verb · session shape · audience · monetisation · wave · scale</span></li>
+          <li>Outcome <span>confirmed · refuted · inconclusive · observed</span></li>
+          <li>Metric <span>what actually settled it</span></li>
+          <li>Confidence <span>n=0 untested · n=1 one game · n=2 reproduced → eligible to become a default</span></li>
+          <li>Source, date, status <span>active · superseded · retired (with reason) · open-hypothesis</span></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <p class="plabel" style="color:var(--ink-faint);">Asking it · evidence/match.py</p>
+        <ul>
+          <li>Give it a brief or a context <span>--brief games/&lt;slug&gt;/brief.md</span></li>
+          <li>It returns matching records, ranked <span>and WHY each one matched — so it can be overruled</span></li>
+          <li>Flags every single observation <span>"n=1 — NOT a law"</span></li>
+          <li>Flags stale records <span>older than 12 months → re-verify</span></li>
+          <li>Warns of unresolved contradictions <span>touching any retrieved record</span></li>
+          <li>Says so when nothing matches <span>"this is new ground — file what you try"</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="cap"><b>Figure 11 — The evidence ledger.</b> Built and running. At intake, before any design work, the ledger is asked what it knows about this context, and the expansion step is seeded by history instead of a blank page. Explainable on purpose: a match you cannot interrogate is one you cannot argue with.</p>
+  </div>
+  <h4>Three rules that stop it rotting</h4>
+  <ol>
+    <li><strong>Confidence is always visible.</strong> One observation from one game is never a law. Nothing becomes a default until a <em>different</em> title reproduces it. This stops the ledger laundering a single accident into doctrine.</li>
+    <li><strong>Contradictions are kept, never overwritten.</strong> When a new title refutes an old record, both stand, linked. A contradiction is the most valuable thing in the ledger: two honest results that disagree mean <em>a context dimension is missing</em> — something varied between those games that nobody was tracking. Finding that variable is how the matrix gets smarter. Overwriting the loser destroys exactly that information.</li>
+    <li><strong>Records go stale.</strong> Roblox changed discovery, ads, gambling policy and testing tools inside fifteen months. Anything older than a year is flagged on retrieval; records killed by a platform change are retired with the reason, never deleted.</li>
+  </ol>
+
+  <h4>Contradictions: file always, ask rarely</h4>
+  <p>Justin's instruction: a conflict comes to him as a question rather than being ignored or auto-resolved — <em>"less automation but more accuracy."</em> Adopted, with one refinement he approved: escalating <em>every</em> conflict would make him the bottleneck, and most conflicts ask him something he has no basis to answer. <em>"Did it fail because of the audience or because the wave was fading?"</em> is not owner knowledge; asking produces a guess with his name on it.</p>
+  <p class="quote"><strong>A contradiction does not need resolving when it is found. It needs resolving when a decision depends on it.</strong></p>
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">File both, linked<em>neither edited · always</em></div><div class="arrow">→</div>
+      <div class="node">Diagnose<em>name the dimension that differs · always</em></div><div class="arrow">→</div>
+      <div class="node">Queue it<em>evidence/OPEN_QUESTIONS.md · always</em></div><div class="arrow">→</div>
+      <div class="node gate">Ask Justin<em>ONLY when a pending decision turns on it</em></div><div class="arrow">→</div>
+      <div class="node">File the answer<em>as a new record · always</em></div>
+    </div>
+    <div class="loopback">An escalation arrives with the diagnosis done and three options: <b>A</b> follow one · <b>B</b> follow the other · <b>C</b> don't resolve it — make it the next title's hypothesis. C is usually the honest answer.</div>
+    <p class="cap"><b>Figure 12 — The contradiction protocol.</b> Verified against a synthetic pair: it named <code>wave</code> as the missing variable with no hints. The queue is currently empty — expected, since contradictions need two titles to have reported on the same thing. An empty queue means the ledger is young, not that the system works.</p>
+  </div>
+
+  <h3>2.7 The compounding loop — how the factory learns</h3>
+  <p>Justin's most important instruction of the day: <em>"part of your program is learning. Once you learn you record — and new sessions will learn from it and make changes and new tests to improve the process."</em> There is a hard constraint underneath it that shapes the whole design:</p>
+  <div class="callout bad">
+    <h5>Claude does not persist between sessions</h5>
+    <p>A session ends and everything it worked out is gone. So "Claude learns from it" can only ever mean one thing mechanically: <strong>the session writes what it learned into the folder, and the next session is <em>forced</em> to read it.</strong> Not "should read it" — forced. That is why the SessionStart hook exists. Memory that depends on someone remembering to look is not memory.</p>
+  </div>
+  <div class="fig nb">
+    <div class="flow">
+      <div class="node">New title</div><div class="arrow">→</div>
+      <div class="node">Build on the engine</div><div class="arrow">→</div>
+      <div class="node">Gates A / B / C</div><div class="arrow">→</div>
+      <div class="node">Ships or is killed<em>both valid</em></div><div class="arrow">→</div>
+      <div class="node key">Evidence produced<em>what retained · what flopped · what took too long · what read at thumbnail size</em></div>
+    </div>
+    <div class="split" style="grid-template-columns:repeat(4,1fr);gap:5pt;margin-top:5pt;">
+      <div class="panel acc"><p class="plabel">1 · Rules harden</p><p style="font-size:8.6pt;margin:0;">Something went wrong no rule caught → a hook if it is visible in a diff, a gate question if it needs judgment.</p></div>
+      <div class="panel acc"><p class="plabel">2 · Engine grows</p><p style="font-size:8.6pt;margin:0;">Anything written for the second time stops being per-game and moves into the shared engine.</p></div>
+      <div class="panel acc"><p class="plabel">3 · Bars rise</p><p style="font-size:8.6pt;margin:0;">Gate numbers are a floor. Beat one by a wide margin and it becomes the new floor. Fixed bars stop improving the day you pass them.</p></div>
+      <div class="panel acc"><p class="plabel">4 · Craft accumulates</p><p style="font-size:8.6pt;margin:0;">The hook that landed, the UI that read, the thumbnail that got clicked — a library, not a dead title's folder.</p></div>
+    </div>
+    <div class="loopback">↺ &nbsp;<b>…so the next title starts higher than this one did.</b> That is the whole point of the system.</div>
+    <p class="cap"><b>Figure 13 — The compounding loop.</b> Today the four returns do not happen — a title ends, a document is written, nothing reads it. The ledger gives them somewhere to land; the mechanisms below make them happen.</p>
+  </div>
+
+  <table class="tight">
+    <thead><tr><th>#</th><th>Mechanism</th><th>What it does</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td class="name">SessionStart load</td><td>Every session begins holding the standing orders, the control panel (<code>STATE.md</code>: the standing rule, where we are, what is waiting on Justin, the next move) and the latest market digest</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="num">2</td><td class="name">The ledger + matcher</td><td>Structured, context-scoped, queryable evidence with the contradiction protocol</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="num">3</td><td class="name">Closeout</td><td>A title cannot end without a structured record the next title reads — ≤10 fields, mostly auto-filled from gate results, not an essay</td><td><span class="chip missing">Missing</span></td></tr>
+      <tr><td class="num">4</td><td class="name">Hypotheses per title</td><td>1–2 predictions in the brief, instrumented at the gates, marked confirmed / refuted / inconclusive at closeout. Without a prediction, a closeout is storytelling</td><td><span class="chip missing">Missing</span></td></tr>
+      <tr><td class="num">5</td><td class="name">Scheduled research → folder</td><td>The Monday digest now runs bound to the Mac, reads <code>STATE.md</code> for the active title, checks the platform against the doctrine's own claims, and writes a dated drop to <code>research/</code> plus one line to <code>DIGEST_LOG.md</code>, which SessionStart surfaces. The old chat-only task is disabled</td><td><span class="chip built">Rewired</span></td></tr>
+      <tr><td class="num">6</td><td class="name">Session-close hook</td><td>A session cannot end without recording what changed and why</td><td><span class="chip missing">Missing</span></td></tr>
+    </tbody>
+  </table>
+
+  <h4>Recording is not learning — every title carries a test</h4>
+  <p>A closeout that only reports what happened produces stories, not knowledge. Given any outcome, a clever enough session can explain why it was always going to happen — that is how a system convinces itself it is learning while the games stay identical. So every title declares one or two hypotheses <em>before</em> it is built, specific enough to be wrong: <em>"We think offline earnings will beat a daily-login reward on D1 for a snack-shape game."</em> A prediction that failed is worth more than five pages of retrospective, and refuted tests are where the next title's tests come from. This is the "new tests" half of Justin's instruction.</p>
+
+  <h4>The autonomy contract</h4>
+  <p>"Make changes on your own" needs a boundary or it collides with the gates. The line is <strong>reversibility</strong>: anything that can be read, argued with and undone is autonomous. Anything that spends money, ships to players, or changes what the factory is aiming at is not.</p>
+  <table class="tight">
+    <thead><tr><th>Claude changes on its own</th><th>Claude proposes, Justin decides</th></tr></thead>
+    <tbody>
+      <tr><td>Add a hook rule after an incident a rule missed</td><td>Remove or weaken an existing rule</td></tr>
+      <tr><td>Raise a gate bar or move a budget cap that evidence moved</td><td>Lower a gate bar</td></tr>
+      <tr><td>Move twice-written code into the shared engine</td><td>Kill or switch the active title</td></tr>
+      <tr><td>Write research drops, pattern teardowns, evidence records</td><td>Promote an idea to the active title</td></tr>
+      <tr><td>Write the closeout and update STATE.md</td><td>Publish, or create any paid product</td></tr>
+      <tr><td>Correct a factual claim in a doc that went stale</td><td>Change a core doctrine position</td></tr>
+      <tr><td>Log an idea to IDEA_LOG.md</td><td>Anything that spends money</td></tr>
+    </tbody>
+  </table>
+  <p class="small">Every autonomous change is appended to <code>evidence/CHANGELOG.md</code> with the evidence that caused it — append-only, never rewritten. That is how a system that modifies itself stays auditable by someone who was not in the room. The failure it prevents is quiet drift: four titles from now, nobody — including Claude — knowing what the rules are supposed to be or which were ever tested.</p>
+
+  <h3>2.8 Portability and the boundary</h3>
+  <p>Justin will run multiple games, probably under different Claude projects, and needs the engine, rules, process, evidence and craft to be <em>already there</em> when a new title starts. Today the factory and the first title share a folder, so nothing travels. Two things follow, one done and one deliberately deferred.</p>
+  <p><strong>Done: the boundary is enforced.</strong> What makes a factory portable is not where the folders sit; it is that the engine knows nothing about any particular game. A generic engine in an ugly directory is portable. A game-aware engine in a beautiful directory is not. Hook R7 refuses any engine module that names a game, so the engine stays generic by force rather than by intention.</p>
+  <p><strong>Deferred: the physical move.</strong> Lifting the factory to the folder root rewrites every path and the Rojo configuration — breaking the only working repo in service of a second title that does not exist. The doctrine says do not build for a game you do not have. The move happens when a second title actually needs it and can say what it needs to support. It will cost more then; that cost is real and smaller than breaking today's repo for a speculative benefit.</p>
+  <p><strong>Non-negotiable when it does happen: evidence has one home.</strong> If title 2 writes its learnings into its own project folder, title 3 never sees them and every project quietly relearns the same lessons in parallel. All closeouts, research and changelog entries write back to the single <code>evidence/</code> store at the root, whichever project produced them. That folder already lives at the root for exactly this reason.</p>
+
+  <h4>Flexible without being formless</h4>
+  <p>Two of Justin's requirements pull against each other and the tension is real: <em>"the same questions and the same filters every time"</em> versus <em>"each game will have different issues — Claude can't be stuck on an old process."</em> The resolution is that not everything in the process is the same kind of thing.</p>
+  <table class="tight">
+    <thead><tr><th></th><th>Invariants</th><th>Defaults</th></tr></thead>
+    <tbody>
+      <tr><td class="name">What</td><td>Never change, whatever the game</td><td>The starting position, changed freely per game</td></tr>
+      <tr><td class="name">Examples</td><td>Server-authoritative economy · no third-party IP · no simulated gambling · publishing and paid products are a human click · a complexity budget exists · an onboarding artifact exists · a closeout gets written</td><td><em>Which</em> six questions · <em>what</em> the caps are · which systems · which return hook · which research applies</td></tr>
+      <tr><td class="name">Changing one</td><td>Requires Justin, explicitly</td><td>A title just does it, and says so in one line</td></tr>
+    </tbody>
+  </table>
+  <p><strong>The deviation rule</strong> is what makes the process learn instead of ossify: a title that departs from a default declares it in one line with a reason, exactly like the existing spec-deviation rule. Those declarations land in the evidence store. <strong>When the same deviation shows up in two titles, it stops being a deviation and becomes the new default.</strong> A rigid-looking system is never more than two games away from correcting itself. A process that cannot be deviated from gets abandoned the first time it does not fit; a process that can be deviated from silently is not a process.</p>
+
+  <h3>2.9 Who does each job best</h3>
+  <p>Justin's standing rule, made concrete: the best tool wins, not Claude by default.</p>
+  <table class="tight">
+    <thead><tr><th>Job</th><th>Best tool</th><th>Claude's role</th></tr></thead>
+    <tbody>
+      <tr><td>Market stats, rankings, revenue estimates</td><td>RoMonitor Stats · RoWatcher · Rolimon's · RTrack (free)</td><td>Read and synthesise</td></tr>
+      <tr><td>Luau, architecture, economy maths, docs</td><td><strong>Claude</strong></td><td>Own it</td></tr>
+      <tr><td>Quick in-Studio generation</td><td>Roblox Assistant + Cube 3D (free, first-party)</td><td>Direct it via MCP</td></tr>
+      <tr><td>Thumbnails and icons — the #1 click lever</td><td>Ideogram / Recraft / Grok Imagine, or a Talent Hub artist when it matters</td><td>Spec and judge; cannot render</td></tr>
+      <tr><td>3D props</td><td>Studio gen first → Meshy / Tripo / Hunyuan3D</td><td>Spec, import, wire</td></tr>
+      <tr><td>Music</td><td><strong>Creator Store licensed library</strong> (free, zero licensing risk)</td><td>Pick and insert</td></tr>
+      <tr><td>A/B testing</td><td><strong>Roblox native Experiments</strong></td><td>Design and read them</td></tr>
+      <tr><td>Kid and creator discourse</td><td>TikTok, YouTube comments, DevForum; X via Grok if already paid for</td><td>Mine and synthesise</td></tr>
+      <tr><td>Is it fun? Is it understood?</td><td><strong>Real kids, Hunter operating</strong> — irreplaceable</td><td>Protocol and observation</td></tr>
+      <tr><td>Scheduled research and ops</td><td>Claude scheduled tasks (inside the existing plan)</td><td>Running — see Part 4 for the fix it needs</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================== PART 3 ============================== -->
+<section class="part">
+  <p class="partnum">Part 3 · Agents, mechanisms and tasks</p>
+  <h2>Who and what does the work, and how they connect</h2>
+  <p class="lede">Justin asked for the list. Here it is in full — every human, AI, automated mechanism and Roblox-side tool that exists today, plus the ones that are designed but not yet built — followed by the map of how they connect and the one rule that keeps them from colliding.</p>
+
+  <h3>3.1 The roster</h3>
+  <table class="tight">
+    <thead><tr><th>Agent / mechanism</th><th>Kind</th><th>What it does</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Justin</td><td>Human</td><td>Owner. The five gate decisions. The cut. Everything that spends money or ships. Resolves escalated contradictions. ~12 minutes a weekday.</td><td><span class="chip human">Human</span></td></tr>
+      <tr><td class="name">Hunter</td><td>Human</td><td>Design input. Operator of the comprehension test — recruits fresh testers, runs the verbatim script, records answers. Test subject only for titles he did not help design.</td><td><span class="chip human">Human</span></td></tr>
+      <tr><td class="name">Fresh testers (3+ kids)</td><td>Human</td><td>The only valid instrument for "is it understood." Never seen the game, no design input. Rotates per title.</td><td><span class="chip human">Human</span></td></tr>
+      <tr><td class="name">Claude — primary engineer</td><td>AI coworker</td><td>The only writer to <code>src/</code> and the live Studio DataModel. Research, design, economy, Luau, docs, orchestration. Proposes every applicable idea. Files evidence. Works within the autonomy contract.</td><td><span class="chip built">Active</span></td></tr>
+      <tr><td class="name">Grok chat</td><td>AI coworker</td><td>Research, art sheets, clip hooks, second pass on design and economy, critique, live-ops copy. X/Twitter meme velocity if Justin already has access. <strong>New standing job: the confusion pass before every cut</strong> — a different model has different blind spots. Never writes to the repo or Studio.</td><td><span class="chip built">Active</span></td></tr>
+      <tr><td class="name">Grok Build · Grok Bots · Automations</td><td>AI (evaluated)</td><td>Second coding agent and paid automation tiers. Not adopted: cost and coordination overhead without a capability Claude lacks. Revisit at 3+ live games.</td><td><span class="chip accent">Not adopted</span></td></tr>
+      <tr><td class="name">SessionStart hook</td><td>Mechanism</td><td>Loads the standing orders, the live hook list, <code>STATE.md</code>, idea-log and exception counts into every Claude Code session before it does anything.</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="name">PreToolUse guard (R1–R7)</td><td>Mechanism</td><td>Scans every file Claude is about to write, reconstructing the result so whole-file rules work on a one-line edit. Refuses on R1–R4, R7; warns on R5–R6.</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="name">Debug-loop cap</td><td>Mechanism</td><td>Same shell command 3× in a session warns; 5× blocks and demands a written escalation to Justin instead of a sixth attempt.</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="name">Git pre-commit backstop</td><td>Mechanism</td><td>Runs the same scanner on staged files at every commit — catches code written by any agent, any tool, or by hand.</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="name">Evidence matcher (match.py)</td><td>Mechanism</td><td>Ranked, explained retrieval from the ledger; contradiction detection with the missing dimension named; matrix and open-questions generation.</td><td><span class="chip built">Built</span></td></tr>
+      <tr><td class="name">Weekly Roblox market digest</td><td>Scheduled task</td><td>Mondays 8am, bound to the Mac: movers, clone waves and their stage, platform changes, one opportunity, and a <strong>doctrine check</strong> — anything found that contradicts a doctrine claim, quoted with its source. Writes to <code>research/</code>; never touches anything else.</td><td><span class="chip built">Rewired</span></td></tr>
+      <tr><td class="name">Studio MCP (built into Studio)</td><td>Roblox-side tool</td><td>Claude's hands in Studio: read/edit scripts, run Luau, start/stop play, screenshots, console, simulated input, mesh/material/texture generation, Creator Store insert. Inspect and playtest — never the primary home of code.</td><td><span class="chip built">Wired</span></td></tr>
+      <tr><td class="name">Playtest subagent (Roblox)</td><td>Roblox-side tool</td><td>Runs gameplay scenarios inside Studio and verifies outcomes. The candidate for automated Gate A smoke tests (join → first earn → first spend → first upgrade).</td><td><span class="chip partial">Available · not wired</span></td></tr>
+      <tr><td class="name">Roblox Assistant · Cube 3D · Experiments · Creator Hub analytics</td><td>Roblox-side tool</td><td>First-party generation, native A/B testing, and the analytics ground truth. Used through MCP or in-Studio; Claude designs and reads, never re-implements.</td><td><span class="chip built">Available</span></td></tr>
+      <tr><td class="name">Open Cloud</td><td>Roblox-side tool</td><td>Publishing and product catalogue. <strong>Human-gated, always.</strong> No Claude action reaches it.</td><td><span class="chip human">G5 only</span></td></tr>
+      <tr><td class="name">studio_sync.py</td><td>Mechanism (workaround)</td><td>Serves the disk tree as JSON so Studio can pull it without a human click on the Rojo plugin — the only unattended disk→Studio path found in run 01. A test harness, not a Rojo replacement.</td><td><span class="chip partial">Workaround</span></td></tr>
+      <tr><td class="name">Intake agent</td><td>Planned</td><td>Four paragraphs → the six-question brief, drafted for Justin to correct rather than fill.</td><td><span class="chip missing">Missing</span></td></tr>
+      <tr><td class="name">Expansion agent</td><td>Planned</td><td>Reads the ledger and pattern library, proposes every applicable mechanic. Claude and Grok both contribute. Nothing rejected at this step.</td><td><span class="chip missing">Missing</span></td></tr>
+      <tr><td class="name">Budget + cut-list generator</td><td>Planned</td><td>Applies the caps, ranks what is left, draws the recommended line, writes the parking list.</td><td><span class="chip missing">Missing</span></td></tr>
+      <tr><td class="name">Onboarding agent</td><td>Planned (engine)</td><td>Builds the walkthrough / intro / how-to every game must ship with. A missing engine module, not a per-game task.</td><td><span class="chip missing">Missing</span></td></tr>
+      <tr><td class="name">Closeout writer + session-close hook</td><td>Planned</td><td>A title cannot end without a structured closeout; a session cannot end without logging what changed. Both feed the ledger and changelog.</td><td><span class="chip missing">Missing</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.2 How they connect</h3>
+  <div class="fig nb">
+    <svg viewBox="0 0 760 478" width="100%" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4A5765"/></marker>
+        <marker id="arh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5B3F8C"/></marker>
+        <marker id="ara" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2C4A7C"/></marker>
+      </defs>
+      <!-- column labels -->
+      <g font-family="JetBrains Mono, monospace" font-size="8.5" fill="#78879A" letter-spacing="1.2">
+        <text x="14" y="10">HUMANS</text><text x="204" y="10">CLAUDE + MEMORY</text><text x="414" y="10">MECHANISMS</text><text x="604" y="10">ROBLOX SIDE</text>
+      </g>
+      <!-- Claude <-> Studio over the top -->
+      <polyline points="289,36 289,22 679,22 679,36" fill="none" stroke="#2C4A7C" stroke-width="1.6" marker-start="url(#ara)" marker-end="url(#ara)"/>
+      <text x="484" y="19" text-anchor="middle" font-size="8.8" fill="#2C4A7C" font-weight="600">ONLY writer to src/ and the live DataModel</text>
+
+      <!-- HUMANS -->
+      <rect x="14" y="36" width="150" height="80" rx="3" fill="#ECE5F6" stroke="#5B3F8C" stroke-width="1.4"/>
+      <text x="24" y="56" font-size="12.5" font-weight="600" fill="#141A21">Justin</text>
+      <text x="24" y="72" font-size="9.2" fill="#4A5765">owner · five gates · the cut</text>
+      <text x="24" y="85" font-size="9.2" fill="#4A5765">money · publish · escalations</text>
+      <text x="24" y="104" font-size="8.4" fill="#5B3F8C" font-family="JetBrains Mono, monospace">~12 min / weekday</text>
+
+      <rect x="14" y="150" width="150" height="64" rx="3" fill="#ECE5F6" stroke="#5B3F8C" stroke-width="1.4"/>
+      <text x="24" y="170" font-size="12.5" font-weight="600" fill="#141A21">Hunter</text>
+      <text x="24" y="186" font-size="9.2" fill="#4A5765">design input</text>
+      <text x="24" y="199" font-size="9.2" fill="#4A5765">operates the comprehension test</text>
+
+      <rect x="14" y="248" width="150" height="64" rx="3" fill="#ECE5F6" stroke="#5B3F8C" stroke-width="1.4" stroke-dasharray="4 3"/>
+      <text x="24" y="268" font-size="12.5" font-weight="600" fill="#141A21">Fresh testers</text>
+      <text x="24" y="284" font-size="9.2" fill="#4A5765">3+ kids · never seen it</text>
+      <text x="24" y="297" font-size="9.2" fill="#4A5765">the only valid instrument</text>
+
+      <!-- CLAUDE -->
+      <rect x="204" y="36" width="170" height="80" rx="3" fill="#2C4A7C" stroke="#2C4A7C"/>
+      <text x="214" y="56" font-size="12.5" font-weight="600" fill="#FFFFFF">Claude</text>
+      <text x="214" y="72" font-size="9.2" fill="#FFFFFF" opacity="0.9">primary engineer · orchestrator</text>
+      <text x="214" y="85" font-size="9.2" fill="#FFFFFF" opacity="0.9">proposes everything applicable</text>
+      <text x="214" y="104" font-size="8.4" fill="#FFFFFF" opacity="0.8" font-family="JetBrains Mono, monospace">within the autonomy contract</text>
+
+      <rect x="204" y="352" width="170" height="64" rx="3" fill="#F1F3F6" stroke="#2C4A7C" stroke-width="1.4"/>
+      <text x="214" y="372" font-size="12.5" font-weight="600" fill="#141A21">Evidence ledger</text>
+      <text x="214" y="388" font-size="9.2" fill="#4A5765">records · changelog · STATE.md</text>
+      <text x="214" y="401" font-size="9.2" fill="#4A5765">one home · every project reads it</text>
+
+      <!-- MECHANISMS -->
+      <rect x="414" y="36" width="150" height="36" rx="3" fill="#DFF0EB" stroke="#1B7F6B" stroke-width="1.2"/>
+      <text x="422" y="52" font-size="10.5" font-weight="600" fill="#141A21">SessionStart hook</text>
+      <text x="422" y="65" font-size="8.4" fill="#4A5765">loads orders + state</text>
+      <rect x="414" y="80" width="150" height="36" rx="3" fill="#DFF0EB" stroke="#1B7F6B" stroke-width="1.2"/>
+      <text x="422" y="96" font-size="10.5" font-weight="600" fill="#141A21">PreToolUse guard R1–R7</text>
+      <text x="422" y="109" font-size="8.4" fill="#4A5765">refuses the write</text>
+      <rect x="414" y="150" width="150" height="28" rx="3" fill="#DFF0EB" stroke="#1B7F6B" stroke-width="1.2"/>
+      <text x="422" y="168" font-size="10.5" font-weight="600" fill="#141A21">Debug-loop cap</text>
+      <rect x="414" y="186" width="150" height="28" rx="3" fill="#DFF0EB" stroke="#1B7F6B" stroke-width="1.2"/>
+      <text x="422" y="204" font-size="10.5" font-weight="600" fill="#141A21">Git pre-commit · any author</text>
+
+      <rect x="414" y="248" width="150" height="64" rx="3" fill="#E7EBF0" stroke="#CBD4DF" stroke-width="1.2"/>
+      <text x="422" y="268" font-size="12.5" font-weight="600" fill="#141A21">Grok chat</text>
+      <text x="422" y="284" font-size="9.2" fill="#4A5765">research · art · clip hooks</text>
+      <text x="422" y="297" font-size="9.2" fill="#4A5765">second pass · critique</text>
+
+      <rect x="414" y="352" width="150" height="28" rx="3" fill="#DFF0EB" stroke="#1B7F6B" stroke-width="1.2"/>
+      <text x="422" y="370" font-size="10.5" font-weight="600" fill="#141A21">match.py · conflicts</text>
+      <rect x="414" y="388" width="150" height="28" rx="3" fill="#F6EAD3" stroke="#8F6115" stroke-width="1.2"/>
+      <text x="422" y="406" font-size="10.5" font-weight="600" fill="#141A21">Weekly digest (Mon 8am)</text>
+
+      <!-- ROBLOX SIDE -->
+      <rect x="604" y="36" width="150" height="80" rx="3" fill="#F1F3F6" stroke="#CBD4DF" stroke-width="1.2"/>
+      <text x="614" y="56" font-size="12.5" font-weight="600" fill="#141A21">Studio MCP</text>
+      <text x="614" y="72" font-size="9.2" fill="#4A5765">built into Studio</text>
+      <text x="614" y="85" font-size="9.2" fill="#4A5765">scripts · Luau · play · screenshots</text>
+      <text x="614" y="98" font-size="9.2" fill="#4A5765">input · mesh/texture gen · insert</text>
+      <rect x="604" y="150" width="150" height="64" rx="3" fill="#F1F3F6" stroke="#CBD4DF" stroke-width="1.2" stroke-dasharray="4 3"/>
+      <text x="614" y="170" font-size="12.5" font-weight="600" fill="#141A21">Playtest subagent</text>
+      <text x="614" y="186" font-size="9.2" fill="#4A5765">runs scenarios · verifies</text>
+      <text x="614" y="199" font-size="9.2" fill="#8F6115">available · not yet wired</text>
+      <rect x="604" y="248" width="150" height="64" rx="3" fill="#ECE5F6" stroke="#5B3F8C" stroke-width="1.6"/>
+      <text x="614" y="268" font-size="12.5" font-weight="600" fill="#141A21">Open Cloud</text>
+      <text x="614" y="284" font-size="9.2" fill="#4A5765">publish · paid products</text>
+      <text x="614" y="297" font-size="9.2" fill="#5B3F8C" font-weight="600">HUMAN CLICK ONLY</text>
+
+      <!-- arrows -->
+      <g stroke="#4A5765" stroke-width="1.4" fill="none">
+        <line x1="164" y1="62" x2="204" y2="62" marker-end="url(#ar)"/>
+        <line x1="204" y1="94" x2="164" y2="94" marker-end="url(#ar)"/>
+        <line x1="414" y1="54" x2="374" y2="54" marker-end="url(#ar)"/>
+        <line x1="414" y1="98" x2="374" y2="98" marker-end="url(#ar)"/>
+        <line x1="414" y1="164" x2="376" y2="114" marker-end="url(#ar)"/>
+        <line x1="289" y1="116" x2="289" y2="352" marker-end="url(#ar)"/>
+        <line x1="374" y1="366" x2="414" y2="366" marker-start="url(#ar)" marker-end="url(#ar)"/>
+        <line x1="679" y1="116" x2="679" y2="150"/>
+      </g>
+      <g stroke="#4A5765" stroke-width="1.4" fill="none" stroke-dasharray="4 3">
+        <line x1="414" y1="272" x2="330" y2="116" marker-end="url(#ar)"/>
+        <line x1="414" y1="402" x2="374" y2="402" marker-end="url(#ar)"/>
+        <line x1="164" y1="290" x2="204" y2="372" marker-end="url(#ar)"/>
+      </g>
+      <g stroke="#5B3F8C" stroke-width="1.6" fill="none">
+        <line x1="89" y1="214" x2="89" y2="248" marker-end="url(#arh)"/>
+        <polyline points="14,76 6,76 6,450 679,450 679,312" marker-end="url(#arh)"/>
+      </g>
+      <!-- arrow labels -->
+      <g font-size="8.2" fill="#4A5765">
+        <text x="184" y="57" text-anchor="middle">brief · decisions</text>
+        <text x="184" y="107" text-anchor="middle">gates · cut list</text>
+        <text x="296" y="238" fill="#4A5765">files evidence</text>
+        <text x="296" y="250" fill="#4A5765">reads it at intake</text>
+        <text x="360" y="200" fill="#4A5765" text-anchor="end">proposes, never writes</text>
+        <text x="395" y="398" text-anchor="middle" fill="#8F6115">planned</text>
+        <text x="130" y="336" fill="#4A5765">verbatim answers</text>
+        <text x="130" y="347" fill="#4A5765">→ records, via Claude</text>
+        <text x="96" y="235" fill="#5B3F8C">operates</text>
+        <text x="342" y="444" text-anchor="middle" fill="#5B3F8C" font-weight="600">G5 — publish and paid products. A human click, always. There is no arrow from Claude to this box.</text>
+        <text x="690" y="137" fill="#78879A" font-size="7.8">inside Studio</text>
+      </g>
+      <g font-family="JetBrains Mono, monospace" font-size="7.6" fill="#78879A">
+        <text x="14" y="472">solid = flow of work · dashed = advisory or planned · purple = a human decision · teal = automatic, fires without anyone remembering</text>
+      </g>
+    </svg>
+    <p class="cap"><b>Figure 14 — The connection map.</b> Read the arrows into Claude: humans give it briefs and decisions, hooks load it and refuse it, Grok advises it, the ledger informs it. Read the arrows out: it writes to Studio and to the ledger, and hands gates and cut lists back to Justin. The one arrow it does not have is to Open Cloud.</p>
+  </div>
+
+  <h3>3.3 The one-writer rule</h3>
+  <p>Everything in the map obeys one constraint that is not negotiable for speed: <strong>Claude is the only writer to <code>src/</code> and to the live Studio DataModel.</strong> Two agents editing Studio at once corrupts the DataModel. Grok researches and draws while Claude writes — in parallel, on disk and out-of-band, never in Studio. This is why Grok Build was not adopted and why every hand-off in the pipeline is a document, not a shared editor.</p>
+
+  <h3>3.4 The tasks, phase by phase, and who owns each</h3>
+  <table class="tight">
+    <thead><tr><th>Phase</th><th>Task</th><th>Owner</th><th>Justin's part</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Kickoff</td><td>Six questions, once: age band, scope, monetisation stance, art seed, budget caps, deadline hook — or four paragraphs the intake agent turns into them</td><td>Justin → Claude</td><td>~60 seconds</td></tr>
+      <tr><td class="name">R · Research</td><td>Market map from the trackers, loop autopsy of the top three, wave timing, policy flags, why-they-pay synthesis, three scored one-page pitches</td><td>Claude ‖ Grok</td><td>G1: pick one</td></tr>
+      <tr><td class="name">D · Design</td><td>One-page loop diagram, first-session script, economy workbook, retention systems from the fair-play catalogue, live-ops calendar to week 8, KPI contract, 1–2 hypotheses</td><td>Claude, Grok second pass</td><td>G2: approve numbers</td></tr>
+      <tr><td class="name">Expand + cut</td><td>Ledger consulted; every applicable idea proposed; budget applied; ranked cut list with a line drawn</td><td>Claude + Grok → Justin</td><td>Move the line, ~2 min</td></tr>
+      <tr><td class="name">B · Build</td><td>Content pack on the engine; hooks enforce R1–R7; specs before code; the onboarding artifact</td><td>Claude alone</td><td>None</td></tr>
+      <tr><td class="name">T · Test</td><td>Economy Monte-Carlo, automated playtest via MCP, unit tests, comprehension test with fresh kids</td><td>Claude · Hunter operates the test</td><td>G3 fun-check, 10 min</td></tr>
+      <tr><td class="name">A · Art</td><td>Icon, thumbnail, one screenshot; readable at 200px; no third-party IP</td><td>Claude specs, external tools render, Grok drafts</td><td>G4: approve</td></tr>
+      <tr><td class="name">Gate B</td><td>Unlisted soft launch to 200–500 strangers; retention table vs the contract; iterate the hook up to three times</td><td>Claude measures, proposes</td><td>Read the table. Kill or proceed is a gate decision</td></tr>
+      <tr><td class="name">G5</td><td>Publish. Create paid products.</td><td><strong>Justin</strong></td><td>The click</td></tr>
+      <tr><td class="name">L · Launch</td><td>Shorts and TikTok clips, Moments on the experience page, micro-creators in the genre, then small Gate C ads on the winning icon</td><td>Claude drafts, Justin approves spend</td><td>One-line approvals</td></tr>
+      <tr><td class="name">O · Live-ops</td><td>Monday digest → Friday KPI review → next-drop spec → build → publish. Weekly micro-drop, monthly theme, quarterly tentpole. Monthly economy audit</td><td>Claude runs the loop</td><td>One-line yes each week, G5 click</td></tr>
+      <tr><td class="name">Closeout</td><td>Hypotheses marked, evidence filed, deviations recorded, engine candidates extracted, budget questions answered</td><td>Claude</td><td>None — but no new title starts without it</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout human">
+    <h5>What Justin's week actually looks like when this runs</h5>
+    <p><strong>Monday:</strong> read the market digest, two minutes. <strong>Any day:</strong> a gate decision arrives as a one-page pitch, a spreadsheet, or a ranked list with the line already drawn — reply in one line, or say nothing and defaults proceed (except G5, which waits forever). <strong>When a slice is ready:</strong> ten minutes playing it with Hunter while Hunter separately runs three fresh kids through the script. <strong>Occasionally:</strong> a contradiction that a real decision depends on, arriving with the diagnosis done and three options. <strong>Never:</strong> babysitting a RemoteEvent, choosing a price ladder from scratch, or being asked to invent a mechanic. The doctrine's twelve-minute review window is the design constraint, and every escalation is shaped to fit inside it.</p>
+  </div>
+</section>
+
+<!-- ============================== PART 4 ============================== -->
+<section class="part">
+  <p class="partnum">Part 4 · The re-examination</p>
+  <h2>Does it make sense? Where could it hurt a good game?</h2>
+  <p class="lede">Justin asked for the whole system to be worked through again. This part does that with no salesmanship: what holds, where each mechanism could detract from a good game and what stops it, the places our own documents contradict each other, and the risks from the first real build that still outrank anything added today.</p>
+
+  <h3>4.1 What holds</h3>
+  <ul>
+    <li><strong>The doctrine is sound and was already ahead of anything published.</strong> A survey of public Claude-for-Roblox scaffolding found knowledge libraries — how to write a DataStore, genre templates — and nothing that decides when to stop, what proves a game is worth money, or what kills a title. The doctrine had all three before today.</li>
+    <li><strong>Every mechanism added today is title-agnostic.</strong> None of the seven rules, the ledger schema, the budget, or the comprehension test mentions a game. A new title inherits all of it without anyone remembering to apply it.</li>
+    <li><strong>The division of labour is coherent and matches the owner.</strong> AI proposes, Justin cuts. The owner is asked only for the kind of judgment he actually has and never for the kind he said he does not.</li>
+    <li><strong>Autonomy has a boundary that is the right one.</strong> Reversibility. Claude changes what can be undone; Justin decides what cannot.</li>
+    <li><strong>The stack is cheap.</strong> $0 additional spend; the expensive alternatives were evaluated and declined for stated reasons.</li>
+  </ul>
+
+  <h3>4.2 Where each mechanism could detract, limit, or distract — and what stops it</h3>
+  <table>
+    <thead><tr><th>Mechanism</th><th>How it could hurt a good game</th><th>What stops it</th><th>Residual risk</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Safety hooks R1–R7</td><td>A false block interrupts a build; a rule fires on legitimate code</td><td>Zero false positives across all 1,587 existing lines; each rule tested both ways; escape hatch with an audit log; new rules must pass the two-way test before landing</td><td>Low. The premise itself is untested (E-0005)</td></tr>
+      <tr><td class="name">Complexity budget</td><td>Caps a great idea that needed five systems; makes a first slice too thin to be fun</td><td>Constrains the <em>first slice</em> only; nothing is deleted — parking list; a declared deviation is one line and two deviations make a new default; caps expire at the first Gate A and move on evidence</td><td>Medium until the first Gate A moves them. This is the mechanism to watch</td></tr>
+      <tr><td class="name">The gates</td><td>Slow shipping; Gate B needs 200–500 strangers, which is real effort for a two-person studio</td><td>By design — the doctrine's whole thesis is that spending before Gate B rents empty visits. Unlisted soft launch, DevForum and Discord tester pools, and Hunter's cohort widen the pool for free</td><td>Real. Gate B is the most labour-intensive step and has never been run</td></tr>
+      <tr><td class="name">Comprehension test</td><td>Recruiting three fresh kids per Gate A is a logistical burden; a bad day skews the result</td><td>Hunter operates and his cohort rotates — a kid is fresh for each new title; 2-of-3 thresholds absorb one outlier</td><td>Medium. Practical, not conceptual</td></tr>
+      <tr><td class="name">Evidence ledger</td><td>False confidence from one observation; or nobody files anything and it dies quietly</td><td>Confidence always visible; nothing becomes a default below n=2; no veto power; the closeout requirement and session-close hook (not yet built) are what keep it fed</td><td><strong>High until the feeders exist.</strong> A ledger nobody writes to is a graveyard with a schema</td></tr>
+      <tr><td class="name">Closeout + changelog</td><td>Paperwork per title; the ritual becomes the work</td><td>The closeout is a template of about ten fields, most auto-filled from gate results and hypotheses — never an essay. The changelog is append-only one-liners</td><td>Low, if the template stays short</td></tr>
+      <tr><td class="name">Contradiction protocol</td><td>Justin becomes the bottleneck; or conflicts pile up unread</td><td>Escalate only when a pending decision depends on one; otherwise they wait in a visible queue; every escalation arrives with the diagnosis done and "make it the next test" as an option</td><td>Low</td></tr>
+      <tr><td class="name">Fixed interview and filters</td><td>Rigidity — a game that does not fit the six questions gets forced into them</td><td>Invariants versus defaults: the questions are defaults and can be deviated from in one declared line</td><td>Low</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout bad">
+    <h5>The largest risk to this project tonight is not on that table</h5>
+    <p>It is that <strong>the system becomes the project.</strong> Today was one hundred percent system and zero percent game. That was the right call for one day — the scaffolding needed to exist — and it is exactly the pattern the doctrine warns about if it continues: <em>"feature-complete before anyone has played,"</em> applied to process instead of content. A factory that produces documents about itself is the anti-pattern with better typography.</p>
+    <p><strong>The rule this document proposes, and the one it most wants Justin to hold it to:</strong> no further system work — no new hooks, no new agents, no restructuring — until <em>Fat Man Gets Rich</em> has been through Gate A with the comprehension test and three fresh kids. The only exceptions are the items in Part 5 that directly unblock that test. The test of the factory is a game. Everything built today is a hypothesis until one has gone through it.</p>
+  </div>
+
+  <h3>4.3 Contradictions found between our own documents</h3>
+  <p>Working through the folder again surfaced six places where the documents disagree with each other or with what Justin said today. None is fatal. All of them would confuse a future session that read the wrong one first.</p>
+  <table>
+    <thead><tr><th>#</th><th>The conflict</th><th>Resolution</th><th>Who acts</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><strong>Three different D1 scales.</strong> The doctrine (Gate B) says ~12%+ is OK to test small spend and under 8–10% is death. PIPELINE §4's KPI contract says D1 ≥ 20% to proceed, ≥ 25% to spend on ads. SYSTEM-MAP §9 says kill under 15% after three tries, scale at 25%+. A game at 13% is simultaneously "OK to spend a little," "do not proceed," and "iterate or kill."</td><td>The doctrine governs by its own precedence rule. Its numbers are the <em>floor</em>. <strong>Done:</strong> PIPELINE §4 and SYSTEM-MAP §9 now say the 20/25% figures are tiers, not gates.</td><td><span class="chip built">Fixed</span> · Justin confirms the floor stands</td></tr>
+      <tr><td class="num">2</td><td><strong>"The human owns taste"</strong> (doctrine §0 and §9) versus Justin today: <em>"I'm not sure I can supply the taste."</em></td><td>Read the doctrine's "taste" as <em>the cut</em> — subtractive judgment, which Justin does supply. Propose a one-line amendment to §9 so a future session does not ask him to invent mechanics.</td><td>Claude proposes; <strong>Justin decides</strong> (a doctrine position)</td></tr>
+      <tr><td class="num">3</td><td><strong>Doctrine §3 lists "extra agents" as effort that does not count.</strong> This document proposes five new agents.</td><td>The doctrine's target is production capacity — more workers making more content, the "40th ore type" class. The agents proposed here remove work from the owner (intake, cut list, closeout) or are required by a quality bar (onboarding). The distinction is real but the tension is honest: <strong>each new agent must justify itself against §3 before it is built, and the rule above (no system work until Gate A) applies to all of them.</strong></td><td>Standing test, applied by Claude, visible to Justin</td></tr>
+      <tr><td class="num">4</td><td><strong>PIPELINE §7's "Hunter protocol"</strong> has Hunter playing the game across three sessions. The comprehension skill says Hunter cannot be the primary subject for a title he helped design.</td><td>Two different tests, both valid. The Hunter protocol is the G3 <em>fun-check</em>; the comprehension test is Gate A's <em>is-it-understood</em> check and needs fresh subjects. <strong>Done:</strong> the skill file now says so.</td><td><span class="chip built">Fixed</span></td></tr>
+      <tr><td class="num">5</td><td><strong>The weekly market digest exists but is disconnected.</strong> It runs Mondays in a fresh session with no access to the folder, its prompt says "no game is in active development," and its output lands only in a chat window — which the folder's own first rule says does not exist as a deliverable.</td><td><strong>Done:</strong> re-created bound to the Mac; reads <code>STATE.md</code>; writes a dated drop to <code>research/</code> and a line to <code>DIGEST_LOG.md</code>; runs a doctrine check each week. The old task is disabled, not deleted. SessionStart surfaces the latest line.</td><td><span class="chip built">Fixed</span> · first run Monday 8am</td></tr>
+      <tr><td class="num">6</td><td><strong>Small inconsistencies from run 01, still open:</strong> two naming conventions (GAME_FACTORY lowercase pack files vs rojo-map PascalCase); engine UI code sitting in the game's client folder with no engine mount; the Phase 0 checklist in PIPELINE §13 still shows "decide first target" unchecked although Fat Man Gets Rich was chosen.</td><td><strong>Done:</strong> naming ruled in rojo-map; checklist ticked; studio_sync and the MCP-require rule written into the studio-mcp skill. Still open: the <code>src/core/client/</code> mount, before the second game.</td><td><span class="chip built">Mostly fixed</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.4 The risks from the first build that outrank today's work</h3>
+  <p>Run 01's own "blunt list of what was missing" is the most useful document in the folder for this question, and most of it is still open. These threaten the <em>game</em> directly, which none of today's system work does, and several of them should be fixed before the next hook is written.</p>
+  <table>
+    <thead><tr><th>#</th><th>Risk</th><th>Why it outranks system work</th><th>Fix · owner</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td><strong>Persistence is unverified.</strong> Studio cannot reach DataStores until the place is published, so the save system fell back to memory. Kill-the-server-and-rejoin has never been run.</td><td>Data loss is the #1 Gate A killer in the doctrine. Every hook in R4 protects a path that has never executed.</td><td>Publish an <em>unlisted</em> place so the DataStore path can be exercised. This is Gate-5-adjacent and is <strong>Justin's click</strong>. Then Claude runs acceptance test 8</td></tr>
+      <tr><td class="num">2</td><td><strong>Economy simulated — and it found the problem.</strong> <code>tools/econ_sim.py</code> runs 300 players against the real config and the engine's own formulas. Result: first upgrade at 28 seconds (right), but the entire 27,925-coin ladder is maxed by <strong>day 3</strong>, offline earnings are <strong>82%</strong> of all coins, and a kid holds 1.38 million unspent by day 30. The second week is empty and playing is pointless versus waiting.</td><td>This is exactly the "week-2 billionaires" failure, caught as a spreadsheet problem. It is the single most important game-facing finding of the day.</td><td><span class="chip built">Found</span> · Candidate C proposed for G2 (offline 0.5/hr, deeper ladders): nothing maxed inside 30 days, offline ~47%, first minute untouched. <strong>Justin approves the numbers.</strong> Late-ladder wall remains — needs a second sink, a live-ops decision</td></tr>
+      <tr><td class="num">3</td><td><strong>No test framework, no CI enforcement.</strong> TestEZ is named in the plan and not installed; nothing makes <code>rojo build</code>, Selene and StyLua run on a commit.</td><td>The first edit to a cost curve breaks something silently.</td><td><span class="chip built">Half done</span> · pre-commit now runs rojo build + selene + stylua on the Mac. TestEZ still not installed; the sim is the only economy check</td></tr>
+      <tr><td class="num">4</td><td><strong>No unattended path from disk into Studio.</strong> The Rojo plugin needs a human click in the editor that MCP cannot make. <code>studio_sync.py</code> is a workaround, not documented in the skill.</td><td>Every automated playtest depends on it. Run 01 called it the single highest-leverage fix in the repo.</td><td><span class="chip built">Documented</span> in <code>skills/studio-mcp.md</code>, with the two other run-01 rules. A cleaner path through the built-in MCP is still worth a look</td></tr>
+      <tr><td class="num">5</td><td><strong>No art seed, no sound.</strong> The brief says TBD; the flood's readability at 200px rests on "neon yellow on a dark floor."</td><td>Blocks G4. Not urgent before Gate A, and the doctrine says grey-box first — but the thumbnail is the #1 click lever and has no owner yet.</td><td>Justin: one reference image or three adjectives, when Gate A passes</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.5 Untested premises, stated plainly</h3>
+  <ul>
+    <li><strong>That prose rules drift and hooks do not</strong> (E-0005, n=0). The enforcement layer rests on it. If no guard fires across three titles, simplify the layer.</li>
+    <li><strong>That the complexity caps are near the right values.</strong> They are guesses. The first comprehension test is the first evidence.</li>
+    <li><strong>That three fresh ten-year-olds can be recruited per Gate A.</strong> Hunter's cohort makes it plausible; it has not been done.</li>
+    <li><strong>That evidence with seven context tags is comparable across titles.</strong> The dimensions were chosen deliberately, and the first real contradiction will tell us whether one is missing.</li>
+    <li><strong>That a two-hour "create a ___ game" is real.</strong> GAME_FACTORY says it becomes real on the <em>next</em> game, now that the engine exists. It has never been timed.</li>
+    <li><strong>The ledger holds zero player evidence.</strong> Every record is about how the factory behaves. Nothing is known about real players because no title has met one. That is an accurate report, not a gap in the ledger — but it means every design conversation so far has been theory.</li>
+  </ul>
+</section>
+
+<!-- ============================== PART 5 ============================== -->
+<section class="part">
+  <p class="partnum">Part 5 · Status and build order</p>
+  <h2>Where it stands, and what happens next</h2>
+
+  <h3>5.1 Status board</h3>
+  <div class="fig nb">
+    <div class="tiles">
+      <div class="tile built"><b>Doctrine + pipeline + diagrams</b><span>ROBLOX_SUCCESS_LOGIC · PIPELINE · SYSTEM-MAP · GAME_FACTORY · SYSTEM_ARCHITECTURE</span></div>
+      <div class="tile built"><b>Engine — 11 modules</b><span>src/core/ · data, remotes, economy, progression, pickups, zones, rewards, analytics, loader, loop, sync</span></div>
+      <div class="tile built"><b>First title — grey-box slice</b><span>Fat Man Gets Rich · playable end to end · before Gate A</span></div>
+      <div class="tile built"><b>Enforcement layer</b><span>R1–R7 · SessionStart · loop cap · git backstop · escape hatch + log</span></div>
+      <div class="tile built"><b>Evidence ledger + matcher</b><span>schema · 5 records · match.py · conflicts · matrix · open questions</span></div>
+      <div class="tile built"><b>Budget + comprehension test</b><span>BUDGET.md (defaults with expiry) · playtest-comprehension.md</span></div>
+      <div class="tile partial"><b>Gate A</b><span>bars defined today · never run with fresh testers</span></div>
+      <div class="tile built"><b>Scheduled research</b><span>weekly digest rewired: Mac-bound, reads STATE.md, writes research/, doctrine check</span></div>
+      <div class="tile partial"><b>Persistence</b><span>DataService built · never exercised against a real DataStore</span></div>
+      <div class="tile missing"><b>The build loop — gap 0</b><span>paragraphs → brief · expansion · budget as code · ranked cut list</span></div>
+      <div class="tile missing"><b>Closeout · session-close hook · hypotheses</b><span>the feeders of the learning loop</span></div>
+      <div class="tile missing"><b>Onboarding agent</b><span>required by every game · no engine module</span></div>
+      <div class="tile partial"><b>Economy sim · tests · CI</b><span>sim built and run (ladder exhausted day 3) · build+lint in pre-commit · TestEZ still missing</span></div>
+      <div class="tile missing"><b>Visual quality bar · craft library</b><span>"visually professional" has no definition and no home</span></div>
+      <div class="tile missing"><b>Title registry · physical factory split</b><span>deferred until a second title exists</span></div>
+    </div>
+    <p class="cap"><b>Figure 15 — Status board, 12 September 2026, after the second pass.</b> Teal built, amber partial, red missing. Seven of fifteen built, four partial, four missing — ordered below.</p>
+  </div>
+
+  <h3>5.2 The build order</h3>
+  <p>Ordered by one principle: <strong>get a real game through a real Gate A first, and build only what unblocks that until it has happened.</strong> Everything after step 3 waits for the comprehension test's results, because those results are the first evidence the factory will ever hold about players, and several later items should be shaped by them.</p>
+  <table>
+    <thead><tr><th>#</th><th>Move</th><th>Owner</th><th>Size</th><th>Why in this position</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td class="name">Publish an unlisted place; verify persistence</td><td><strong>Justin clicks</strong>, Claude tests</td><td>Small</td><td>Unblocks the #1 Gate A killer. Nothing else about the slice can be trusted until saves survive a server restart</td></tr>
+      <tr><td class="num">2</td><td class="name">Economy Monte-Carlo; build + lint in the pre-commit; TestEZ</td><td>Claude</td><td><span class="chip built">Done</span> except TestEZ</td><td>The sim found the day-3 exhaustion; Candidate C is on Justin's list for G2. Build + lint now run on every Mac commit</td></tr>
+      <tr><td class="num">3</td><td class="name"><strong>Gate A — the comprehension test on Fat Man Gets Rich</strong></td><td>Hunter operates · 3 fresh kids · Justin fun-checks</td><td>One afternoon</td><td>The first real evidence. Answers the budget's two questions. Proves or refutes the system's premise in one sitting</td></tr>
+      <tr><td class="num">4</td><td class="name">Closeout template, hypotheses in the brief template, session-close hook, changelog wiring</td><td>Claude</td><td>Small</td><td>Gate A produces evidence with nowhere structured to land. Build the feeders right after the first thing worth feeding</td></tr>
+      <tr><td class="num">5</td><td class="name">Re-create the weekly digest bound to the folder</td><td>Claude</td><td><span class="chip built">Done</span></td><td>First folder-bound run Monday 8am. The old chat-only task is disabled</td></tr>
+      <tr><td class="num">6</td><td class="name">The intake loop — paragraphs → brief, expansion inventory, budget as code, ranked cut list</td><td>Claude</td><td>Medium</td><td>Gap 0. The stated purpose of the project. Positioned after Gate A so the first cut list is shaped by what real kids actually found confusing</td></tr>
+      <tr><td class="num">7</td><td class="name">Onboarding agent as an engine module</td><td>Claude</td><td>Medium</td><td><strong>Deliberately after Gate A, not before.</strong> Fat Man Gets Rich was designed to teach itself — the first payout overfills the bag, which is supposed to teach banking with no tutorial. Testing the raw slice is the purest test of that design. If fresh kids understand it with no walkthrough, the onboarding agent's job is small; if they don't, we learn exactly what needs explaining. Building the agent first would hide the answer</td></tr>
+      <tr><td class="num">8</td><td class="name">Fix the six document contradictions (§4.3)</td><td>Claude; Justin on #2</td><td><span class="chip built">Done</span> except #2</td><td>#2 is a doctrine wording — the exact line is in STATE.md for a yes / no / edit</td></tr>
+      <tr><td class="num">9</td><td class="name">Visual quality bar; craft library home</td><td>Claude proposes, Justin's art seed</td><td>Medium</td><td>Blocks G4, not Gate A. "Visually professional" needs a definition before art enters the repo at volume</td></tr>
+      <tr><td class="num">10</td><td class="name">Title registry; physical factory split</td><td>Claude</td><td>Medium</td><td>When the second title exists and can say what it needs. Not before</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 Decisions that are genuinely Justin's</h3>
+  <p>Only the irreversible ones. Everything else in this document runs on stated defaults. The same list lives in <code>STATE.md</code>, which every session loads, so it cannot be forgotten.</p>
+  <ol>
+    <li><strong>Publish an unlisted place</strong> so persistence can be tested. It is not a launch — unlisted, link-only — but it is a publish action, and the doctrine makes every publish a human click. <code>docs/runs/PERSISTENCE_TEST.md</code> has the three clicks (including the one everyone forgets: enabling Studio API access) and the seven-row test Claude runs the moment it is done.</li>
+    <li><strong>G2 — the economy numbers.</strong> The simulation proposes Candidate C. Approve, adjust, or reject before the kids see it; the slice can be tested un-tuned, but the numbers in front of them should be the ones we mean.</li>
+    
+    <li><strong>Two doctrine wordings:</strong> the proposed §9 line is in STATE.md verbatim — <em>"Human owns: ship / no-ship, money, and the cut — removing what confuses. Generative taste is not asked of the owner; the AI proposes, the owner prunes."</em> Yes, no, or edit. And confirm the doctrine's Gate B floor governs; both other files now say it does.</li>
+    <li><strong>Hold the line in §4.2:</strong> no further system work until Fat Man Gets Rich has been through Gate A with fresh testers. This is the decision that protects the project from its own scaffolding, and it is the one Claude cannot make for you.</li>
+  </ol>
+
+  <div class="callout good">
+    <h5>The answer to the question this document was written for</h5>
+    <p>What has been created will improve games and learn from your work <em>if it is now used to make one</em>. It does not limit a good idea: nothing is deleted, every cap expires, every default can be deviated from in a line, and the ledger has no veto. It does not distract from an opportunity: ideas are pitched the moment they appear and logged without pausing the active title, and killing a title is a gate decision with a closeout, never a mid-build hop. Where it could detract — false blocks, a cap that is too tight, a ledger nobody feeds, or a system that keeps building itself — the safeguard is named, and where the safeguard does not exist yet, it is in the build order with an owner.</p>
+    <p>The factory is built enough. The next thing it should produce is evidence, and evidence only comes from a game in front of a stranger.</p>
+  </div>
+</section>
+
+<!-- ============================== APPENDICES ============================== -->
+<section class="part">
+  <p class="partnum">Appendix A</p>
+  <h2>Where everything lives</h2>
+  <p class="small">The <code>Roblox Business</code> folder on the Mac is the source of truth. The claude.ai project "RB – Business" is a read-only mirror. One canonical path per file; everything else links to it.</p>
+  <table class="tight">
+    <thead><tr><th>Path</th><th>What it is</th></tr></thead>
+    <tbody>
+      <tr><td class="path">START-HERE.md</td><td>The map of the folder and the routing rule for where new files go</td></tr>
+      <tr><td class="path">system-map.html · roblox-pipeline/SYSTEM-MAP.md</td><td>The pipeline drawn as ten diagrams (render · source)</td></tr>
+      <tr><td class="path">evidence/</td><td><strong>The factory's memory.</strong> SCHEMA.md, ledger/E-####.md, match.py, MATRIX.md, OPEN_QUESTIONS.md, CHANGELOG.md</td></tr>
+      <tr><td class="path">.claude/hooks/ · .claude/settings.json</td><td>rbx_guard.py (R1–R7), pretooluse_guard.py, loop_cap.py, session_start.py; hook registration</td></tr>
+      <tr><td class="path">.githooks/pre-commit</td><td>The git backstop (core.hooksPath is set)</td></tr>
+      <tr><td class="path">GrokBDownloads/</td><td>Inbound only — approved Grok art (fbx, glb, previews)</td></tr>
+      <tr><td class="path">roblox-pipeline/CLAUDE.md</td><td>What Claude loads at the start of every build session</td></tr>
+      <tr><td class="path">roblox-pipeline/PIPELINE.md</td><td>The operating plan: what happens when you say "create a ___ game"</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/ROBLOX_SUCCESS_LOGIC.md</td><td><strong>Standing orders.</strong> Outranks every other file</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/SYSTEM_ARCHITECTURE.md</td><td>The factory across many titles: layers, build loop, compounding, portability, autonomy</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/GAME_FACTORY.md</td><td>Engine / content-pack split; the six-question brief; the two-hour clock</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/BUDGET.md</td><td>The complexity caps — provisional defaults with an expiry</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/FACTORY_PLAN.md</td><td>This document, canonical text</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/IDEA_LOG.md</td><td>Every game idea. Logged → Shortlisted → Active → Shipped | Parked</td></tr>
+      <tr><td class="path">roblox-pipeline/docs/runs/</td><td>One log per build session; STATE.md (read into every session); hook-allow.log</td></tr>
+      <tr><td class="path">roblox-pipeline/skills/</td><td>Ten binding conventions: security, economy, art, live-ops, research-legal, rojo-map, studio-mcp, idea-intake, hooks, playtest-comprehension</td></tr>
+      <tr><td class="path">roblox-pipeline/research/</td><td>Dated genre drops, the research playbook, patterns/ (mechanic teardowns)</td></tr>
+      <tr><td class="path">roblox-pipeline/specs/</td><td>Module specs, written before code, from TEMPLATE.md</td></tr>
+      <tr><td class="path">roblox-pipeline/src/core/</td><td><strong>The engine.</strong> Eleven services. A new game must not change it (R7 enforces)</td></tr>
+      <tr><td class="path">roblox-pipeline/games/&lt;slug&gt;/</td><td>Content packs. One folder per title — brief, config, world, sku, theme. The only per-game work</td></tr>
+      <tr><td class="path">roblox-pipeline/tools/</td><td>build_map.mjs (renders the system map), studio_sync.py (unattended disk→Studio), meshimport/</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Appendix B — The comprehension script, verbatim</h3>
+  <ol>
+    <li><strong>Say nothing.</strong> Hand over the device. Do not explain, do not point.</li>
+    <li><strong>Watch for 60 seconds.</strong> Record: did they take a meaningful action unprompted? Which one? How long?</li>
+    <li><strong>Ask, in these words:</strong> <em>"What are you trying to do in this game?"</em> Write the answer verbatim.</li>
+    <li><strong>Ask:</strong> <em>"Do you want to play it again?"</em> Never "did you like it" — liking is politeness.</li>
+    <li><strong>Only then</strong> may the operator answer questions or explain anything.</li>
+  </ol>
+
+  <h3>Appendix C — One evidence record, as written</h3>
+  <div class="panel" style="font-family:var(--mono);font-size:8.2pt;line-height:1.55;white-space:pre-wrap;">---
+id: E-0005
+claim: Prose non-negotiables drift over long build sessions in a way that machine-enforced ones do not
+domain: process        loop_verb: any        session_shape: any        audience: any
+monetization: any      wave: any             scale: pre-launch
+outcome: inconclusive
+metric: UNTESTED. The guard found zero true violations across 1,587 existing lines
+confidence: n=0
+observed: 2026-09-12
+status: open-hypothesis
+---
+This record exists to be proven wrong. Filed at n=0 deliberately so it cannot be cited as a reason for anything.</div>
+  <p class="cap" style="font-family:var(--mono);font-size:8pt;color:var(--ink-faint);">The record the enforcement layer's own premise is filed under. A ledger that only records its wins is not evidence; it is advertising.</p>
+
+  <h3>Appendix D — Glossary for a non-programmer</h3>
+  <dl class="gloss">
+    <dt>Agent / subagent</dt><dd>An AI instance given one narrow job. A subagent is spun off by another agent, does its task, reports back, and disappears.</dd>
+    <dt>CCU</dt><dd>Concurrent users — how many people are in a game at the same moment. The number trackers show; not the number discovery rewards.</dd>
+    <dt>CI</dt><dd>Continuous integration — checks that run automatically on every change (build, lint, tests) so nothing broken lands quietly.</dd>
+    <dt>Closeout</dt><dd>The short structured record a title produces when it ships or dies: hypotheses marked, evidence filed, deviations noted.</dd>
+    <dt>Clone wave</dt><dd>A genre that many studios copy at once after one hit. Rises in weeks, fades in months. Enter early or not at all.</dd>
+    <dt>Content pack</dt><dd>Everything specific to one game — names, numbers, map, products, art — in one folder. The engine reads it at boot.</dd>
+    <dt>D1 / D7</dt><dd>The share of new players who come back the next day / a week later. The number Roblox's discovery system now weights most.</dd>
+    <dt>DataStore</dt><dd>Roblox's save system. The place where "a kid loses everything" happens if it is done wrong.</dd>
+    <dt>DevEx</dt><dd>Developer Exchange — converting earned Robux to money. About $0.0038 per Robux.</dd>
+    <dt>Engine</dt><dd>The reusable code every game shares — saving, security, economy, progression. Written once, never per game.</dd>
+    <dt>Gate</dt><dd>A checkpoint where the work stops for a decision or a measurement. Five are human decisions (G1–G5); Gates A/B/C are evidence bars.</dd>
+    <dt>Hook</dt><dd>A small program that runs automatically on an event — before a file is written, when a session starts — and can refuse the action. A rule with a trip-wire instead of a sentence.</dd>
+    <dt>Ledger</dt><dd>The evidence store: one record per finding, with the context that says when it applies.</dd>
+    <dt>Luau</dt><dd>The programming language Roblox games are written in.</dd>
+    <dt>MCP</dt><dd>Model Context Protocol — the plug that lets Claude reach into a running program. With Studio's MCP, Claude can read scripts, run code, press play and take screenshots instead of only writing text for a human to paste.</dd>
+    <dt>Onboarding / FTUE</dt><dd>The first-time experience — the walkthrough, intro or how-to that gets a new player to understanding.</dd>
+    <dt>Pre-commit</dt><dd>A check that runs when code is saved into the project's history. Ours refuses the save if a rule is broken.</dd>
+    <dt>Remote / RemoteEvent</dt><dd>How a player's device talks to the server. The place cheaters attack. Every one is validated and rate-limited.</dd>
+    <dt>Robux</dt><dd>Roblox's currency. Kids buy it with money; games earn it; DevEx converts it back.</dd>
+    <dt>Rojo</dt><dd>The tool that keeps the game's code on disk (where it can be reviewed and versioned) and syncs it into Studio.</dd>
+    <dt>Session (Claude)</dt><dd>One conversation. Claude keeps nothing between sessions except what is written to a file that the next session is made to read.</dd>
+    <dt>Skill</dt><dd>A file of binding conventions Claude loads when a task matches. A reference shelf, not a trip-wire.</dd>
+    <dt>SKU / product</dt><dd>One thing for sale in the game — a pass, a pack, a cosmetic.</dd>
+    <dt>Slice</dt><dd>The smallest playable version of a game: one loop, one shop, one return hook. What Gate A tests.</dd>
+    <dt>Studio</dt><dd>Roblox Studio — the editor where games are built and playtested.</dd>
+  </dl>
+
+  <h3>Appendix E — Sources compiled</h3>
+  <p class="small">ROBLOX_SUCCESS_LOGIC.md (doctrine) · PIPELINE.md · SYSTEM-MAP.md · GAME_FACTORY.md · SYSTEM_ARCHITECTURE.md · BUDGET.md · skills/hooks.md · skills/playtest-comprehension.md · docs/runs/2026-09-12-run-01.md · docs/runs/STATE.md · IDEA_LOG.md · evidence/SCHEMA.md and ledger E-0001–E-0005 · evidence/CHANGELOG.md · research/2026-09-12-claude-scaffolding-survey.md · the scheduled-task registry · the session of 12 September 2026 with Justin.</p>
+  <p class="meta" style="margin-top:24pt;">The Game Factory · v1.0 · 12 September 2026 · Re-verify platform facts by 12 November 2026.</p>
+</section>
+
+</body>
+</html>

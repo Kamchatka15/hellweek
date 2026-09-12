@@ -65,6 +65,12 @@ def main():
         out.append(f"Idea log: {n} entr{'y' if n == 1 else 'ies'}. "
                    "Re-read the top 3 at any Gate B or kill decision.")
 
+    digest_log = os.path.join(PIPE, "research", "DIGEST_LOG.md")
+    dl = [l for l in read(digest_log).splitlines()
+          if l.strip() and not l.startswith("#") and not l.startswith(">")]
+    if dl:
+        out.append(f"Latest market digest: {dl[-1].strip()}  (research/ — read it before any research or design step)")
+
     allow_log = os.path.join(PIPE, "docs", "runs", "hook-allow.log")
     lines = [l for l in read(allow_log).splitlines() if l.strip()]
     if lines:

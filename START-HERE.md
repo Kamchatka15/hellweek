@@ -58,7 +58,9 @@ Roblox Business/
    │  ├─ ROBLOX_SUCCESS_LOGIC.md   the standing orders (outranks every other file)
    │  ├─ GAME_FACTORY.md           engine + content-pack split; how "create a ___ game" becomes 2 hours
    │  ├─ SYSTEM_ARCHITECTURE.md    the factory across MANY titles — layers, build loop, compounding, portability
-   │  ├─ FACTORY_PLAN.md           business plan + technical architecture, canonical text of the PDF at the root
+   │  ├─ FACTORY_PLAN.html         business plan + technical architecture — THE SOURCE (edit this one)
+   │  ├─ FACTORY_PLAN.md           generated text view of it, for sessions that cannot open a PDF
+   │  ├─ FACTORY_PLAN.assets/      fonts + render.py that turn the .html into The-Game-Factory.pdf
    │  ├─ BUDGET.md                 the complexity caps — provisional defaults with an expiry
    │  ├─ IDEA_LOG.md               all game ideas, with status: Logged → Shortlisted → Active
    │  ├─ runs/                     one log per build session: what was read, refused, stalled, written
@@ -122,7 +124,8 @@ Roblox Business/
 | What happened in a build session | `roblox-pipeline/docs/runs/` | `YYYY-MM-DD-run-NN.md`. What was read, refused, stalled on, and written from scratch. |
 | A finding about what worked or did not | `evidence/ledger/E-####.md` | Same fields every time (see `evidence/SCHEMA.md`). n=1 is never a law |
 | A change Claude made to the factory on its own | `evidence/CHANGELOG.md` | Append-only, with the evidence that caused it |
-| The whole-system plan | `roblox-pipeline/docs/FACTORY_PLAN.md` → `The-Game-Factory.pdf` | Edit the .md, re-render the PDF. Never edit the PDF |
+| The whole-system plan | `roblox-pipeline/docs/FACTORY_PLAN.html` → `.md` + `The-Game-Factory.pdf` | Edit the .html; regenerate the other two. Never edit the PDF or the .md by hand |
+| A weekly market digest | `roblox-pipeline/research/YYYY-MM-DD-market-digest.md` + one line in `research/DIGEST_LOG.md` | Written by the scheduled task every Monday; SessionStart surfaces the latest line |
 | Top-level system architecture | `roblox-pipeline/docs/SYSTEM_ARCHITECTURE.md` | The factory across MANY titles: 4 control layers, what compounds, the gap list |
 | Enforcement rules (hooks) | `.claude/hooks/` + `roblox-pipeline/skills/hooks.md` | One scanner, two triggers. Never a second copy |
 | Where the project stands right now | `roblox-pipeline/docs/runs/STATE.md` | Read into every session automatically. Keep it current |
