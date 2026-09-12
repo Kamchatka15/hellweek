@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
@@ -9,6 +9,9 @@ import { dirname, join } from "node:path";
 const REPO = join(dirname(fileURLToPath(import.meta.url)), "..");
 const OUT_MD = join(REPO, "SYSTEM-MAP.md");
 const OUT_HTML = join(REPO, "..", "system-map.html");
+// Mermaid is vendored and INLINED, not linked from a CDN: START-HERE promises the
+// map "renders offline", and Justin opens it by double-clicking the file.
+const MERMAID = readFileSync(join(REPO, "tools", "vendor", "mermaid.min.js"), "utf8");
 
 // Single source of truth for every diagram. build → SYSTEM-MAP.md (for Claude Code)
 // and system-map.html (rendered, for Justin). Same strings feed both, so no drift.
@@ -281,7 +284,7 @@ ${toc}
   </nav>
 ${sections}
   <footer>Generated for Justin's Roblox pipeline · edit build_map.mjs and regenerate to keep this and SYSTEM-MAP.md in sync.</footer>
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <script>${MERMAID}</script>
   <script>
     mermaid.initialize({ startOnLoad: true, theme: matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "default", flowchart: { useMaxWidth: true } });
   </script>
