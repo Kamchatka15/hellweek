@@ -104,7 +104,29 @@ This is the piece that does not exist yet and is the actual answer to "AI can co
 | Social / clip hook | **at most 1** | The thing a 12-year-old films |
 | Player-facing systems | **at most 4 total** | Shop, upgrade, zone, collection… count them |
 | On-screen numbers | **at most 3** | A fourth counter is where the HUD stops being readable |
-| Things explained by text | **0** | If it needs a tutorial popup, it is not legible yet |
+| Onboarding artifact | **exactly 1, required** | Not "no explanation" — see the comprehension bar below |
+
+### The onboarding agent and the comprehension bar
+
+**Every game ships with a walkthrough / intro / how-to, built by a dedicated agent.** This is a standing requirement of the factory, not a per-game choice, and it is a missing engine component today.
+
+The bar it has to clear is not a stopwatch. It is:
+
+> **A ten-year-old who has never seen the game understands it quickly enough to want to keep playing.**
+
+That phrasing is deliberate. "Fifteen seconds" is a number that sounds rigorous and measures the wrong thing — a game can be understood in five seconds and still be ignored. The real test is comprehension *fast enough to produce engagement*, and the only instrument for it is an actual ten-year-old.
+
+**This gives Gate A the numbers it was missing.** Gate A is the gate that fires on every build, and until now it was a prose stop-and-patch list. It becomes:
+
+| Gate A check | Pass condition | How it is run |
+|---|---|---|
+| Goal comprehension | The tester can say, in their own words, what they are trying to do | Ask after first exposure. Do not explain first |
+| First action | They do the first meaningful action without being told how | Watch. Say nothing |
+| Pull | They want a second go without being asked | Watch, do not prompt |
+| Loop completion | Earn → spend → visible progress, unassisted | The existing doctrine bar |
+| Stability | One full session, no softlock, no data loss | The existing doctrine bar |
+
+The first three are the new ones, and the tester is Hunter's cohort, not Justin. **An owner cannot run a comprehension test on a game he designed** — he already knows the answer, which is exactly what makes him the wrong instrument.
 
 Anything the expansion produced beyond these caps is **not discarded** — it goes to the parking list and is re-read at the next title. That is what lets the AI propose freely without the slice getting worse.
 
@@ -116,7 +138,63 @@ The same questions every time means no re-deciding what to ask. The same filters
 
 ---
 
-## 4 · The compounding loop — the missing centre
+## 4 · Portability — the factory has to travel
+
+**The requirement:** multiple games, probably under different Claude projects. Start a new title in a new project, and the engine, rules, process, evidence and craft assets are all *already there*.
+
+That is impossible with today's layout, because the factory and the first title live in the same folder. `roblox-pipeline/` is currently both the reusable machine and one game's workspace. Splitting them is the precondition for everything in this section.
+
+```mermaid
+flowchart TB
+    subgraph ROOT["Roblox Business/ — THE FACTORY · one canonical copy · every project reads it"]
+        F1["engine/ — src/core, versioned"]
+        F2[".claude/ — rules + hooks"]
+        F3["process/ — skills, gates, templates"]
+        F4["evidence/ — research, patterns, closeouts, CHANGELOG"]
+        F5["craft/ — art kit, UI kit, hooks that landed"]
+    end
+    subgraph W1["Project A · title 1"]
+        A1["games/&lt;slug&gt;/ pack only"]
+    end
+    subgraph W2["Project B · title 2"]
+        B1["games/&lt;slug&gt;/ pack only"]
+    end
+    subgraph W3["Project C · title 3"]
+        C1["games/&lt;slug&gt;/ pack only"]
+    end
+    ROOT --> W1
+    ROOT --> W2
+    ROOT --> W3
+    W1 -.->|"closeout + evidence"| F4
+    W2 -.->|"closeout + evidence"| F4
+    W3 -.->|"closeout + evidence"| F4
+```
+
+**The non-negotiable that falls out of this:** evidence has **one** home. If title 2 lives in a different Claude project and writes its learnings into its own folder, title 3 will never see them and the compounding loop is dead — every project would relearn the same lessons in parallel. All closeouts, all research, all patterns, all changelog entries write back to the single `evidence/` store at the root, whichever project produced them.
+
+**"Install a new game title"** then means one command that: creates the pack skeleton, links the engine at a pinned version, copies in the rules + hooks, and writes a `FACTORY.lock` recording which version of the factory this title was built against — so a title built six months ago is still explicable when its engine has moved on.
+
+### Flexible without being formless
+
+Two stated requirements pull against each other, and the tension is real, not a wording problem:
+
+> *"ask the same questions and apply the same filters every time"* · **versus** · *"each game will have different issues — Claude can't be stuck on an old process"*
+
+The resolution is that not everything in the process is the same kind of thing.
+
+| | **Invariants** | **Defaults** |
+|---|---|---|
+| What | Never change, whatever the game | The starting position, changed freely per game |
+| Examples | Server-authoritative economy · no third-party IP · no simulated gambling · publishing and paid products are a human click · a complexity budget exists · an onboarding artifact exists · a closeout is written | *Which* six questions · *what* the caps are · which systems · which return hook · which research applies |
+| Changing one | Requires Justin, explicitly | A title just does it, and says so |
+
+**The deviation rule — this is what makes the process learn instead of ossify.** A title that departs from a default declares it in one line with a reason, exactly like the existing spec-deviation rule. Those declarations land in the evidence store. **When the same deviation shows up in two titles, it stops being a deviation and becomes the new default.** That is the mechanism by which the process updates itself from practice rather than from opinion — and it means a rigid-looking system is never more than two games away from correcting itself.
+
+A process that cannot be deviated from gets abandoned the first time it does not fit. A process that can be deviated from silently is not a process. Declared deviations are the only version that survives contact with a real game.
+
+---
+
+## 5 · The compounding loop — the missing centre
 
 This is the mechanism that makes the system get better instead of just repeat. Today the dotted arrows do not exist: every title ends, a learnings doc is written, and nothing reads it.
 
@@ -144,6 +222,26 @@ flowchart LR
 4. **Craft accumulates.** The hook that landed, the UI that read clearly, the thumbnail that got clicked — these belong in a library, not in one dead title's folder.
 
 **The one artifact that makes this real:** a per-title closeout that is *required* and *structured*, so the next title can read it mechanically instead of someone remembering. Proposed as `docs/runs/CLOSEOUT-<slug>.md`, with a standing rule that no new title starts until the previous one has one.
+
+### Recording is not learning — every title carries a test
+
+A closeout that only reports what happened produces stories, not knowledge. Given any outcome, a sufficiently clever session can explain why it was always going to happen. That is how a system convinces itself it is learning while the games stay the same.
+
+The fix is cheap: **every title declares one or two hypotheses before it is built**, in the brief, in plain language.
+
+> *"We think offline earnings will beat a daily-login reward on D1 return for a snack-shape game."*
+> *"We think a single clip-able moment in the first minute matters more than three upgrade tiers."*
+
+Then the closeout has something to be *wrong* against. A prediction that failed is worth more than five pages of retrospective narrative, because only the failure changes what the next title does.
+
+| | |
+|---|---|
+| **Before build** | 1–2 hypotheses in the brief. Specific enough to be wrong |
+| **At the gates** | The measurement that settles them is instrumented on purpose, not hoped for |
+| **At closeout** | Each one marked **confirmed / refuted / inconclusive**, one line of evidence |
+| **Then** | Confirmed twice → becomes a default. Refuted → recorded so no future title retries it blind. Inconclusive → the test was badly designed; say so |
+
+This is also where **new tests** come from. A refuted hypothesis usually suggests the next one, and Claude proposes the next title's tests from the accumulated evidence rather than from a blank page.
 
 ### The constraint that shapes all of this
 
@@ -182,7 +280,7 @@ This gives the loop three moving parts, two of which do not exist yet.
 
 ---
 
-## 5 · What carries between games — the asset ledger
+## 6 · What carries between games — the asset ledger
 
 For many titles, the question is always "does this belong to the game or to the factory?" Default answer: **the factory**, unless it is a name, a number, or a picture.
 
@@ -202,7 +300,7 @@ Two rows say **needs a home**. Those are the concrete next builds.
 
 ---
 
-## 6 · The gap list, in build order
+## 7 · The gap list, in build order
 
 | # | Gap | Why it matters for many games | Size |
 |---|---|---|---|
@@ -210,14 +308,24 @@ Two rows say **needs a home**. Those are the concrete next builds.
 | 1 | **Gate A has no numbers** | It is the gate that fires on *every* build. Gate B has hard bars (D1 ≥12%, etc.); Gate A is a prose stop-and-patch list, so "is the slice good" is re-argued every title | Small |
 | 2 | **No closeout artifact + no changelog** | Without them Layer 3 cannot exist: titles teach nothing and self-changes are unauditable | Small |
 | 2b | **No scheduled research task** | "Get information on your own" needs a recurring job that runs without being asked | Small |
+| 2c | **Factory and title share a folder** | Blocks §4 entirely. Nothing is portable to a second project until the machine is separated from the first game | Medium |
+| 2d | **No onboarding agent / FTUE module** | Every game is required to have one and the engine has no component for it | Medium |
 | 3 | **No visual quality bar** | Project goal says visually professional. `GrokBDownloads/` accepts art with nothing to clear | Medium |
 | 4 | **No hook / craft library** | The best thing a dead title produces currently dies with it | Medium |
 | 5 | **Title registry** | With many games there is no single list of what exists, its state, and its numbers | Small |
 
 ---
 
-## 7 · One open decision for Justin
+## 8 · Open decisions
 
-The doctrine says **one active title at a time** (`ROBLOX_SUCCESS_LOGIC.md`, idea-intake). "Many games" is fully compatible with that if it means *sequentially* — a portfolio built one at a time. It is not compatible if it means several titles in flight at once.
+### Resolved this session
 
-Sequential is the recommendation and the doctrine's existing position: two half-built games lose to one finished one, and the factory only compounds when a title actually reaches a closeout. **Confirm or change — this file assumes sequential.**
+**Many titles, one build at a time.** "Running multiple games on the same Claude system" and "one active title" are not in conflict once the factory is separated from the workspace: the factory supports any number of titles, live or parked, across any number of projects. The scarce resource is not the machine, it is build attention — one title in *active build*, everything else live, parked or waiting. That is the doctrine's existing position and it survives the multi-project requirement intact.
+
+### Still open
+
+| # | Decision | Why it needs Justin |
+|---|---|---|
+| 1 | **The budget caps** — 1 verb, 1 return hook, ≤1 clip hook, ≤4 systems, ≤3 on-screen numbers | These are the goalposts. They were proposed, not derived, and they will constrain every game the factory ever makes. They should be owned, and then moved when evidence says to |
+| 2 | **Who runs the comprehension test** | It cannot be Justin — he designed the game and already knows the answer. Hunter's cohort is the obvious pool; confirm that is the standing arrangement |
+| 3 | **Restructure the folder** (§4) | Moving the factory up to the root and leaving `games/<slug>/` behind touches every path in the repo. Worth doing before the second title exists, painful after |
