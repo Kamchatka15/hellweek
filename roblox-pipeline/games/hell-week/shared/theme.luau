@@ -67,6 +67,9 @@ return {
 	-- The Gift's bloom is the only competing warm, and it is deliberately WRONG — a
 	-- pink-orange that does not belong to the wick.
 	colors = {
+		-- The line painted on the ground at the edge of the safe radius. Bone-pale so
+		-- it reads on sand at noon and on dark ground at midnight.
+		safeRing = Color3.fromRGB(232, 220, 188),
 		sand = Color3.fromRGB(168, 150, 122), -- bleached dead sand, never golden-hour warm
 		water = Color3.fromRGB(92, 178, 198),
 		post = Color3.fromRGB(70, 62, 56),
@@ -96,6 +99,14 @@ return {
 	-- are exactly two onboarding lines (brief §4). No scripture, no sermons, no names
 	-- of anywhere in the parked list.
 	copy = {
+		-- Telegraphed, never sprung. Lowercase and plain on purpose: the leader's
+		-- danger lines are written the way a friend would say them, not the way a
+		-- system would log them.
+		nightComing = "night is coming",
+		creatureHit = "it turns on you",
+		creatureKilled = "it stops moving",
+		nothingFits = "it has no use for that",
+
 		toastClock = "THE FIRE IS THE ONLY CLOCK",
 		toastWaits = "IT WAITS FOR THE LIGHT TO THIN",
 		pickUp = "PICK UP",

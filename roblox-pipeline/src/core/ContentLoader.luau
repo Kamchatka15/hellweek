@@ -263,6 +263,52 @@ function ContentLoader.buildScenery(pack: any, specs: { any })
 	return folder
 end
 
+--- Draw a dashed circle flat on the ground.
+---
+--- The single highest-value readability device in the survive genre, and the one we
+--- had missed entirely: the leader PAINTS the safe radius on the terrain rather than
+--- implying it with light. A drawn ring is legible in flat noon daylight from well
+--- outside it, legible on dark ground at midnight, and it needs no words, no icon and
+--- no camera angle. Light falloff does none of those things.
+---
+--- Returns the folder so the caller can destroy and redraw it when the radius changes;
+--- watching the circle GROW is how a player learns that feeding the beacon did
+--- something.
+function ContentLoader.groundRing(spec: any, parent: Instance): Folder
+	local folder = Instance.new("Folder")
+	folder.Name = spec.name or "GroundRing"
+
+	local radius = spec.radius or 30
+	local dashes = spec.dashes or math.clamp(math.floor(radius * 1.6), 24, 96)
+	local width = spec.width or 1.2
+	local length = spec.length or (2 * math.pi * radius / dashes) * (spec.fill or 0.55)
+	local centre = spec.centre or Vector3.zero
+	local y = spec.y or (centre.Y + 0.06)
+
+	for index = 1, dashes do
+		local theta = (index - 1) / dashes * math.pi * 2
+		local x = centre.X + math.cos(theta) * radius
+		local z = centre.Z + math.sin(theta) * radius
+		local dash = Instance.new("Part")
+		dash.Name = "Dash"
+		dash.Anchored = true
+		dash.CanCollide = false
+		dash.CanTouch = false
+		dash.CastShadow = false
+		dash.Size = Vector3.new(length, 0.08, width)
+		dash.CFrame = CFrame.new(Vector3.new(x, y, z)) * CFrame.Angles(0, -theta, 0)
+		dash.Color = spec.color or Color3.fromRGB(226, 214, 176)
+		dash.Material = spec.material or Enum.Material.Neon
+		dash.Transparency = spec.transparency or 0.25
+		dash.TopSurface = Enum.SurfaceType.Smooth
+		dash.BottomSurface = Enum.SurfaceType.Smooth
+		dash.Parent = folder
+	end
+
+	folder.Parent = parent
+	return folder
+end
+
 --- Repaint the ground. A world swap changes what is underfoot as well as what is on it.
 function ContentLoader.setFloor(pack: any, spec: any)
 	local floor = pack.folder:FindFirstChild("Floor")

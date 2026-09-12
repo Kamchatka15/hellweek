@@ -19,9 +19,11 @@ local TweenService = game:GetService("TweenService")
 local Core = script.Parent
 local AnalyticsService = require(Core.AnalyticsService)
 local BeaconService = require(Core.BeaconService)
+local BuildService = require(Core.BuildService)
 local ChallengeService = require(Core.ChallengeService)
 local ClockService = require(Core.ClockService)
 local ContentLoader = require(Core.ContentLoader)
+local CreatureService = require(Core.CreatureService)
 local DataService = require(Core.DataService)
 local PickupService = require(Core.PickupService)
 local RecipeService = require(Core.RecipeService)
@@ -43,6 +45,7 @@ local OPENING_PUSHES = { 0, 0.5, 1.5, 3 }
 
 local pack: any = nil
 local config: any = nil
+local safeRing: Folder? = nil
 local theme: any = nil
 
 local run = {
@@ -227,7 +230,10 @@ local function buildBeacon(): (BasePart, PointLight)
 		light.Color = theme.colors.flameLight
 		light.Brightness = c.lightBrightness
 		light.Range = c.radiusBase
-		light.Shadows = false
+		-- Shadows ON. This is a game about the edge of the light, and long shapes
+		-- thrown outward from the obelisk are the best image the product can make.
+		-- Needs Lighting.Technology past Voxel, which is a plugin-only click in Studio.
+		light.Shadows = true
 		light.Parent = anchor
 		ContentLoader.label(flame :: BasePart, string.upper(theme.names.beacon), nil, theme)
 		return flame :: BasePart, light
@@ -357,6 +363,34 @@ local function setFogRadius(radius: number)
 		slab.Size = Vector3.new(width, c.wallHeight, 1)
 		slab.CFrame = CFrame.lookAt(position, Vector3.new(origin.X, position.Y, origin.Z))
 	end
+end
+
+--- Redraw the ring painted on the ground at the edge of the safe radius.
+---
+--- The highest-value readability device the whole 99 Nights watch turned up: the
+--- genre leader PAINTS its safe zone on the terrain rather than implying it with
+--- light. A drawn line is legible in flat noon daylight from outside it, and legible
+--- on dark ground at midnight. Light falloff is neither of those things, and in a
+--- desert four times the size the lighting numbers were set for, it is a guess made
+--- while something is chasing you.
+---
+--- Redrawn whenever the radius moves, because watching the circle GROW is how a
+--- player learns that feeding the obelisk did something.
+local function drawSafeRing()
+	if safeRing then
+		safeRing:Destroy()
+		safeRing = nil
+	end
+	local centre = config.beacon.position
+	safeRing = ContentLoader.groundRing({
+		name = "SafeRing",
+		centre = centre,
+		radius = BeaconService.radius(),
+		color = theme.colors.safeRing or Color3.fromRGB(226, 214, 176),
+		transparency = 0.28,
+		width = 1.3,
+		y = centre.Y - 1.9,
+	}, pack.folder)
 end
 
 local function fogRadiusForLevel(level: number): number
@@ -707,6 +741,27 @@ local function endRun(won: boolean, reason: string)
 	end)
 end
 
+--- Put creatures in the waste, more of them as the week wears on.
+---
+--- The desert had nothing alive in it, which is the real gap behind the question
+--- "what are the weapons". The answer is that the weapon is the harvesting tool, and
+--- what it harvests sometimes looks back at you. This is prey, not the threat: the
+--- stalker stays unkillable, because a night you can put down is not a night.
+local function stockCreatures(day: number)
+	if not config.creatures or #config.creatures == 0 then
+		return
+	end
+	local want =
+		math.min((config.creatureBase or 4) + (day - 1) * (config.creaturePerDay or 2), config.creatureCap or 14)
+	local def = config.creatures[1]
+	local inner = (config.creatureRing and config.creatureRing.inner) or 70
+	local outer = (config.creatureRing and config.creatureRing.outer) or 240
+	while CreatureService.count() < want do
+		local spot = randomInRing(inner, outer)
+		CreatureService.spawn(def.id, spot)
+	end
+end
+
 local function onPhase(name: string, cycle: number, length: number)
 	run.day = cycle
 	run.phase = name
@@ -716,6 +771,20 @@ local function onPhase(name: string, cycle: number, length: number)
 		BeaconService.setBurn(0, 0)
 		setMood(false)
 		spawnOpenRings(nil)
+		stockCreatures(cycle)
+		-- Telegraph the night.
+		--
+		-- Nothing bad in 99 Nights arrives unannounced: night is announced before it
+		-- falls, and the raid announces itself by name. We had been manufacturing
+		-- surprise where they manufacture DREAD, which is a different and better
+		-- feeling, and the whole difference is one line a few seconds early.
+		local warnAt = math.max(length - (config.days and config.nightWarning or 12), 4)
+		local dayAtWarning = cycle
+		task.delay(warnAt, function()
+			if run.active and run.phase == "day" and run.day == dayAtWarning then
+				toastAll("dusk", theme.copy.nightComing or "night is approaching", "warn")
+			end
+		end)
 		if cycle >= config.lure.firstDay then
 			spawnLure()
 		end
@@ -801,6 +870,10 @@ end
 
 startRun = function()
 	PickupService.clear()
+	-- The camp is a WITHIN-run achievement, like the tools and the carry cap. Every
+	-- run starts on bare ground; what survives a run is decided elsewhere.
+	BuildService.clear()
+	CreatureService.clear()
 	run.bowl = {}
 	refreshBowlState()
 	BeaconService.reset(config.beacon.startingFuel)
@@ -1208,8 +1281,129 @@ local function nearestChest(player: Player): BasePart?
 	return part
 end
 
+--- Swing at something alive. `power` is swings, not damage: a kid counts swings.
+local function strike(player: Player, record: any)
+	local held = ToolService.holding(player)
+	local def = held and ToolService.definition(held)
+	-- Bare hands work, they are just slow. A tool is an accelerator, never a gate,
+	-- because a gate means a new player stands next to a scorpion doing nothing.
+	local power = if def and def.effect == "harvest" then 2 else 1
+	local killed = CreatureService.strike(record, player, power)
+	if not killed then
+		toast(player, "hit", theme.copy.creatureHit or "It turns on you.", "warn", 1)
+		return
+	end
+	local where = record.position
+	for kind, count in record.def.drops do
+		for index = 1, count do
+			local theta = math.random() * math.pi * 2
+			placeItem(kind, where + Vector3.new(math.cos(theta) * (1.4 + index), 0, math.sin(theta) * (1.4 + index)))
+		end
+	end
+	toast(player, "killed", theme.copy.creatureKilled or "It stops moving.", "good", 1)
+end
+
+--- Build a piece at the player's feet. The client names a piece; the server decides
+--- where (here), whether it is legal, and whether it is paid for. A forged message
+--- can ask to build. It cannot say where, and it cannot build for free.
+local function build(player: Player, id: string)
+	local def = BuildService.definition(id)
+	if not def then
+		return
+	end
+	local root = rootOf(player)
+	if not root then
+		return
+	end
+	local spot = Vector3.new(root.Position.X, config.beacon.position.Y - 2, root.Position.Z)
+	local ok, why = BuildService.canPlace(id, spot)
+	if not ok then
+		toast(player, "noplace", why or "Not here.", "warn", 1)
+		return
+	end
+	for kind, count in def.cost do
+		if SackService.countOf(player, kind) < count then
+			local item = config.items[kind]
+			toast(player, "cost", `You need {count} {(item and item.label) or kind}.`, "warn", 1)
+			return
+		end
+	end
+	for kind, count in def.cost do
+		SackService.take(player, kind, count)
+	end
+	BuildService.place(id, spot, player)
+	toast(player, "built", `{def.label}. {def.blurb or ""}`, "good", 0)
+	AnalyticsService.step(player, "first_build")
+	StateSync.requestAll()
+end
+
+--- Put the sack into a cache or a rack, or take out what is waiting.
+---
+--- One button does both, and which one it does is decided by what is actually in
+--- front of you: if the thing has something ready, you take it; otherwise you give it
+--- what you are carrying. Two buttons would be more precise and nobody would find the
+--- second one.
+local function usePiece(player: Player, record: any)
+	local waiting = BuildService.readyCount(record)
+		+ (if record.def.effect == "store" then BuildService.heldCount(record) else 0)
+	if waiting > 0 then
+		local out = BuildService.withdraw(record)
+		local taken = 0
+		for kind, count in out do
+			for _ = 1, count do
+				if SackService.add(player, kind) then
+					taken += 1
+				else
+					-- No room: it goes back on the ground rather than evaporating.
+					placeItem(kind, record.position + Vector3.new(math.random(-3, 3), 0, math.random(-3, 3)))
+				end
+			end
+		end
+		toast(player, "took", `Took {taken} from the {string.lower(record.def.label)}.`, "good", 1)
+		StateSync.requestAll()
+		return
+	end
+
+	local wanted = record.def.input
+	local bag = SackService.drain(
+		player,
+		if wanted
+			then function(kind)
+				return kind == wanted
+			end
+			else nil
+	)
+	local put = 0
+	for kind, count in bag do
+		local accepted = BuildService.deposit(record, kind, count)
+		put += accepted
+		for _ = 1, (count - accepted) do
+			SackService.add(player, kind) -- did not fit; keep carrying it
+		end
+	end
+	if put <= 0 then
+		toast(player, "nofit", theme.copy.nothingFits or "It has no use for that.", "info", 1)
+	else
+		toast(player, "put", `Left {put} at the {string.lower(record.def.label)}.`, "good", 1)
+	end
+	StateSync.requestAll()
+end
+
 --- The one context action available where the player is standing, or nil.
 local function contextFor(player: Player): (string?, BasePart?)
+	local root = rootOf(player)
+	if root then
+		-- Something alive and close outranks everything: you do not want the button
+		-- to say OPEN while a scorpion is biting you.
+		local creature = CreatureService.nearest(root.Position, 7)
+		if creature then
+			return "strike", nil
+		end
+		local piece = BuildService.nearest(root.Position, nil, 8)
+		if piece and (piece.def.effect == "store" or piece.def.effect == "convert") then
+			return "use", nil
+		end
+	end
 	if nearestChest(player) then
 		return "open", nearestChest(player)
 	end
@@ -1384,6 +1578,36 @@ function SurviveLoop.start(loaded: any)
 		ToolService.start()
 	end
 
+	-- The camp and the things that live out there. Both are generic in the engine;
+	-- the catalogue and the creature come from the pack.
+	if config.pieces then
+		BuildService.configure(config.pieces, {
+			parent = pack.folder,
+			block = ContentLoader.block,
+			anchor = function()
+				return config.beacon.position
+			end,
+		})
+		BuildService.start()
+	end
+	if config.creatures then
+		CreatureService.configure(config.creatures, {
+			parent = pack.folder,
+			block = ContentLoader.block,
+			isNight = function()
+				return run.phase == "night"
+			end,
+			-- Nothing that hunts comes into a lit island. The light is the rule for
+			-- everything here, not a special case for the stalker.
+			safeAt = function(position)
+				local centre = config.beacon.position
+				local flat = Vector3.new(position.X - centre.X, 0, position.Z - centre.Z).Magnitude
+				return flat <= BeaconService.radius() or BuildService.litAt(position)
+			end,
+		})
+		CreatureService.start()
+	end
+
 	local flame, light = buildBeacon()
 	stalkerModel = buildStalker()
 	buildFogRing()
@@ -1405,7 +1629,15 @@ function SurviveLoop.start(loaded: any)
 		model = stalkerModel :: Model,
 		origin = BeaconService.position,
 		safeRadius = BeaconService.radius,
-		wardRadius = ToolService.wardRadius,
+		-- A held ward and a planted ward are the same promise, so take the better of
+		-- the two rather than the sum. Stacking would let a player wall the night out
+		-- entirely, and a night you can switch off is not a night.
+		wardRadius = function(player)
+			local held = ToolService.wardRadius(player)
+			local root = rootOf(player)
+			local planted = if root then BuildService.wardRadiusAt(root.Position) else 0
+			return math.max(held, planted)
+		end,
 		standOff = config.stalker.standOff,
 		speed = config.stalker.speed,
 		touchDistance = config.stalker.touchDistance,
@@ -1439,10 +1671,20 @@ function SurviveLoop.start(loaded: any)
 		limit = 12,
 		window = 4,
 		validate = function(verb)
-			return verb == "pickup" or verb == "action"
+			if verb == "pickup" or verb == "action" then
+				return true
+			end
+			-- "build:<id>". The client names WHICH piece and nothing else; the server
+			-- still decides where it goes, whether the spot is legal, and whether it
+			-- is paid for.
+			return typeof(verb) == "string" and string.sub(verb, 1, 6) == "build:" and #verb <= 40
 		end,
 	}, function(player, verb)
 		if not run.active then
+			return
+		end
+		if string.sub(verb, 1, 6) == "build:" then
+			build(player, string.sub(verb, 7))
 			return
 		end
 		if verb == "pickup" then
@@ -1455,7 +1697,18 @@ function SurviveLoop.start(loaded: any)
 			return
 		end
 		local context, chest = contextFor(player)
-		if context == "open" and chest then
+		local root = rootOf(player)
+		if context == "strike" and root then
+			local creature = CreatureService.nearest(root.Position, 7)
+			if creature then
+				strike(player, creature)
+			end
+		elseif context == "use" and root then
+			local piece = BuildService.nearest(root.Position, nil, 8)
+			if piece then
+				usePiece(player, piece)
+			end
+		elseif context == "open" and chest then
 			PickupService.collectPart(player, chest)
 		elseif context == "offer" then
 			offer(player)
@@ -1523,6 +1776,10 @@ function SurviveLoop.start(loaded: any)
 		end
 		endRun(false, "light_out")
 	end)
+	BeaconService.changed:connect(function()
+		drawSafeRing()
+	end)
+
 	BeaconService.levelChanged:connect(function(level, old)
 		setFogRadius(fogRadiusForLevel(level))
 		if level > old then

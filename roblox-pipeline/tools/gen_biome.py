@@ -38,7 +38,7 @@ BIOMES = {
         scrub=(74, 74, 58), ruin=(92, 84, 74),
         hide=(150, 122, 96),
         mounds=96, mesas=30, trees=78, scrub_n=150, rubble=110, ruins=16, bones=26,
-        teepees=9, wash=True, tree_h=(11, 26),
+        teepees=9, wash=True, tree_h=(10, 18),
     ),
     "still-wood": dict(
         seed=771020,
@@ -121,11 +121,16 @@ def build(world_id, cfg):
     # ---- shapes ----
     def mound(i, x, z, r):
         w, h = rng.uniform(46, 135), rng.uniform(9, 22)
+        # Shadow ON. The dunes are the dominant large form; with the sun low, they are
+        # what gives the ground relief. Switched off, the desert reads as flat sand.
         emit(f"Mound{i}", (w, h * 2, w * rng.uniform(0.6, 1.0)), (x, -h * 0.62, z),
-             shape="Ball", color=jitter(cfg["ground"], 8), material=cfg["ground_mat"], shadow=False)
+             shape="Ball", color=jitter(cfg["ground"], 8), material=cfg["ground_mat"], shadow=True)
 
     def mesa(i, x, z, r):
-        base_w, layers, y, yaw = rng.uniform(16, 34), rng.randint(3, 6), 0.0, rng.uniform(0, 360)
+        # Capped so the obelisk wins its own scene. The landmark is 19.4 studs and was
+        # deliberately shortened so the flame reads; the fix is to lower the scenery,
+        # not to raise the monument.
+        base_w, layers, y, yaw = rng.uniform(14, 27), rng.randint(3, 5), 0.0, rng.uniform(0, 360)
         for k in range(layers):
             w = base_w * (1 - k / (layers + 1.4))
             h = rng.uniform(3.4, 7.0)
@@ -195,7 +200,7 @@ def build(world_id, cfg):
     # mouth from `teepees.luau`, so it can be looted once and restock between runs.
     teepee_spots = []
 
-    def teepee(i, x, z, r):
+    def teepee(i, x, z, r, tint=(0, 0, 0)):
         teepee_spots.append((x, z))
         h = rng.uniform(13, 18)
         base = h * 0.34
@@ -224,7 +229,8 @@ def build(world_id, cfg):
                 emit(f"Tee{i}_h{k}_{lay}", (pw, h / 3 * 1.12, 0.35),
                      (x + math.cos(ar) * pr, py + h / 6, z + math.sin(ar) * pr),
                      rot=(0, -a + 90, rng.uniform(-3, 3)),
-                     color=jitter(cfg["hide"], 7), material="Fabric", collide=False, shadow=False)
+                     color=jitter(tuple(max(0, min(255, c + t)) for c, t in zip(cfg["hide"], tint)), 7),
+                     material="Fabric", collide=False, shadow=True)
         # a smoke pole and two stakes at the mouth so it reads as lived-in
         emit(f"Tee{i}_top", (h * 0.22, 0.4, 0.4), (x, h + h * 0.07, z), shape="Cylinder",
              rot=(0, 0, 90), color=jitter(cfg["wood"], 8), material="Wood", collide=False)
@@ -248,7 +254,28 @@ def build(world_id, cfg):
         scatter(cfg["pools"], CLEAR_R, RADIUS, pool)
     if cfg.get("embers"):
         scatter(cfg["embers"], CLEAR_R, RADIUS, ember)
-    scatter(cfg["teepees"], 78, 320, teepee, clear=78)
+    # Camps, not singles.
+    #
+    # A lone teepee reads as terrain decoration, so there is nothing to wonder about
+    # and no reason to cross ground to reach it. Three pitched together in different
+    # hides read as "people were here", which is a question. Watched live in 99
+    # Nights: their tents come in threes, in three colours, on a dirt patch.
+    #
+    # Same asset budget, completely different pull. This is a parameter change.
+    HIDE_TINTS = ((0, 0, 0), (-20, -12, 2), (16, 6, -10), (-10, 10, 14))
+
+    def camp(i, x, z, r):
+        n = 3 if rng.random() < 0.75 else 2
+        yaw0 = rng.uniform(0, 360)
+        for k in range(n):
+            a = math.radians(yaw0 + k * (360 / n) + rng.uniform(-20, 20))
+            spread = rng.uniform(13, 22)
+            teepee(i * 10 + k,
+                   x + math.cos(a) * spread,
+                   z + math.sin(a) * spread,
+                   r, tint=HIDE_TINTS[(i + k) % len(HIDE_TINTS)])
+
+    scatter(max(2, round(cfg["teepees"] / 3)), 90, 300, camp, clear=112)
 
     if cfg.get("wash"):
         yaw = math.radians(28)

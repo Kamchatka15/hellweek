@@ -18,6 +18,21 @@ return {
 	worlds = require(script.Parent.biomes),
 	worldId = "ashen-waste",
 
+	-- The camp and the things that live in the waste. `camp.luau` explains why every
+	-- piece is justified by RANGE rather than by being nice to have.
+	pieces = require(script.Parent.camp).pieces,
+	creatures = require(script.Parent.camp).creatures,
+
+	-- How much is alive out there, and where it starts. Never inside the first ring:
+	-- a scorpion at the obelisk on the first morning is a different, worse game.
+	creatureBase = 4,
+	creaturePerDay = 2,
+	creatureCap = 14,
+	creatureRing = { inner = 78, outer = 250 },
+
+	-- Seconds of warning before night. Nothing bad here arrives unannounced.
+	nightWarning = 12,
+
 	-- The floor top. Everything that sits on the sand is placed from this.
 	groundY = 0,
 
@@ -74,6 +89,21 @@ return {
 			color = Color3.fromRGB(255, 196, 64),
 			material = Enum.Material.Neon,
 			glow = { color = Color3.fromRGB(255, 200, 90), brightness = 1.8, range = 14 },
+		},
+		chitin = {
+			label = "Chitin",
+			fuel = 0,
+			size = Vector3.new(1.6, 0.5, 1.9),
+			color = Color3.fromRGB(56, 44, 52),
+			material = Enum.Material.Slate,
+		},
+		venom = {
+			label = "Venom",
+			fuel = 0,
+			size = Vector3.new(1, 1.5, 1),
+			color = Color3.fromRGB(176, 220, 96),
+			material = Enum.Material.Neon,
+			glow = { color = Color3.fromRGB(176, 220, 96), brightness = 1.1, range = 8 },
 		},
 		wardstone = {
 			label = "Wardstone",
@@ -183,8 +213,18 @@ return {
 
 	-- One row per day. `stalker` is what it does at night: watch (stand still on the
 	-- line) or hunt (walk toward anyone outside the light).
+	-- DAY 1 IS A TUTORIAL DAY, and it is long.
+	--
+	-- The single biggest onboarding device in the genre, taken from watching a
+	-- ten-year-old play the leader: its first day ran longer on its own than days 2
+	-- through 5 combined. A stranger gets to be bad at the game for as long as they
+	-- need, with no clock pressure, and the real cadence only starts once they have
+	-- fed the obelisk and built something. It costs one number.
+	--
+	-- Day 1 is also when the camp gets built, which is the whole reason day 2 is
+	-- different from day 1 rather than the same lap against a bigger number.
 	days = {
-		{ day = 100, night = 45, burn = 3, stalker = "watch" },
+		{ day = 300, night = 45, burn = 2, stalker = "watch" },
 		{ day = 100, night = 50, burn = 4, stalker = "hunt" },
 		{ day = 95, night = 55, burn = 6, stalker = "hunt" },
 		-- PARKED tuning below: escalation placeholders so the week has a shape
