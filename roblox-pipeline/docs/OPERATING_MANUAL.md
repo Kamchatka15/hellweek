@@ -184,6 +184,6 @@ Write the run log every time: commands, console excerpts, four screenshots, pass
 
 ## 11 · Today's override — the factory's first proof is this title
 
-Fat Man Gets Rich is mid-pipeline, at Wave-4-equivalent. A session that opens a new slug while it is Active is the anti-pattern with better typography. Point every agent at the holes that already exist: **wire the shelf and named tiers and the flood timer, apply the lighting rig, run the four-beat, print Hunter's script** — all behind Justin's three clicks (`docs/runs/PERSISTENCE_TEST.md`).
+**Hell Week** is Active (Justin, 2026-09-12); Fat Man Gets Rich is parked before Gate A. Pass 1 is built and four-beat tested on the scratch place (`docs/runs/2026-09-12-hell-week-mcp.md`). A session that opens a new slug while Hell Week is Active is the anti-pattern with better typography. Point every agent at the holes that already exist: **the unlisted publish + API access (Justin), the persist beat, Wave 4 dressing from `games/hell-week/shelf.md`, and Hunter's Gate A** (`games/hell-week/gate-a-script.md`).
 
 **No v1.1 of this manual until a stranger has played.**

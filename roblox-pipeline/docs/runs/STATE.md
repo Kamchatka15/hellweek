@@ -8,49 +8,41 @@
 
 **Two clocks.** Attended ≈ **4 hours a day** (gates, the cut line, playtests, the G5 clicks) — scarce, spend it only on what needs Justin. Unattended = everything else: work `docs/runs/QUEUE.md` top-first, reversible only, and rewrite the next attended move here before stopping.
 
-## Standing rule until further notice (2026-09-12)
+## Standing rule until further notice (2026-09-12, re-pointed)
 
-**No further system work — no new hooks, agents, or restructuring — until Fat Man Gets Rich has been through Gate A with three fresh testers.** Only work that directly unblocks that test is allowed. The test of the factory is a game. (`docs/FACTORY_PLAN.md` Part 4.)
+**No further system work — no new hooks, agents, or restructuring — until Hell Week has been through Gate A with three fresh testers.** Only work that directly unblocks that test is allowed. The test of the factory is a game. (Justin re-pointed the rule from Fat Man Gets Rich to Hell Week by promoting the title in chat.)
 
 ## Where we are
 
 | Field | Value | Updated |
 |---|---|---|
-| Active title | **Fat Man Gets Rich** (`games/fat-man-gets-rich/`) | 2026-09-11 |
-| Parked | Layer Mine (research + SurfaceKiosk mesh kit retained) | 2026-09-11 |
-| Gate position | **Before Gate A.** Grey-box slice playable end to end; un-tuned; unpublished | 2026-09-12 |
-| Economy | **Sim run: the ladder is exhausted by day 3 and offline is 82% of coins.** Candidate C proposed for G2 (`docs/runs/2026-09-12-economy-sim.md`, E-0006). Not yet applied to `config.luau` — G2 is Justin's | 2026-09-12 |
-| Persistence | **Unverified.** Blocked on an unlisted publish (Justin's click). Test script ready: `docs/runs/PERSISTENCE_TEST.md` | 2026-09-12 |
-| Engine | 11 modules. `ReceiptService` deliberately absent until a product is approved at G5. R7 keeps the engine generic | 2026-09-12 |
-| Paid products | **None.** No `MarketplaceService` call in the repo. `sku.luau` is a draft ladder | 2026-09-12 |
-| Art + sound | Grey-box. **Style spec, Creator Store shelf (models + audio) and the ten-comp reference board ready.** Dressing moved BEFORE Gate A by Justin's call (a grey box cannot hold a kid long enough for metrics). Wiring into the pack is next; rendering is blocked on the unlisted publish (InsertService) | 2026-09-12 |
-| Working hours | **~4h/day attended** (corrected — the old "12-minute review window" was wrong). Unattended queue at `docs/runs/QUEUE.md` | 2026-09-12 |
-| Enforcement | R1–R7 + loop cap + SessionStart + git backstop (now also rojo build / selene / stylua on the Mac) | 2026-09-12 |
-| Evidence | 6 records (5 process, 1 economy). 0 player evidence — Gate B has not happened. 0 open contradictions | 2026-09-12 |
-
-## The cut list is ready (`research/2026-09-12-sweep-and-bank-comps.md`)
-
-Top-three teardowns done (Mine a Mountain, Bee Swarm, Grow a Garden). Ten shapes proposed, budget applied, **line drawn after #5**: named upgrade tiers, a timed golden flood (the clip), a visible coin pile. Rare coin variants, the magnet bomb, gifting, zones and trading parked. **Justin moves the line — two minutes.**
+| Active title | **Hell Week** (`games/hell-week/`) — arrived as a packet, intake fast path, Pass 1 built same day | 2026-09-12 |
+| Parked | Fat Man Gets Rich (before Gate A, no evidence against it, re-mounts via `default.project.json`) · Layer Mine | 2026-09-12 |
+| Gate position | **Before Gate A.** Pass 1 slice playable end to end on the scratch place; four-beat: 3 green, persist blocked on the publish click (`docs/runs/2026-09-12-hell-week-mcp.md`) | 2026-09-12 |
+| Economy | Fuel budget simulated (`games/hell-week/economy.md`): Day 1–2 safe for everyone, Day 3 bites only a slacker, one Gift helps a slacker and costs a casual the week. Wick cap 15 is the Days 4–7 soft spot — a G2 decision after Gate A | 2026-09-12 |
+| Persistence | **Unverified.** Same blocker as before: unlisted publish + API access (Justin's click, `docs/runs/PERSISTENCE_TEST.md`). Fields: `bestDay`, `tutorialComplete` | 2026-09-12 |
+| Engine | **Two night-rule fixes on disk, unsynced** (last-tick death; zero at nightfall). Two loop families now: `LoopService` (sweep-and-bank) and `SurviveLoop` (clock + beacon + stalker). 15 core modules. R1–R7 clean. One engine bug found by the second loop and fixed (`ZoneService` cylinder discs) | 2026-09-12 |
+| Paid products | **None.** No `MarketplaceService` call in the repo. `games/hell-week/server/sku.luau` is a draft soft shop | 2026-09-12 |
+| Art + sound | Grey-box with the lighting rig applied from data (default lighting gone). Shelf ready: 15 model IDs + 7 audio IDs (`games/hell-week/shelf.md`). Inserts and recolor are Wave 4, behind the publish (InsertService) | 2026-09-12 |
+| Studio | Scratch place `Place1` carries the tree via `tools/studio_sync.py`. `Lighting.Technology = Future` is a one-time Studio click (plugin-only property) | 2026-09-12 |
+| Enforcement | R1–R7 + loop cap + SessionStart + git backstop. Intake scanner regex fixed (`bet*` matched "better") | 2026-09-12 |
+| Evidence | 10 records (8 process, 1 economy, 1 tech). 0 player evidence — Gate A has not happened. 0 open contradictions | 2026-09-12 |
 
 ## Waiting on Justin (only the irreversible ones)
 
-1. **Publish an unlisted place** so the save path can be tested — `docs/runs/PERSISTENCE_TEST.md` has the exact clicks and the test.
-2. **G2 economy:** approve, adjust, or reject Candidate C from the sim before Gate A (the slice can be tested un-tuned, but the numbers in front of the kids should be the ones we mean).
-3. **Approve the re-created weekly digest** (bound to this folder, writes to `research/`).
-4. **Doctrine wording, §9 role split:** proposed one-line amendment — *"Human owns: ship / no-ship, money, and **the cut** — removing what confuses. Generative taste is not asked of the owner; the AI proposes, the owner prunes."* Yes / no / edit.
-5. **Confirm** the doctrine's Gate B floor (~12%+ OK to test spend; under ~8–10% death) governs over the higher numbers in PIPELINE and SYSTEM-MAP — both files now say so; this is the confirmation.
-
-## Phase 1 — the initial testing model, six moves (`The-Game-Factory.pdf` §5.2)
-
-1 publish unlisted + API on (Justin) → 2 wire shelf + cut list into the pack (Claude) → 3 persistence test + auto-playtest (Claude) → 4 Gate A with three fresh kids (Hunter operates) → 5 patch + icon/thumbnail (G4) → 6 Gate B, listed, zero spend — the real number.
+1. **Publish an unlisted place + Studio API access on** — unblocks the persist beat, InsertService dressing, and an honest Gate A. `docs/runs/PERSISTENCE_TEST.md` has the clicks.
+2. **`Lighting.Technology = Future`** in the Lighting properties panel (cannot be set from a script). One click, once.
+3. **Gate A:** Hunter recruits three kids; script at `games/hell-week/gate-a-script.md`.
+4. **G2, after Gate A:** the Days 4–7 tuning and the Wick cap (`games/hell-week/economy.md` §"What it says", point 4).
 
 ## Next real move
 
-**Gate A.** Hunter recruits three kids who have never seen it; runs `skills/playtest-comprehension.md` verbatim; Justin does the 10-minute fun-check separately. Output: the stop-and-patch list, the two budget questions answered, two hypotheses marked, and the first player evidence the ledger has ever held.
+**Justin's two clicks (publish unlisted + API on; Technology = Future), then the persist beat, then Wave 4 dressing from the shelf, then Gate A.** In that order. Nothing in Wave 4 needs a design decision; it needs InsertService.
 
 ## Open gaps named on purpose
 
-- No sound; no art seed (G4, after Gate A).
-- Late-ladder wall in every deep tuning — needs a second sink, a G2/live-ops decision with Gate B numbers.
-- No unattended disk→Studio path beyond `tools/studio_sync.py` (documented in `skills/studio-mcp.md`).
-- TestEZ not installed; economy invariants exist only as the sim.
+- No sound wired (IDs on the shelf; a night-drop sting was not found — search in Wave 4).
+- Days 4–7 are placeholders; the clock reaches them, the numbers are not the ones we mean.
+- Co-op is untested: the loop is server-wide and multi-player by construction, but only one player has been in a run.
+- `screen_capture` is edit-time only; the four-beat screenshots are staged, not live (run-01 finding, still true).
+- TestEZ not installed; the fuel budget exists only as `tools/survive_sim.py`.

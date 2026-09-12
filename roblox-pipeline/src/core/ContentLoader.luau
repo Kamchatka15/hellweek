@@ -7,7 +7,13 @@
 -- The world is built at run time from a data spec rather than placed by hand in Studio.
 -- That means a fresh place file plus this repo is a playable game — no .rbxl to keep in
 -- sync, and the layout is diffable like everything else.
+--
+-- What this module validates is only the contract EVERY loop family shares: a config,
+-- a world with a floor and a spawn, a theme with a title. Each loop family validates
+-- its own numbers at start (`LoopService.validate`, `SurviveLoop.validate`), because
+-- the loader must not know what a flood cooldown or a burn schedule is.
 
+local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -25,47 +31,23 @@ local function expect(condition: any, message: string)
 	end
 end
 
+ContentLoader.expect = expect
+
 local function validate(config: any, world: any, theme: any)
 	expect(typeof(config) == "table", "config.luau must return a table")
-	expect(typeof(config.flood) == "table", "config.flood is required")
-	expect(typeof(config.flood.cooldown) == "number", "config.flood.cooldown must be a number")
-	expect(typeof(config.upgrades) == "table" and #config.upgrades > 0, "config.upgrades must be a non-empty array")
-	for _, def in config.upgrades do
-		expect(typeof(def.id) == "string", "every upgrade needs a string id")
-		expect(typeof(def.maxLevel) == "number" and def.maxLevel >= 1, `upgrade {def.id} needs maxLevel >= 1`)
-		expect(typeof(def.baseCost) == "number" and def.baseCost > 0, `upgrade {def.id} needs a positive baseCost`)
-	end
-	-- Roles are how the engine stays ignorant of this game's vocabulary: the pack says
-	-- which of its upgrades fills each engine slot.
-	expect(typeof(config.roles) == "table", "config.roles is required")
-	local byId = {}
-	for _, def in config.upgrades do
-		byId[def.id] = true
-	end
-	for _, role in { "carryCap", "collectRadius", "burstCount", "pickupValue" } do
-		local target = config.roles[role]
-		expect(typeof(target) == "string", `config.roles.{role} must name an upgrade id`)
-		expect(byId[target], `config.roles.{role} points at '{target}', which is not in config.upgrades`)
-	end
-
-	expect(typeof(config.offline) == "table", "config.offline is required (the return hook)")
-	expect(config.offline.capSeconds and config.offline.capSeconds > 0, "config.offline.capSeconds must be positive")
+	expect(config.loop == nil or typeof(config.loop) == "string", "config.loop must be a string if set")
 
 	expect(typeof(world) == "table", "world.luau must return a table")
 	expect(typeof(world.floor) == "table", "world.floor is required")
-	expect(typeof(world.zones) == "table" and #world.zones > 0, "world.zones must be a non-empty array")
-	local kinds = {}
+	expect(typeof(world.zones) == "table", "world.zones must be an array (may be empty)")
 	for _, zone in world.zones do
 		expect(typeof(zone.id) == "string", "every zone needs a string id")
-		kinds[zone.kind] = true
+		expect(typeof(zone.kind) == "string", `zone {zone.id} needs a kind`)
 	end
-	-- The loop does not close without both halves of earn -> spend.
-	expect(kinds.payout, "world.zones needs at least one zone of kind 'payout'")
-	expect(kinds.bank, "world.zones needs at least one zone of kind 'bank'")
 	expect(typeof(world.spawn) == "table", "world.spawn is required")
 
 	expect(typeof(theme) == "table", "theme.luau must return a table")
-	expect(typeof(theme.currencyName) == "string", "theme.currencyName is required")
+	expect(typeof(theme.title) == "string", "theme.title is required")
 end
 
 local function label(part: BasePart, text: string, subtext: string?, theme: any)
@@ -103,20 +85,72 @@ local function label(part: BasePart, text: string, subtext: string?, theme: any)
 	billboard.Parent = part
 end
 
+ContentLoader.label = label
+
 local function block(spec: any, parent: Instance): BasePart
 	local part = Instance.new("Part")
 	part.Name = spec.name or "Part"
 	part.Anchored = true
+	part.Shape = spec.shape or Enum.PartType.Block
 	part.Size = spec.size
-	part.Position = spec.position
+	local rotation = spec.rotation
+	if rotation then
+		part.CFrame = CFrame.new(spec.position)
+			* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+	else
+		part.Position = spec.position
+	end
 	part.Color = spec.color or Color3.fromRGB(120, 120, 120)
 	part.Material = spec.material or Enum.Material.SmoothPlastic
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Transparency = spec.transparency or 0
 	part.CanCollide = if spec.canCollide == nil then true else spec.canCollide
+	part.CastShadow = if spec.castShadow == nil then true else spec.castShadow
 	part.Parent = parent
 	return part
+end
+
+ContentLoader.block = block
+
+--- Apply a lighting rig from data. "Default lighting is why generated places look
+--- generated" (OPERATING_MANUAL §5), so the rig is part of the pack, not a Studio
+--- click. Properties that need plugin security (Technology) are skipped with a note.
+local function applyLighting(spec: any)
+	if typeof(spec) ~= "table" then
+		return
+	end
+	for key, value in spec do
+		if typeof(value) ~= "table" then
+			local ok = pcall(function()
+				(Lighting :: any)[key] = value
+			end)
+			if not ok then
+				warn(`[ContentLoader] Lighting.{key} could not be set from a script (plugin-only?)`)
+			end
+		end
+	end
+	local function effect(className: string, name: string, props: any?)
+		if typeof(props) ~= "table" then
+			return
+		end
+		local existing = Lighting:FindFirstChild(name)
+		if existing then
+			existing:Destroy()
+		end
+		local instance = Instance.new(className)
+		instance.Name = name
+		for key, value in props do
+			pcall(function()
+				(instance :: any)[key] = value
+			end)
+		end
+		instance.Parent = Lighting
+	end
+	effect("Atmosphere", "Atmosphere", spec.atmosphere)
+	effect("ColorCorrectionEffect", "ColorCorrection", spec.colorCorrection)
+	effect("BloomEffect", "Bloom", spec.bloom)
+	effect("DepthOfFieldEffect", "DepthOfField", spec.depthOfField)
 end
 
 local function buildWorld(world: any, theme: any)
@@ -131,6 +165,8 @@ local function buildWorld(world: any, theme: any)
 
 	local floor = block({
 		name = "Floor",
+		shape = world.floor.shape,
+		rotation = world.floor.rotation,
 		size = world.floor.size,
 		position = world.floor.position,
 		color = world.floor.color,
@@ -171,11 +207,14 @@ local function buildWorld(world: any, theme: any)
 	for _, zone in world.zones do
 		local part = block({
 			name = `Zone_{zone.id}`,
+			shape = zone.shape,
+			rotation = zone.rotation,
 			size = zone.size,
 			position = zone.position,
 			color = zone.color,
 			material = zone.material or Enum.Material.Neon,
-			canCollide = true,
+			transparency = zone.transparency,
+			canCollide = if zone.canCollide == nil then true else zone.canCollide,
 		}, folder)
 		if zone.label then
 			label(part, zone.label, zone.sublabel, theme)
@@ -188,13 +227,15 @@ local function buildWorld(world: any, theme: any)
 	spawn.Anchored = true
 	spawn.CanCollide = true
 	spawn.Size = Vector3.new(8, 1, 8)
-	spawn.Transparency = 0.4
-	spawn.Color = theme.accent or Color3.fromRGB(255, 255, 255)
+	spawn.Transparency = world.spawn.transparency or 0.4
+	spawn.Color = world.spawn.color or theme.accent or Color3.fromRGB(255, 255, 255)
 	spawn.Material = Enum.Material.SmoothPlastic
 	spawn.TopSurface = Enum.SurfaceType.Smooth
 	-- Face the spawn at the first thing we want a stranger to walk toward.
 	spawn.CFrame = CFrame.lookAt(world.spawn.position, world.spawn.lookAt)
 	spawn.Parent = folder
+
+	applyLighting(world.lighting)
 
 	local _ = floor
 	return folder, zoneParts
@@ -221,8 +262,20 @@ function ContentLoader.load(): Pack
 	validate(config, world, theme)
 	local folder, zoneParts = buildWorld(world, theme)
 
-	print(`[ContentLoader] pack '{theme.title}' loaded — {#world.zones} zones, {#config.upgrades} upgrades`)
+	print(`[ContentLoader] pack '{theme.title}' loaded — loop '{config.loop or "sweepbank"}', {#world.zones} zones`)
 	return { config = config, world = world, theme = theme, folder = folder, zoneParts = zoneParts }
+end
+
+--- Which engine loop module runs this pack. The pack says `loop = "survive"`; the
+--- default is the sweep-and-bank loop so the first title needs no change.
+function ContentLoader.loopModuleName(config: any): string
+	local loop = config.loop or "sweepbank"
+	if loop == "sweepbank" then
+		return "LoopService"
+	elseif loop == "survive" then
+		return "SurviveLoop"
+	end
+	return fail(`unknown config.loop '{loop}' — engine knows: sweepbank, survive`)
 end
 
 return ContentLoader

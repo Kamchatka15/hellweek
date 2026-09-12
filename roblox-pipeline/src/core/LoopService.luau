@@ -13,6 +13,7 @@ local Players = game:GetService("Players")
 
 local Core = script.Parent
 local AnalyticsService = require(Core.AnalyticsService)
+local ContentLoader = require(Core.ContentLoader)
 local DataService = require(Core.DataService)
 local EconomyService = require(Core.EconomyService)
 local PickupService = require(Core.PickupService)
@@ -195,8 +196,47 @@ local function bindZones()
 	end
 end
 
+--- The sweep-and-bank contract. ContentLoader checks only what every loop shares;
+--- the numbers this loop needs are checked here, loudly, before anything runs.
+function LoopService.validate(config: any, world: any, theme: any)
+	local expect = ContentLoader.expect
+	expect(typeof(config.flood) == "table", "config.flood is required")
+	expect(typeof(config.flood.cooldown) == "number", "config.flood.cooldown must be a number")
+	expect(typeof(config.collect) == "table", "config.collect is required")
+	expect(typeof(config.upgrades) == "table" and #config.upgrades > 0, "config.upgrades must be a non-empty array")
+	for _, def in config.upgrades do
+		expect(typeof(def.id) == "string", "every upgrade needs a string id")
+		expect(typeof(def.maxLevel) == "number" and def.maxLevel >= 1, `upgrade {def.id} needs maxLevel >= 1`)
+		expect(typeof(def.baseCost) == "number" and def.baseCost > 0, `upgrade {def.id} needs a positive baseCost`)
+	end
+	-- Roles are how the engine stays ignorant of this game's vocabulary: the pack says
+	-- which of its upgrades fills each engine slot.
+	expect(typeof(config.roles) == "table", "config.roles is required")
+	local byId = {}
+	for _, def in config.upgrades do
+		byId[def.id] = true
+	end
+	for _, role in { "carryCap", "collectRadius", "burstCount", "pickupValue" } do
+		local target = config.roles[role]
+		expect(typeof(target) == "string", `config.roles.{role} must name an upgrade id`)
+		expect(byId[target], `config.roles.{role} points at '{target}', which is not in config.upgrades`)
+	end
+	expect(typeof(config.offline) == "table", "config.offline is required (the return hook)")
+	expect(config.offline.capSeconds and config.offline.capSeconds > 0, "config.offline.capSeconds must be positive")
+
+	-- The loop does not close without both halves of earn -> spend.
+	local kinds = {}
+	for _, zone in world.zones do
+		kinds[zone.kind] = true
+	end
+	expect(kinds.payout, "world.zones needs at least one zone of kind 'payout'")
+	expect(kinds.bank, "world.zones needs at least one zone of kind 'bank'")
+	expect(typeof(theme.currencyName) == "string", "theme.currencyName is required")
+end
+
 function LoopService.start(loaded: any)
 	pack = loaded
+	LoopService.validate(pack.config, pack.world, pack.theme)
 	roles = pack.config.roles
 
 	ProgressionService.load(pack.config.upgrades)

@@ -3,6 +3,10 @@
 -- Two balances, because the loop needs a sell beat: `carry` is what you are holding
 -- (capped), `coins` is what you have banked (spendable). Nothing in this module reads
 -- a number that came from a client.
+--
+-- A loop that has no banked currency (the survive loop: you carry fuel and feed it to
+-- a beacon) still uses `carry` for the held amount and `drainCarry` for the sink, so
+-- the cap, the change signal and the HUD packet all keep working unchanged.
 
 local Shared = game:GetService("ReplicatedStorage").Shared
 local Signal = require(Shared.Signal)
@@ -18,7 +22,7 @@ EconomyService.banked = Signal.new() -- (player, amount)
 local LEDGER_MAX = 200 -- in-memory ring; a durable ledger lands with ReceiptService
 local ledger: { { userId: number, delta: number, reason: string, t: number } } = {}
 
--- Injected by LoopService so the engine does not need to know what a "carry cap" is
+-- Injected by the loop so the engine does not need to know what a "carry cap" is
 -- in this particular game.
 local capProvider: ((Player) -> number)? = nil
 
@@ -82,6 +86,24 @@ function EconomyService.bank(player: Player): number
 	record(player, amount, "bank")
 	EconomyService.changed:fire(player)
 	EconomyService.banked:fire(player, amount)
+	return amount
+end
+
+--- Empty the carry WITHOUT banking it — the held amount went into a world sink (a
+--- beacon, a build, a delivery) rather than into the player's wallet. Returns the
+--- amount drained so the caller can apply it.
+function EconomyService.drainCarry(player: Player, reason: string): number
+	local profile = DataService.get(player)
+	if not profile then
+		return 0
+	end
+	local amount = math.floor(profile.carry)
+	if amount <= 0 then
+		return 0
+	end
+	profile.carry = 0
+	record(player, -amount, reason)
+	EconomyService.changed:fire(player)
 	return amount
 end
 

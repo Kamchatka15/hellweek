@@ -33,8 +33,8 @@ CATS = {
 OWNED = re.compile(r"\b(mario|sonic|pokemon|pok[eé]mon|minecraft|fortnite|"
                    r"peter griffin|family guy|disney|marvel|nintendo|pixar|"
                    r"brainrot|doge|pepe|shiba|elon|tesla|nike|adidas|gucci|mcdonald)\w*\b", re.I)
-GAMBLE = re.compile(r"\b(gacha|loot ?box|crate|spin|wheel|jackpot|wager|bet|odds|"
-                    r"mystery box|roll for)\w*\b", re.I)
+GAMBLE = re.compile(r"\b(gacha|loot ?box|crate|spin|wheel|jackpot|wager|bets?|betting|odds|"
+                    r"mystery box|roll for)\b", re.I)
 COERCE = re.compile(r"\b(invite \d+ friends|or (you |your )?lose|timer runs out|"
                     r"pay to (skip|remove|stop)|forced|punish)\w*\b", re.I)
 IMPERATIVE = re.compile(r"^\s*(?:you (?:must|should|will)|claude(?: must| should| will)?[,:]|"

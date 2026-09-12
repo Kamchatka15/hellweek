@@ -23,8 +23,21 @@ local zones: { Zone } = {}
 local started = false
 
 local function contains(zone: Zone, position: Vector3): boolean
-	local local_ = zone.part.CFrame:PointToObjectSpace(position)
-	local half = zone.part.Size / 2
+	local part = zone.part
+	-- A cylinder standing on its side is a disc on the floor (its local X axis is the
+	-- world up). Test those radially, in world space; the box test below would reject
+	-- anyone standing higher than the disc's thickness — found by the survive loop's
+	-- feed disc, 2026-09-12.
+	if part:IsA("Part") and part.Shape == Enum.PartType.Cylinder and math.abs(part.CFrame.RightVector.Y) > 0.9 then
+		local radius = part.Size.Y / 2
+		local flat = Vector3.new(position.X - part.Position.X, 0, position.Z - part.Position.Z)
+		local thickness = part.Size.X / 2
+		return flat.Magnitude <= radius
+			and position.Y >= part.Position.Y - thickness
+			and position.Y <= part.Position.Y + thickness + HEAD_ROOM
+	end
+	local local_ = part.CFrame:PointToObjectSpace(position)
+	local half = part.Size / 2
 	return math.abs(local_.X) <= half.X
 		and math.abs(local_.Z) <= half.Z
 		and local_.Y >= -half.Y

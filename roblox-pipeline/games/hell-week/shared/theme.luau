@@ -1,0 +1,71 @@
+-- theme — names, colours and copy for Hell Week. Replicated, because the HUD needs it.
+-- No tuning numbers live here: those are server-side in config.luau.
+--
+-- Register (designers only, never printed): a quiet grave, low tide in a place that
+-- used to be a beach. Not fire, not torture, not scripture. The player-facing zone
+-- name is The Quiet Shore. Settled answers in games/hell-week/brief.md §1 — do not
+-- reopen them here.
+
+return {
+	title = "Hell Week",
+	loop = "survive",
+	zoneName = "The Quiet Shore",
+
+	-- The engine's vocabulary slots, filled with this title's words.
+	names = {
+		beacon = "Wick",
+		fuel = "Ashwood",
+		stalker = "Tempter",
+		lure = "Gift",
+		sack = "Sack",
+	},
+
+	weightVisibleFromDay = 3,
+
+	-- Five style lines (games/hell-week/theme.md): grey sand / black water + wick gold.
+	-- The Gift's bloom is the only competing warm, and it is deliberately WRONG — a
+	-- pink-orange that does not belong to the wick.
+	colors = {
+		sand = Color3.fromRGB(112, 114, 112),
+		water = Color3.fromRGB(8, 9, 12),
+		post = Color3.fromRGB(70, 62, 56),
+		candle = Color3.fromRGB(214, 206, 190),
+		flame = Color3.fromRGB(255, 190, 70),
+		flameLight = Color3.fromRGB(255, 176, 96),
+		fuel = Color3.fromRGB(226, 224, 212),
+		stalker = Color3.fromRGB(9, 9, 13),
+		lure = Color3.fromRGB(255, 120, 96),
+		lureLight = Color3.fromRGB(255, 96, 120),
+		fog = Color3.fromRGB(90, 100, 120),
+		tree = Color3.fromRGB(150, 150, 146),
+		driftwood = Color3.fromRGB(130, 124, 116),
+		rock = Color3.fromRGB(84, 86, 90),
+		night = Color3.fromRGB(110, 120, 160),
+	},
+
+	accent = Color3.fromRGB(255, 190, 70),
+	uiBackground = Color3.fromRGB(14, 15, 20),
+	uiPanel = Color3.fromRGB(24, 26, 34),
+	uiText = Color3.fromRGB(236, 236, 240),
+	uiMuted = Color3.fromRGB(150, 154, 166),
+	uiGood = Color3.fromRGB(214, 196, 120),
+	uiWarn = Color3.fromRGB(255, 140, 96),
+
+	-- Copy. Every line is one sentence a nine-year-old can read at a glance, and there
+	-- are exactly two onboarding lines (brief §4). No scripture, no sermons, no names
+	-- of anywhere in the parked list.
+	copy = {
+		toastClock = "THE WICK IS THE ONLY CLOCK",
+		toastWaits = "IT WAITS FOR THE LIGHT TO THIN",
+		pickUp = "PICK UP",
+		sackFull = "SACK FULL — CARRY IT TO THE WICK",
+		beaconFull = "THE WICK IS FULL",
+		notThatWay = "NOT THAT WAY",
+		downed = "THE DARK TOOK YOU",
+		lightOut = "THE LIGHT WENT OUT",
+		weekDone = "YOU LASTED THE WEEK",
+		fogPeels = "THE SHORE OPENS",
+		dayLabel = "Day",
+		scoreLabel = "Score",
+	},
+}

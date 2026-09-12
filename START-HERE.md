@@ -93,19 +93,21 @@ Roblox Business/
    ├─ specs/                  ← module spec format + dated slice specs, written before the code
    │
    ├─ games/                  ← CONTENT PACKS. One folder per title; the only per-game work.
-   │  └─ fat-man-gets-rich/        ACTIVE TITLE
-   │     ├─ brief.md                  the six-question input; written before any code
-   │     ├─ server/config.luau        every tuning number (server-only — prices never replicate)
-   │     ├─ server/world.luau         the grey-box layout, as data; built at run time
-   │     ├─ server/sku.luau           DRAFT price ladder. Wired to nothing. Gate 5 is a human click.
-   │     └─ shared/theme.luau         names, colors, copy (replicated — the HUD needs it)
+   │  ├─ hell-week/                ACTIVE TITLE (2026-09-12) — survive loop, traces 99 Nights' machine
+   │  │  ├─ brief.md · cut-list.md · theme.md · wedge.md · lighting.md · shelf.md · economy.md
+   │  │  ├─ ccu-board.md · gate-a-script.md
+   │  │  ├─ server/config.luau        every tuning number (server-only)
+   │  │  ├─ server/world.luau         The Quiet Shore as data + the lighting rig
+   │  │  ├─ server/sku.luau           DRAFT soft shop. Wired to nothing. Gate 5 is a human click.
+   │  │  └─ shared/theme.luau         names, colours, the two toasts (replicated — the HUD needs it)
+   │  └─ fat-man-gets-rich/        PARKED before Gate A (2026-09-12). Re-mounts via default.project.json
    │
    ├─ src/                    ← THE engine. Rojo-mapped to Studio. A new game must not change it.
-   │  ├─ core/                     the 11 engine services (data, remotes, economy, progression,
-   │  │                            pickups, zones, rewards, analytics, loader, loop, sync)
+   │  ├─ core/                     the engine services. Two loop families: LoopService (sweep-and-bank)
+   │  │                            and SurviveLoop (clock + beacon + stalker). config.loop picks one.
    │  ├─ shared/                   Signal, Net, Format
    │  ├─ server/                   boot order, nothing else
-   │  └─ client/                   HUD + flood FX (UIKit here is engine; needs its own mount)
+   │  └─ client/                   one HUD per loop family (Hud, SurviveHud); theme.loop picks one
    ├─ art/                    ← working art for the active title (see README inside)
    ├─ liveops/                ← post-launch operating material (see README inside)
    └─ tools/

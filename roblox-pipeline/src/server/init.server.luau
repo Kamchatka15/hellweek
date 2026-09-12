@@ -8,7 +8,6 @@ local Net = require(ReplicatedStorage:WaitForChild("Shared").Net)
 
 local ContentLoader = require(Core.ContentLoader)
 local DataService = require(Core.DataService)
-local LoopService = require(Core.LoopService)
 local RemoteGuard = require(Core.RemoteGuard)
 local StateSync = require(Core.StateSync)
 
@@ -20,13 +19,15 @@ RemoteGuard.start()
 --    fails loudly here rather than producing a silently wrong game.
 local pack = ContentLoader.load()
 
--- 3. Loop subscribes to DataService.profileLoaded...
-LoopService.start(pack)
+-- 3. The pack names its loop family; the engine picks the module. Each loop validates
+--    its own numbers at start. The loop subscribes to DataService.profileLoaded...
+local Loop = require(Core[ContentLoader.loopModuleName(pack.config)])
+Loop.start(pack)
 StateSync.start()
 
 -- 4. ...and only then does DataService start loading profiles. Reversing 3 and 4 means
---    the first player to join in that window gets no offline grant and no opening
---    state push, which is exactly the kind of bug that only shows up under load.
+--    the first player to join in that window gets no opening state push, which is
+--    exactly the kind of bug that only shows up under load.
 DataService.start()
 
 print(`[boot] {pack.theme.title} ready`)

@@ -1,19 +1,31 @@
 {
-  "name": "fat-man-gets-rich",
+  "name": "hell-week",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
-      "Core": { "$path": "src/core" },
-      "Pack": { "$path": "games/fat-man-gets-rich/server" },
-      "Server": { "$path": "src/server" }
+      "Core": {
+        "$path": "src/core"
+      },
+      "Pack": {
+        "$path": "games/hell-week/server"
+      },
+      "Server": {
+        "$path": "src/server"
+      }
     },
     "ReplicatedStorage": {
-      "Shared": { "$path": "src/shared" },
-      "Pack": { "$path": "games/fat-man-gets-rich/shared" }
+      "Shared": {
+        "$path": "src/shared"
+      },
+      "Pack": {
+        "$path": "games/hell-week/shared"
+      }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "Client": { "$path": "src/client" }
+        "Client": {
+          "$path": "src/client"
+        }
       }
     }
   }

@@ -6,7 +6,8 @@
 -- what a Gate A playtest actually reads.
 --
 -- Doctrine §3 names the measurements that count: time-to-first-reward, first-sell,
--- first-upgrade. Those are exactly the steps below.
+-- first-upgrade. Those are the default steps below. A loop family with different
+-- verbs installs its own list with `configure` — the mechanism is the same.
 
 local AnalyticsService = {}
 
@@ -20,6 +21,17 @@ AnalyticsService.STEPS = { "join", "first_flood", "first_collect", "first_bank",
 type Session = { joinedAt: number, steps: { [string]: number } }
 
 local sessions: { [number]: Session } = {}
+
+--- Replace the funnel step list. `join` is always first; the rest are the loop's verbs.
+function AnalyticsService.configure(steps: { string })
+	local list = { "join" }
+	for _, name in steps do
+		if name ~= "join" then
+			table.insert(list, name)
+		end
+	end
+	AnalyticsService.STEPS = list
+end
 
 function AnalyticsService.markJoin(player: Player)
 	sessions[player.UserId] = { joinedAt = os.clock(), steps = { join = 0 } }

@@ -4,6 +4,9 @@
 -- Doctrine: the client asks for exactly one thing (buy an upgrade). Everything else
 -- is the server telling the client what is true. Flood and bank are server-detected
 -- zone entries, not remotes, so there is nothing to spam or forge.
+--
+-- A loop family that needs no client message at all (the survive loop) simply never
+-- binds C2S_Buy. The trust surface is then zero remotes.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -13,11 +16,12 @@ local Net = {}
 Net.FOLDER_NAME = "Net"
 
 -- server -> client
-Net.S2C_State = "S2C_State" -- authoritative coins / carry / cap / upgrades / catalog
+Net.S2C_State = "S2C_State" -- authoritative state packet; shape is the loop's business
 Net.S2C_Flood = "S2C_Flood" -- a payout happened here, play the moment
 Net.S2C_Toast = "S2C_Toast" -- one line of feedback
 Net.S2C_Offline = "S2C_Offline" -- "while you were away"
 Net.S2C_Shop = "S2C_Shop" -- open/close the upgrade panel
+Net.S2C_Fx = "S2C_Fx" -- a named moment for the client to render (fade, flare, run end)
 
 -- client -> server (the entire trust surface)
 Net.C2S_Buy = "C2S_Buy"
@@ -28,6 +32,7 @@ local ALL = {
 	Net.S2C_Toast,
 	Net.S2C_Offline,
 	Net.S2C_Shop,
+	Net.S2C_Fx,
 	Net.C2S_Buy,
 }
 

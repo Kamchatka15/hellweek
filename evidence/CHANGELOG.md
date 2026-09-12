@@ -111,3 +111,26 @@ Justin gave FACTORY_PLAN v1.2 to Grok cold and asked for honest suggestions on h
 | FACTORY_PLAN v1.3 (45 pp) | Document | Two clocks in §1.2, the manual named in Part 0, new §4.5 recording the outside read verdict by verdict |
 
 **Both documents now carry the same rule, from two authors:** no further process work until Fat Man Gets Rich has been through Gate A with three fresh kids.
+
+---
+
+## 2026-09-12 (night) · Hell Week — second title, second loop family
+
+Justin dropped `inbound/HellWeek-ClaudePack.zip` (a brief worked out with Grok), said "intake the zip", then "Keep the line. Build Pass 1. Quiet Shore 350×350", then promoted Hell Week over Fat Man Gets Rich in chat.
+
+| Change | Kind | Reason |
+|---|---|---|
+| Hell Week Active; Fat Man Gets Rich parked (not killed) | **Justin's decision** | Stated in chat. FMGR is before Gate A with no evidence against it; it re-mounts via two paths |
+| Engine: `ContentLoader` validates only the shared contract; `config.loop` selects `LoopService` or `SurviveLoop`; `world.lighting` applied from data; parts take `shape`/`rotation` | Engine, generic | The engine was one-loop-shaped (E-0007). Sweep-and-bank validation moved into `LoopService.validate` |
+| Engine: `ClockService`, `BeaconService`, `StalkerService`, `SurviveLoop` (new); `PickupService.place/clear/nearest + meta`; `EconomyService.drainCarry`; `StateSync.setBuilder/requestAll`; `AnalyticsService.configure`; `Net.S2C_Fx` | Engine, generic | The survive family. No engine module names a game (R7 green) |
+| Engine: `ZoneService` radial test for vertical cylinders | Bug fix | Beat 3 red on first run (E-0009) |
+| Client: `SurviveHud`; bootstrap branches on `theme.loop` | Client | One HUD per loop family; the survive HUD sends nothing to the server |
+| `games/hell-week/` pack: config, world (350×350 disc + lighting rig), theme, sku (draft), brief, cut list, theme, wedge, lighting, shelf (15+7 IDs), economy + sim, ccu-board (storefront-verified), gate-a-script | Content pack | Wave 0–2 adopted from the packet; Wave 1 holes filled |
+| `research/patterns/hell-week-99nights.md`, `doors-survive-the-night.md` | Research | Teardowns on the template; 99 Nights' 3:00/1:30 cadence and night-1 mercy verified |
+| `tools/survive_sim.py` | Tool | `econ_sim.py` only knows sweep-and-bank; a fuel-budget sim was needed before freezing §6 |
+| `tools/intake_zip.py` gambling regex `bet\w*` → `bets?|betting` | Tool fix | It flagged the word "better" |
+| `default.project.json` → `games/hell-week/` | Wiring | One active title; the Rojo map names one slug |
+| STATE, QUEUE, IDEA_LOG, START-HERE, OPERATING_MANUAL §11 | Control panel | Re-pointed at Hell Week |
+| E-0007, E-0008, E-0009 | Evidence | The second title's findings |
+
+**Still behind Justin's clicks:** unlisted publish + API access (persist beat, InsertService dressing), `Lighting.Technology = Future`.

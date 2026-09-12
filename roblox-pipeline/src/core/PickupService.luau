@@ -1,13 +1,14 @@
--- PickupService — the burst, and picking things up off the floor.
+-- PickupService — things on the floor that a player picks up by walking to them.
 --
--- This is the hook's machinery. Two decisions worth knowing:
+-- Two ways a pickup gets there:
+--   burst(origin, spec)  — a physics eruption (the sweep-and-bank hook). Server-owned
+--                          parts, tumbling, with a lifetime.
+--   place(position, spec) — a static pickup (a gather loop's resource). Anchored, no
+--                          lifetime, sits until collected or cleared.
 --
--- 1. Pickups are real, server-owned physics parts (`SetNetworkOwner(nil)`). The flood
---    has to be filmable and it has to be authoritative; a client-side particle effect
---    is neither.
--- 2. Collection is a server-side proximity sweep, not a Touched event and not a remote.
---    There is no "I collected a coin" message to forge — the only thing a client
---    influences is where its character is standing.
+-- Either way collection is the same server-side proximity sweep — not a Touched event
+-- and not a remote. There is no "I collected this" message to forge; the only thing a
+-- client influences is where its character is standing.
 --
 -- Collision groups keep the burst cheap: pickups pass through each other and through
 -- players, and only collide with the world. Without that, a few hundred tumbling parts
@@ -35,13 +36,25 @@ export type BurstSpec = {
 	material: Enum.Material?,
 }
 
-type Record = { part: BasePart, value: number, expires: number, fadeAt: number }
+export type PlaceSpec = {
+	value: number,
+	size: Vector3,
+	color: Color3,
+	material: Enum.Material?,
+	shape: Enum.PartType?,
+	name: string?,
+	meta: any?, -- passed back to onCollect untouched; the loop's own tags
+	rotation: Vector3?, -- degrees
+	decorate: ((BasePart) -> ())?, -- lights, labels, whatever the loop wants on it
+}
+
+type Record = { part: BasePart, value: number, expires: number, fadeAt: number, meta: any? }
 
 local active: { Record } = {}
 local container: Folder? = nil
 local maxActive = DEFAULT_MAX_ACTIVE
 local radiusFor: ((Player) -> number)? = nil
-local onCollect: ((Player, number) -> number)? = nil
+local onCollect: ((Player, number, any?) -> number)? = nil
 local onBlocked: ((Player) -> ())? = nil
 local started = false
 
@@ -124,7 +137,7 @@ local function sweep()
 		for _, sweeper in sweepers do
 			local offset = position - sweeper.position
 			if offset:Dot(offset) <= sweeper.radiusSq then -- squared compare: no sqrt per pickup
-				local accepted = if onCollect then onCollect(sweeper.player, record.value) else 0
+				local accepted = if onCollect then onCollect(sweeper.player, record.value, record.meta) else 0
 				if accepted > 0 then
 					retire(index)
 				elseif onBlocked then
@@ -139,7 +152,7 @@ end
 export type SetupOptions = {
 	parent: Instance,
 	radiusFor: (Player) -> number,
-	onCollect: (Player, number) -> number, -- returns how much was accepted
+	onCollect: (Player, number, any?) -> number, -- returns how much was accepted
 	onBlocked: ((Player) -> ())?, -- called when a pickup was in range but refused
 	maxActive: number?,
 }
@@ -236,6 +249,71 @@ function PickupService.burst(origin: CFrame, spec: BurstSpec)
 			fadeAt = now + spec.lifetime - 1,
 		})
 	end
+end
+
+--- Put one static pickup on the floor. Anchored, no lifetime; it sits there until a
+--- player walks into it or the loop clears the floor. Returns the part so the loop
+--- can point at it (a nudge highlight, for instance).
+function PickupService.place(position: Vector3, spec: PlaceSpec): BasePart?
+	local parent = container
+	if not parent then
+		warn("[PickupService] place before setup")
+		return nil
+	end
+	if #active >= maxActive then
+		return nil
+	end
+
+	local part = Instance.new("Part")
+	part.Name = spec.name or "Pickup"
+	part.Shape = spec.shape or Enum.PartType.Block
+	part.Size = spec.size
+	part.Color = spec.color
+	part.Material = spec.material or Enum.Material.SmoothPlastic
+	part.Anchored = true
+	part.CanCollide = false
+	part.CanTouch = false
+	part.CanQuery = false
+	part.CollisionGroup = GROUP_PICKUP
+	local rotation = spec.rotation or Vector3.new(0, math.random() * 360, 0)
+	part.CFrame = CFrame.new(position) * CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+	if spec.decorate then
+		spec.decorate(part)
+	end
+	part.Parent = parent
+
+	table.insert(active, {
+		part = part,
+		value = spec.value,
+		expires = math.huge,
+		fadeAt = math.huge,
+		meta = spec.meta,
+	})
+	return part
+end
+
+--- Remove every live pickup (a run reset, a new round).
+function PickupService.clear()
+	for index = #active, 1, -1 do
+		retire(index)
+	end
+end
+
+--- The live pickup nearest to a point, or nil. Used for onboarding nudges.
+function PickupService.nearest(position: Vector3, filter: ((any?) -> boolean)?): BasePart?
+	local best: BasePart? = nil
+	local bestDistance = math.huge
+	for _, record in active do
+		if filter and not filter(record.meta) then
+			continue
+		end
+		local distance = (record.part.Position - position).Magnitude
+		if distance < bestDistance then
+			bestDistance = distance
+			best = record.part
+		end
+	end
+	return best
 end
 
 function PickupService.activeCount(): number
