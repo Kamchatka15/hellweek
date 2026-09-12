@@ -18,6 +18,9 @@
 - Onboarding: two one-line toasts max
 - Shop stubs: Oil, Deep Pockets, Second Wind (optional, after Day 2)
 - Look: 99 Nights bar, grey/gold, lighting rig
+- Landmark prop: **HW-001 Obelisk** (black stone, gold glyphs, one skull per face, fire cap). Place in Ring B, visible from the Wick, not blocking Ring A teach. Ref: `GrokBDownloads/HW-001_Obelisk_01/2d/HW-001-obelisk-v3-oneskull-34.jpg`
+- Fire jet on the cap from `2d/HW-002-fire-v1.jpg` (particle + short light)
+- Craft bench (Bones / Fire plates) in Ring A, 8–12 studs from Wick. See `crafting-table.md`. No candles — the same HW-002 fire jet on the bench and on the Wick instead.
 - Persist: bestDay + tutorialComplete
 - Instrumentation: day reached, death reason, gifts taken, fuel in/out
 

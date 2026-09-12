@@ -19,7 +19,15 @@ return {
 	sack = { cap = 3 },
 
 	beacon = {
+		-- THE OBELISK IS THE BEACON (Justin, 2026-09-12: "there is no wick, the obelisk
+		-- replaces the wick"). Built at the origin from obelisk.luau; players feed it at
+		-- the base; the cap fire is the light that holds the night.
 		position = Vector3.new(0, 0, 0),
+		parts = require(script.Parent.obelisk),
+		flameName = "CapFlame", -- the Neon core the loop scales with fuel; carries the HW-002 jet
+		facing = CFrame.Angles(0, 0, 0), -- +Z skull faces spawn (+Z), so the first thing seen is a face
+		feedRadius = 12, -- the gold ring around the 15.6-stud base; walking into it feeds
+		lightOffset = Vector3.new(0, 3, 0), -- the safe-radius light sits low so it reaches the sand
 		startingFuel = 0,
 		fuelCap = 15,
 		radiusBase = 25, -- brief: 25 + 8 x fuel, cap 90
@@ -28,8 +36,7 @@ return {
 		-- total fuel ever fed at which the shore peels: Ring C after ~8, Ring D after 20
 		levelThresholds = { 8, 20 },
 		lightBrightness = 2,
-		postHeight = 7,
-		flameSize = Vector3.new(1.3, 1.7, 1.3),
+		flameSize = Vector3.new(2.5, 2.5, 2.5),
 	},
 
 	-- One row per day. `stalker` is what it does at night: watch (stand still on the
@@ -53,7 +60,7 @@ return {
 		-- Rings from the brief §5. `level` is the Wick level that opens the ring;
 		-- `path` puts that many pieces on the straight line spawn -> Wick (Ring A only).
 		rings = {
-			{ id = "A", inner = 9, outer = 50, level = 0, count = 5, path = 3 },
+			{ id = "A", inner = 14, outer = 50, level = 0, count = 5, path = 3 },
 			{ id = "B", inner = 50, outer = 175, level = 0, count = 6 },
 			{ id = "C", inner = 175, outer = 280, level = 1, count = 6 },
 			{ id = "D", inner = 280, outer = 345, level = 2, count = 4 },

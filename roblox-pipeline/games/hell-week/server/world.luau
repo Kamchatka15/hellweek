@@ -151,7 +151,7 @@ end
 -- spawn so they read on the first walk in. Parts come from bench.luau in the bench's
 -- own frame; one CFrame places all of them. Set dressing in Pass 1 — crafting is parked.
 local benchParts = require(script.Parent.bench)
-local benchAt = Vector3.new(11, 0, 4)
+local benchAt = Vector3.new(15, 0, 6) -- clear of the obelisk base (7.8 half-width) and the teach line
 local spawnAt = Vector3.new(0, 0, 30)
 local benchOrigin = CFrame.lookAt(benchAt, benchAt - (spawnAt - benchAt)) -- +Z faces spawn
 for _, spec in benchParts do
@@ -164,6 +164,7 @@ for _, spec in benchParts do
 		color = spec.color,
 		material = spec.material,
 		face = spec.face,
+		fire = spec.fire,
 		canCollide = spec.name == "Tabletop" or string.sub(spec.name, 1, 4) == "Leg_" or spec.name == "Shelf",
 		castShadow = spec.material ~= Enum.Material.Neon,
 	})
@@ -183,14 +184,14 @@ return {
 
 	props = props,
 
-	-- The feed spot: a faint gold disc on the sand around the Wick post. Walking into
+	-- The feed spot: a faint gold ring on the sand around the obelisk base. Walking into
 	-- it feeds whatever you carry. The loop binds the kind; the loader only draws it.
 	zones = {
 		{
-			id = "wick",
+			id = "obelisk",
 			kind = "beacon",
 			shape = Enum.PartType.Cylinder,
-			size = Vector3.new(0.3, 14, 14),
+			size = Vector3.new(0.3, 24, 24), -- a gold halo just outside the 15.6-stud base
 			position = Vector3.new(0, 0.15, 0),
 			rotation = Vector3.new(0, 0, 90),
 			color = theme.colors.flame,
@@ -202,7 +203,7 @@ return {
 
 	spawn = {
 		position = Vector3.new(0, 0.5, 30),
-		lookAt = Vector3.new(0, 0.5, 0), -- face the Wick on arrival
+		lookAt = Vector3.new(0, 6, 0), -- face the obelisk on arrival
 		transparency = 0.85,
 		color = SAND,
 	},

@@ -13,7 +13,7 @@ return {
 
 	-- The engine's vocabulary slots, filled with this title's words.
 	names = {
-		beacon = "Wick",
+		beacon = "Obelisk",
 		fuel = "Ashwood",
 		stalker = "Tempter",
 		lure = "Gift",
@@ -50,14 +50,14 @@ return {
 		meaningColor = Color3.fromRGB(196, 186, 170),
 	},
 
-	-- Five style lines (games/hell-week/theme.md): grey sand / black water + wick gold.
+	-- Five style lines (games/hell-week/theme.md): grey sand / black water + fire gold.
 	-- The Gift's bloom is the only competing warm, and it is deliberately WRONG — a
 	-- pink-orange that does not belong to the wick.
 	colors = {
 		sand = Color3.fromRGB(112, 114, 112),
 		water = Color3.fromRGB(8, 9, 12),
 		post = Color3.fromRGB(70, 62, 56),
-		candle = Color3.fromRGB(214, 206, 190),
+		lip = Color3.fromRGB(46, 46, 50),
 		flame = Color3.fromRGB(255, 190, 70),
 		flameLight = Color3.fromRGB(255, 176, 96),
 		fuel = Color3.fromRGB(226, 224, 212),
@@ -83,11 +83,11 @@ return {
 	-- are exactly two onboarding lines (brief §4). No scripture, no sermons, no names
 	-- of anywhere in the parked list.
 	copy = {
-		toastClock = "THE WICK IS THE ONLY CLOCK",
+		toastClock = "THE FIRE IS THE ONLY CLOCK",
 		toastWaits = "IT WAITS FOR THE LIGHT TO THIN",
 		pickUp = "PICK UP",
-		sackFull = "SACK FULL — CARRY IT TO THE WICK",
-		beaconFull = "THE WICK IS FULL",
+		sackFull = "SACK FULL — CARRY IT TO THE OBELISK",
+		beaconFull = "THE FIRE IS FULL",
 		notThatWay = "NOT THAT WAY",
 		downed = "THE DARK TOOK YOU",
 		lightOut = "THE LIGHT WENT OUT",

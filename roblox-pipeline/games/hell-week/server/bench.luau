@@ -8,7 +8,7 @@
 -- nothing is deposited (crafting is PARKED on the cut list). The chainsaw is a prop,
 -- never a Tool. Skulls are stylised, dark-inset eyes, no gore.
 --
--- Bench frame parts: 82. Tabletop 8 x 0.4 x 3.2 at y=3, legs 2.6 tall.
+-- Bench frame parts: 80. Tabletop 8 x 0.4 x 3.2 at y=3, legs 2.6 tall.
 
 return {
 	{
@@ -1643,67 +1643,26 @@ return {
 		material = Enum.Material.SmoothPlastic,
 	},
 	{
-		name = "Candle",
+		name = "FireLip",
 		shape = Enum.PartType.Cylinder,
-		size = Vector3.new(0.450, 0.160, 0.160),
+		size = Vector3.new(0.140, 0.640, 0.640),
 		cframe = CFrame.new(
 			1.150,
-			3.450,
+			3.270,
 			-1.200,
 			0.0000,
 			-1.0000,
 			0.0000,
+			0.0000,
+			0.0000,
+			-1.0000,
 			1.0000,
 			0.0000,
-			0.0000,
-			0.0000,
-			0.0000,
-			1.0000
+			0.0000
 		),
-		color = Color3.fromRGB(228, 220, 199),
-		material = Enum.Material.SmoothPlastic,
-	},
-	{
-		name = "CandleFlame",
-		shape = Enum.PartType.Ball,
-		size = Vector3.new(0.119, 0.119, 0.119),
-		cframe = CFrame.new(
-			1.150,
-			3.720,
-			-1.200,
-			1.0000,
-			0.0000,
-			0.0000,
-			0.0000,
-			1.0000,
-			0.0000,
-			0.0000,
-			0.0000,
-			1.0000
-		),
-		color = Color3.fromRGB(255, 164, 65),
-		material = Enum.Material.Neon,
-	},
-	{
-		name = "WaxDrip",
-		shape = Enum.PartType.Block,
-		size = Vector3.new(0.050, 0.350, 0.050),
-		cframe = CFrame.new(
-			1.220,
-			3.280,
-			-1.200,
-			1.0000,
-			0.0000,
-			0.0000,
-			0.0000,
-			1.0000,
-			0.0000,
-			0.0000,
-			0.0000,
-			1.0000
-		),
-		color = Color3.fromRGB(228, 220, 199),
-		material = Enum.Material.SmoothPlastic,
+		color = Color3.fromRGB(117, 117, 123),
+		material = Enum.Material.Metal,
+		fire = { size = 1.1, height = 3.2, range = 9, brightness = 1.2 },
 	},
 	{
 		name = "Embers",

@@ -129,8 +129,74 @@ local function block(spec: any, parent: Instance): BasePart
 	part.Transparency = spec.transparency or 0
 	part.CanCollide = if spec.canCollide == nil then true else spec.canCollide
 	part.CastShadow = if spec.castShadow == nil then true else spec.castShadow
+	if spec.fire then
+		ContentLoader.fire(part, spec.fire)
+	end
 	part.Parent = parent
 	return part
+end
+
+--- A fire jet from data: a chunky orange-gold flame, sparks, and a short warm light.
+--- The look is the pack's (colour, size, range); the machinery is the same for a cap,
+--- a bench edge, or a beacon. Range is the caller's — a landmark must not out-light the
+--- beacon the loop is built around.
+function ContentLoader.fire(part: BasePart, spec: any)
+	local size = spec.size or 1.5
+	local height = spec.height or 5
+	local orange = spec.color or Color3.fromRGB(255, 122, 24)
+	local gold = spec.tip or Color3.fromRGB(255, 208, 96)
+
+	local flame = Instance.new("ParticleEmitter")
+	flame.Name = "Flame"
+	flame.Texture = "rbxasset://textures/particles/fire_main.dds"
+	flame.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, gold),
+		ColorSequenceKeypoint.new(0.35, orange),
+		ColorSequenceKeypoint.new(1, Color3.fromRGB(120, 30, 8)),
+	})
+	flame.Size = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, size * 0.9),
+		NumberSequenceKeypoint.new(0.4, size * 1.25),
+		NumberSequenceKeypoint.new(1, size * 0.25),
+	})
+	flame.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1),
+		NumberSequenceKeypoint.new(0.7, 0.35),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	flame.Lifetime = NumberRange.new(0.55, 0.95)
+	flame.Speed = NumberRange.new(height * 0.7, height * 1.1)
+	flame.Rate = spec.rate or 28
+	flame.SpreadAngle = Vector2.new(8, 8)
+	flame.Rotation = NumberRange.new(-20, 20)
+	flame.RotSpeed = NumberRange.new(-40, 40)
+	flame.LightEmission = 1
+	flame.LightInfluence = 0
+	flame.EmissionDirection = Enum.NormalId.Top
+	flame.Acceleration = Vector3.new(0, height * 0.6, 0)
+	flame.Parent = part
+
+	local sparks = Instance.new("ParticleEmitter")
+	sparks.Name = "Sparks"
+	sparks.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	sparks.Color = ColorSequence.new(gold, orange)
+	sparks.Size = NumberSequence.new(size * 0.12, 0)
+	sparks.Transparency = NumberSequence.new(0, 1)
+	sparks.Lifetime = NumberRange.new(0.9, 1.6)
+	sparks.Speed = NumberRange.new(height * 0.9, height * 1.6)
+	sparks.Rate = spec.sparkRate or 6
+	sparks.SpreadAngle = Vector2.new(30, 30)
+	sparks.LightEmission = 1
+	sparks.Acceleration = Vector3.new(0, -2, 0)
+	sparks.Parent = part
+
+	local light = Instance.new("PointLight")
+	light.Name = "FireLight"
+	light.Color = orange
+	light.Brightness = spec.brightness or 1.4
+	light.Range = spec.range or 12
+	light.Shadows = false
+	light.Parent = part
 end
 
 ContentLoader.block = block

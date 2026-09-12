@@ -141,9 +141,10 @@ sphere("FemurKnobA", 0.14, (-2.2, 0.55, 1.42), mat="bone")
 skull("SkullShelf", (2.2, 0.35, 1.62), scale=0.62)
 for i, x in enumerate((-2.8, -2.2, -1.6)):
     cylinder(f"Rib_{i}", 0.04, 1.15, (x, 0.0, 2.15), rot=(math.radians(55), 0, 0), mat="bone")
-cylinder("Candle", 0.08, 0.45, (1.15, 1.2, 3.45), mat="bone")
-cone("CandleFlame", 0.07, 0.18, (1.15, 1.2, 3.72), mat="flame")
-cube("WaxDrip", (0.05, 0.05, 0.35), (1.22, 1.2, 3.28), mat="bone")
+# No candles in Quiet Shore (owner lock 2026-09-12): the back-edge light is an HW-002
+# fire jet on a small stone lip, not wax.
+cylinder("FireLip", 0.32, 0.14, (1.15, 1.2, 3.27), rot=(math.radians(90), 0, 0), mat="iron")
+parts[-1] = parts[-1].replace(" }", ", fire = { size = 1.1, height = 3.2, range = 9, brightness = 1.2 } }", 1)
 cube("Embers", (2.2, 1.4, 0.08), (0.0, 0.0, 0.55), mat="ember")
 cylinder("HangBone", 0.06, 0.7, (-3.2, -0.2, 2.0), rot=(0, 0, math.radians(15)), mat="bone")
 

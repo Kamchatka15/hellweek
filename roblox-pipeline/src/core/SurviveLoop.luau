@@ -138,6 +138,50 @@ local function buildBeacon(): (BasePart, PointLight)
 	local base = c.position
 	local folder = pack.folder
 
+	-- A pack may hand the beacon over as parts (an obelisk, a shrine, a generator)
+	-- with one part named as the flame core. The gameplay light — whose range IS the
+	-- safe radius — sits on an invisible anchor near the ground, because a light on a
+	-- 28-stud cap with a 25-stud range never touches the sand.
+	if c.parts then
+		local origin = CFrame.new(base) * (c.facing or CFrame.new())
+		local flame: BasePart? = nil
+		for _, spec in c.parts do
+			local part = ContentLoader.block({
+				name = `Beacon_{spec.name}`,
+				shape = spec.shape,
+				size = spec.size,
+				position = base,
+				cframe = origin * spec.cframe,
+				color = spec.color,
+				material = spec.material,
+				canCollide = spec.canCollide,
+				castShadow = spec.material ~= Enum.Material.Neon,
+				fire = spec.fire,
+			}, folder)
+			if spec.name == c.flameName then
+				flame = part
+			end
+		end
+		ContentLoader.expect(flame, `config.beacon.flameName '{c.flameName}' is not one of config.beacon.parts`)
+		local anchor = ContentLoader.block({
+			name = "BeaconLightAnchor",
+			size = Vector3.new(1, 1, 1),
+			position = base + (c.lightOffset or Vector3.new(0, 3, 0)),
+			transparency = 1,
+			canCollide = false,
+			castShadow = false,
+		}, folder)
+		local light = Instance.new("PointLight")
+		light.Name = "BeaconLight"
+		light.Color = theme.colors.flameLight
+		light.Brightness = c.lightBrightness
+		light.Range = c.radiusBase
+		light.Shadows = false
+		light.Parent = anchor
+		ContentLoader.label(flame :: BasePart, string.upper(theme.names.beacon), nil, theme)
+		return flame :: BasePart, light
+	end
+
 	ContentLoader.block({
 		name = "BeaconPost",
 		size = Vector3.new(1.4, c.postHeight, 1.4),
@@ -145,22 +189,28 @@ local function buildBeacon(): (BasePart, PointLight)
 		color = theme.colors.post,
 		material = Enum.Material.Wood,
 	}, folder)
+	-- No wax anywhere on the shore (owner lock 2026-09-12): the beacon is a post with a
+	-- stone lip and a fire jet, not a candle. The Neon core is what the loop scales
+	-- with fuel; the jet on top of it is the pack's `beaconFire` look.
 	ContentLoader.block({
-		name = "BeaconCandle",
-		size = Vector3.new(1.1, 3, 1.1),
-		position = base + Vector3.new(0, c.postHeight + 1.5, 0),
-		color = theme.colors.candle,
-		material = Enum.Material.SmoothPlastic,
+		name = "BeaconLip",
+		shape = Enum.PartType.Cylinder,
+		size = Vector3.new(0.5, 2.2, 2.2),
+		position = base + Vector3.new(0, c.postHeight + 0.25, 0),
+		rotation = Vector3.new(0, 0, 90),
+		color = theme.colors.lip or Color3.fromRGB(46, 46, 50),
+		material = Enum.Material.Slate,
 	}, folder)
 	local flame = ContentLoader.block({
 		name = "BeaconFlame",
 		shape = Enum.PartType.Ball,
 		size = c.flameSize,
-		position = base + Vector3.new(0, c.postHeight + 3.6, 0),
+		position = base + Vector3.new(0, c.postHeight + 1.1, 0),
 		color = theme.colors.flame,
 		material = Enum.Material.Neon,
 		canCollide = false,
 		castShadow = false,
+		fire = c.fire,
 	}, folder)
 	local light = Instance.new("PointLight")
 	light.Name = "BeaconLight"
@@ -302,7 +352,12 @@ local function spawnRing(ring: any)
 	-- minute needs no full turn to find them.
 	if ring.path and ring.path > 0 then
 		local from = pack.world.spawn.position
-		local to = config.beacon.position
+		-- Aim at the feed edge, not the centre: a wide beacon (an obelisk base) would
+		-- otherwise swallow the last piece.
+		local centre = config.beacon.position
+		local toward = Vector3.new(from.X - centre.X, 0, from.Z - centre.Z)
+		local to = centre
+			+ (if toward.Magnitude > 0.1 then toward.Unit else Vector3.zAxis) * (config.beacon.feedRadius or 0)
 		for index = 1, ring.path do
 			local t = index / (ring.path + 1)
 			local along = from:Lerp(to, t)
@@ -410,7 +465,7 @@ local function onTouch(player: Player)
 	local from = pack.world.spawn.position
 	local toward = Vector3.new(from.X - origin.X, 0, from.Z - origin.Z)
 	local dir = if toward.Magnitude > 0.1 then toward.Unit else Vector3.new(0, 0, 1)
-	local wake = origin + dir * 6 + Vector3.new(0, 3.5, 0)
+	local wake = origin + dir * ((config.beacon.feedRadius or 4) + 2) + Vector3.new(0, 3.5, 0)
 	local character = player.Character
 	if character then
 		character:PivotTo(CFrame.lookAt(wake, Vector3.new(origin.X, wake.Y, origin.Z)))
