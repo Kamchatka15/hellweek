@@ -294,6 +294,24 @@ This gives the loop three moving parts, two of which do not exist yet.
 | Correct a factual claim in a doc that went stale | Change a core doctrine position |
 | Log an idea to `IDEA_LOG.md` | Anything that spends money |
 
+### Contradictions: file always, ask rarely
+
+A conflict between two records is never resolved silently and never all escalated. Escalating every one makes the owner the bottleneck, and most conflicts ask him something he has no basis to answer — *"did it fail because of the audience or the wave stage?"* is not an owner's knowledge; asking produces a guess with his name on it.
+
+**A contradiction does not need resolving when it is found. It needs resolving when a decision depends on it.**
+
+| Step | Who | When |
+|---|---|---|
+| File both, linked, neither edited | Claude | Always |
+| Diagnose the dimension that differs | Claude | Always — a conflict is a missing variable |
+| Queue it in `evidence/OPEN_QUESTIONS.md` | Claude | Always — visible, not an interruption |
+| Ask Justin | Claude → Justin | **Only when a pending decision depends on it** |
+| File the answer as a new record | Claude | Always |
+
+An escalation arrives with the diagnosis already done and three options — follow A, follow B, or **don't resolve it: make it the next title's hypothesis**. That third option is usually the honest one: a contradiction is a question about the world, and the instrument for that is a test, not an opinion. Picking a side by judgment converts a real unknown into a false certainty the ledger then carries forward as settled.
+
+Same line as everything else here: filing and diagnosing changes a document and is reversible, so it is automatic. Choosing which belief shapes a game's core loop is not reversible once built, so it is Justin's.
+
 **Every autonomous change is appended to `docs/runs/CHANGELOG.md` with the evidence that caused it.** Append-only, never rewritten. That file is how Justin audits a system that is changing itself — without having to be in the room when it does.
 
 **The failure this prevents:** a system that quietly drifts. If Claude can rewrite the rules and nothing records why, then in four titles' time nobody — including Claude — knows what the rules are supposed to be or which of them were ever tested.

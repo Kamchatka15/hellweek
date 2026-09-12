@@ -109,6 +109,67 @@ def from_brief(path):
     return q
 
 
+def conflicts(recs):
+    """Find records that disagree: explicit contradicts: links, plus same-domain
+    records with overlapping context and opposing outcomes."""
+    by_id = {r.get("id"): r for r in recs}
+    pairs, seen = [], set()
+
+    for r in recs:
+        for other in re.split(r"[,\s]+", (r.get("contradicts") or "").strip()):
+            if other and other in by_id:
+                key = tuple(sorted([r.get("id"), other]))
+                if key not in seen:
+                    seen.add(key)
+                    pairs.append((by_id[key[0]], by_id[key[1]], "declared"))
+
+    opposed = {("confirmed", "refuted"), ("refuted", "confirmed")}
+    for i, a in enumerate(recs):
+        for b in recs[i + 1:]:
+            key = tuple(sorted([a.get("id", ""), b.get("id", "")]))
+            if key in seen or a.get("domain") != b.get("domain"):
+                continue
+            if (a.get("outcome"), b.get("outcome")) not in opposed:
+                continue
+            shared = [d for d in DIMS[1:]
+                      if (a.get(d) or "any") != "any"
+                      and (a.get(d) or "") == (b.get(d) or "")]
+            if len(shared) >= 2:
+                seen.add(key)
+                pairs.append((a, b, "inferred"))
+    return pairs
+
+
+def report_conflicts(recs):
+    pairs = conflicts(recs)
+    print("# Open questions — unresolved contradictions\n")
+    print("_Generated. Both records in every pair still stand; neither was edited._")
+    print("_A contradiction is not resolved when it is found. It is resolved when a "
+          "decision depends on it._\n")
+    if not pairs:
+        print("No contradictions in the ledger.\n")
+        print("That is expected this early: contradictions need at least two titles "
+              "to have reported on the same thing. An empty queue here is a sign the "
+              "ledger is young, not a sign the system is working.")
+        return
+    for a, b, how in pairs:
+        differs = [d for d in DIMS[1:]
+                   if (a.get(d) or "any") != "any" and (b.get(d) or "any") != "any"
+                   and a.get(d) != b.get(d)]
+        print(f"## {a.get('id')} vs {b.get('id')}  ({how})\n")
+        print(f"- **{a.get('id')}** {a.get('outcome','').upper()} — {a.get('claim')}")
+        print(f"- **{b.get('id')}** {b.get('outcome','').upper()} — {b.get('claim')}")
+        if differs:
+            print(f"- **Likely missing variable:** {', '.join(differs)}")
+        else:
+            print("- **Likely missing variable:** none of the tracked dimensions differ. "
+                  "That means a dimension we do not yet track is doing the work — "
+                  "the most valuable kind of conflict, and a reason to consider a new dimension.")
+        print(f"- Sources: {a.get('source','-')} · {b.get('source','-')}")
+        print("- **Escalate to Justin only when a pending decision depends on this.** "
+              "Otherwise it waits here.\n")
+
+
 def matrix(recs):
     print("# Evidence matrix — generated, do not edit by hand\n")
     print(f"_{len(recs)} records · regenerate with `python3 evidence/match.py --matrix > evidence/MATRIX.md`_\n")
@@ -132,6 +193,8 @@ def main():
         ap.add_argument(f"--{d}")
     ap.add_argument("--brief")
     ap.add_argument("--matrix", action="store_true")
+    ap.add_argument("--conflicts", action="store_true",
+                    help="list unresolved contradictions (the open-questions queue)")
     ap.add_argument("--all", action="store_true", help="include zero-scoring records")
     a = ap.parse_args()
 
@@ -140,6 +203,9 @@ def main():
         sys.exit("ledger is empty — nothing learned yet")
     if a.matrix:
         matrix(recs)
+        return
+    if a.conflicts:
+        report_conflicts(recs)
         return
 
     q = from_brief(a.brief) if a.brief else {}
@@ -180,6 +246,14 @@ def main():
         for f in flags:
             print(f"     ! {f}")
         print(f"     source: {r.get('source','-')}\n")
+
+    ids = {r.get("id") for _, _, r in scored}
+    live = [(x, y) for x, y, _ in conflicts(recs) if x.get("id") in ids or y.get("id") in ids]
+    if live:
+        print("!! UNRESOLVED CONTRADICTIONS touching these records:")
+        for x, y in live:
+            print(f"   {x.get('id')} vs {y.get('id')} — see evidence/OPEN_QUESTIONS.md")
+        print("   Do not pick a side silently. If this decision depends on it, escalate.\n")
 
     n2 = [r for _, _, r in scored if (r.get("confidence") or "") not in ("n=0", "n=1", "")]
     print(f"{len(scored)} matched · {len(n2)} reproduced (n>=2) · "
