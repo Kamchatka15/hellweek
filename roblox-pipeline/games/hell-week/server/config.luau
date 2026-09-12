@@ -132,10 +132,14 @@ return {
 	-- ---------------------------------------------------------------- the obelisk
 	beacon = {
 		position = Vector3.new(0, 0, 0),
-		parts = require(script.Parent.obelisk),
+		parts = require(script.Parent.obelisk), -- ~19 studs as generated; no extra scaling
 		flameName = "CapFlame",
 		facing = CFrame.Angles(0, 0, 0),
-		feedRadius = 30, -- the pentagram stone's edge: step onto the star and you feed
+		-- The obelisk itself, not the whole stone: the five points each mean something
+		-- now, so standing on one must not also be feeding the fire. 10 rather than 8
+		-- because the stepped base is 13.4 wide, and a player stopped against it stands
+		-- at about 8.7 from the centre — a tighter zone is one they cannot reach.
+		feedRadius = 10,
 		lightOffset = Vector3.new(0, 3, 0),
 		startingFuel = 0,
 		fuelCap = 15,
@@ -327,7 +331,7 @@ return {
 
 	night = {
 		brightness = 0.35,
-		atmosphereDensity = 0.52,
+		atmosphereDensity = 0.32,
 		transition = 4,
 		graceSeconds = 2,
 	},

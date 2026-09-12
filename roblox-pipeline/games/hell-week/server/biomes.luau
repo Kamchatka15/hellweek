@@ -1,21 +1,25 @@
--- biomes — the five worlds of Hell Week, one per point of the pentagram.
+-- biomes — the four worlds of Hell Week, one per point of the pentagram.
 --
--- Justin, 2026-09-12: "the pentagram on the floor of the obelisk has five points,
--- naturally there are going to be 5 biomes. Pick the strongest ones." Each point's
--- triangle is dark while its world is locked, red once opened, green once mastered;
--- mastering a world means clearing its seven challenges.
+-- The pentagram has five points. FOUR carry a world and the fifth holds the offering
+-- table (Justin, 2026-09-12). A world's triangle is dark while it is locked, red once
+-- opened, green once mastered; mastering means clearing its seven challenges.
+--
+-- Four rather than five cost The Long Salt, which was the weakest of the set once the
+-- desert took slot one: both are open arid ground, and "no cover at all" reads as less
+-- of a world than a wood, a flood or a furnace. It is in the brief if it comes back.
 --
 -- World 1 is the desert by owner call (2026-09-12). The Quiet Shore it replaced was
 -- the same teach with grey sand and no second resource; the waste keeps the teach and
 -- adds the thing the workbench runs on.
 --
--- WHY THESE FIVE. Every one has to (a) read differently at 200px, (b) be a different
+-- WHY THESE FOUR. Every one has to (a) read differently at 200px, (b) be a different
 -- KIND of fear rather than the same night with new paint, and (c) run on the engine
 -- that already exists — a beacon you feed, a clock, a thing that walks the light-line.
 -- The order is the difficulty curve: cover is taken away, then the ground, then the
 -- horizon, then the fire itself turns on you.
 --
--- Point 1 faces spawn, and the rest run clockwise from it.
+-- Point 1 faces spawn and is the world you are standing in; points 2-4 run clockwise
+-- from it, and point 5 is the offering table.
 --
 -- PASS 1 REALITY: only The Quiet Shore is built, and only its seven challenges are
 -- wired to real signals in SurviveLoop. The other four are the roadmap, listed so the
@@ -67,22 +71,6 @@ return {
 			{ id = "wade", label = "Cross the deep channel" },
 			{ id = "dry_fuel", label = "Keep a full sack dry" },
 			{ id = "still_water", label = "Let the water settle" },
-			{ id = "the_week", label = "Last all seven days" },
-		},
-	},
-	{
-		id = "long-salt",
-		name = "The Long Salt",
-		note = "White cracked flats under a black sky — the palette inverted, and the one "
-			.. "world that reads as bright. Takes away DISTANCE: you see it coming for a "
-			.. "full minute across open ground and there is nowhere to be.",
-		challenges = {
-			{ id = "kindle", label = "Wake the fourth obelisk" },
-			{ id = "first_mile", label = "Reach the far pan" },
-			{ id = "no_cover", label = "Hold a night with nothing to hide behind" },
-			{ id = "salt_burn", label = "Burn salt-soaked wood" },
-			{ id = "outrun", label = "Outwalk it in the open" },
-			{ id = "white_night", label = "Survive a night you can see all of" },
 			{ id = "the_week", label = "Last all seven days" },
 		},
 	},

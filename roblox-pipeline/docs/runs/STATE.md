@@ -17,7 +17,7 @@
 | Field | Value | Updated |
 |---|---|---|
 | World 1 | **The Ashen Waste** — a 700-stud desert, 1,156 generated scenery parts, three resources (Ashwood / Cactus / Stone) and four recipes run at the obelisk. Replaces The Quiet Shore | 2026-09-12 |
-| Shape of the game | **Offerings:** a bowl beside the stone takes a sack and returns it a tier up at dawn (Ashwood→Emberwood→Heartwood). Craft bench CUT — the obelisk absorbed it. **Five worlds, one per pentagram point** (Quiet Shore · Still Wood · Drowned Quarter · Long Salt · Kiln), seven trials each, point dark/red/green. Framework built and wired; only world 1 exists (`games/hell-week/server/biomes.luau`) | 2026-09-12 |
+| Shape of the game | **Offerings:** a bowl beside the stone takes a sack and returns it a tier up at dawn (Ashwood→Emberwood→Heartwood). Craft bench CUT — the obelisk absorbed it. **Four worlds on four pentagram points** (Ashen Waste · Still Wood · Drowned Quarter · Kiln), seven trials each, point dark/red/green; the fifth point is the offering table. Framework built and wired; only world 1 exists (`games/hell-week/server/biomes.luau`) | 2026-09-12 |
 | Active title | **Hell Week** (`games/hell-week/`) — arrived as a packet, intake fast path, Pass 1 built same day | 2026-09-12 |
 | Parked | Fat Man Gets Rich (before Gate A, no evidence against it, re-mounts via `default.project.json`) · Layer Mine | 2026-09-12 |
 | Gate position | **Before Gate A.** Pass 1 slice playable end to end on the scratch place; four-beat: 3 green, persist blocked on the publish click (`docs/runs/2026-09-12-hell-week-mcp.md`) | 2026-09-12 |

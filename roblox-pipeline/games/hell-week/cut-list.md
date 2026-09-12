@@ -25,9 +25,9 @@
 
 ## IN, added by Justin after the line was drawn (2026-09-12)
 
-- **Five worlds, one per pentagram point** (`server/biomes.luau`): The Quiet Shore · The Still Wood · The Drowned Quarter · The Long Salt · The Kiln. Each point's triangle is dark (locked), red (open), green (mastered).
+- **Four worlds on four pentagram points** (`server/biomes.luau`): The Ashen Waste · The Still Wood · The Drowned Quarter · The Kiln. Each point's triangle is dark (locked), red (open), green (mastered). **The fifth point is the offering table.**
 - **Seven trials per world**, listed in a pull-down at the upper right, completed ones struck through. The Quiet Shore's seven are wired to real signals; the other four worlds are data only.
-- **The offering.** A stone bowl beside the pentagram, in sight of spawn but off the straight walk to the fire. Walk into it with a sack and the obelisk takes it; at dawn it lays out more than it took, one tier up (Ashwood → Emberwood → Heartwood). Burn it tonight or grow it for tomorrow — the same verb, and the decision is *where you stop walking*.
+- **The offering.** The fifth pentagram point, a raised stone table with a gold lip, right of centre and off the straight walk to the fire. Walk into it with a sack and the obelisk takes it; at dawn it lays out more than it took, one tier up (Ashwood → Emberwood → Heartwood). Burn it tonight or grow it for tomorrow — the same verb, and the decision is *where you stop walking*.
 
 **Budget: this puts the slice over, and the caps are how Gate A is read, so it is written down rather than absorbed.**
 

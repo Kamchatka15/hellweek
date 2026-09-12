@@ -143,9 +143,9 @@ local function paintPoints(worlds: { any }?)
 		local parts = tipParts[entry.index]
 		if not parts then
 			parts = {}
-			for _, half in { "A", "B" } do
-				local part = world:FindFirstChild(`BiomePoint{entry.index}{half}`)
-				if part and part:IsA("BasePart") then
+			local prefix = `BiomePoint{entry.index}_`
+			for _, part in world:GetChildren() do
+				if part:IsA("BasePart") and string.sub(part.Name, 1, #prefix) == prefix then
 					table.insert(parts, part)
 				end
 			end

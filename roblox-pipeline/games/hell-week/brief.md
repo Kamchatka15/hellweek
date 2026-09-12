@@ -278,3 +278,16 @@ Point 1 faces spawn; the rest run clockwise. A point's triangle is **dark** whil
 **The Wardstone ties the workbench to the wedge.** Fed to the fire it lifts one Weight, so the Gift becomes a three-way choice: leave it, take it and pay tomorrow, or take it and spend a day's cactus undoing it.
 
 The sack now holds **typed items, six slots**, and the HUD shows what is in it rather than a fullness bar — "4/6" cannot tell you whether you have the two cactus a recipe wants.
+
+### 2026-09-12 — Four worlds, the fifth point is the offering table (Justin, in chat)
+"Each point points to a biome/zone, now just fill in that point/triangle inside the pentagon… lets have 4 biomes to start and use one of the points of the pentagram to hold the offering table."
+
+**Four worlds on four points, the fifth is the table.** Point 1 faces spawn and is the world you are standing in; points 2–4 run clockwise; point 5, right of centre, is the offering table. Dropping to four cost **The Long Salt**, the weakest of the five once a desert took slot one — both are open arid ground, and "no cover at all" reads as less of a world than a wood, a flood or a furnace. Kept here in case it comes back.
+
+**The triangles were pointing the wrong way.** They filled the star's points apex-INWARD at the obelisk, which is the opposite of what a point means. Rebuilt as a fan of tapering strips rather than a pair of wedges: a WedgePart's right-angle corner is a convention that is easy to get backwards, and a fan cannot be got backwards.
+
+**The offering table replaces the standalone bowl.** It is the point-5 triangle itself — a raised stone surface with a gold lip — so the pentagram now carries the whole game: four futures and the place you trade for them. The feed zone shrank from the whole 30-stud stone to a 10-stud circle at the obelisk's foot, because standing on a point must not also be feeding the fire.
+
+**The whole world is lit.** Not a pool with a void around it: from anywhere on the 700-stud disk you can see the sand, the dunes and the mesas on the horizon. Contrast is kept by the obelisk being the only warm light and the only thing that gets brighter, rather than by taking light away from everything else.
+
+**The obelisk was visibly low-resolution and is rebuilt** (`tools/gen_obelisk.py`, superseding the Blender translation): 52 thin shaft slices so the taper is smooth instead of a staircase, a real 22-slice pyramid cap, five fine base steps, and four faces of gold glyph marks recessed into dark channels that follow the taper. **Skulls removed** — at this scale under a shaft wash they read as smudges, and if they return they need to be lit from their own side.

@@ -51,41 +51,86 @@ for k = 1, 5 do
 	})
 end
 
--- The five point triangles — one per world (`server/biomes.luau`). Dark while a world
--- is locked, red once it is open, green once it is mastered. Each is two right-angled
--- wedges laid flat back to back, so the pair reads from above as the filled triangle
--- between the star's tip and the two inner vertices beside it. The client recolours
--- them from its own progress, so in co-op every player reads their own stone.
-local TIP_THICK = 0.16
+-- The five point triangles. FOUR are worlds (`server/biomes.luau`) — dark while a
+-- world is locked, red once open, green once mastered — and the FIFTH holds the
+-- offering table (Justin, 2026-09-12). Point 1 faces spawn and is the world you are
+-- standing in; the offering sits on point 5, right of centre, so it is in plain sight
+-- but not on the straight walk to the fire.
+--
+-- Each triangle fills the star's OUTWARD point: apex at the star's tip, base across
+-- the two inner-pentagon vertices beside it. Built as a fan of tapering strips rather
+-- than a pair of wedges — a WedgePart's right-angle corner is a convention that is easy
+-- to get backwards, and the first build had every triangle pointing inward at the
+-- obelisk, which is the opposite of what a point means.
+local TIP_SLICES = 14
+local TIP_Y = 0.62
 local INNER_R = PENT_R * 0.38197 -- a five-pointed star's inner pentagon
+local BASE_MID_R = INNER_R * math.cos(math.rad(36)) -- where the base crosses the bearing
+local TIP_H = PENT_R - BASE_MID_R
+local TIP_HALF_BASE = INNER_R * math.sin(math.rad(36))
+
+-- Which point carries the offering table instead of a world.
+local OFFERING_POINT = 5
+local OFFERING_R = BASE_MID_R + TIP_H * 0.42 -- far enough out to clear the feed zone
+local OFFERING_ZONE_R = 3.2
+
+local function pointBearing(k: number): number
+	return math.rad(90 + 72 * (k - 1))
+end
+
 for k = 1, 5 do
-	local a = math.rad(90 + 72 * (k - 1))
-	local apex = Vector3.new(math.cos(a) * PENT_R, PENT_Y, math.sin(a) * PENT_R)
-	local b1 = Vector3.new(math.cos(a - math.rad(36)) * INNER_R, PENT_Y, math.sin(a - math.rad(36)) * INNER_R)
-	local b2 = Vector3.new(math.cos(a + math.rad(36)) * INNER_R, PENT_Y, math.sin(a + math.rad(36)) * INNER_R)
-	local mid = (b1 + b2) / 2
-	local forward = apex - mid
-	local height = forward.Magnitude
-	local forwardUnit = forward.Unit
-	for half, corner in { A = b1, B = b2 } do
-		local side = corner - mid
-		local halfBase = side.Magnitude
-		local sideUnit = side.Unit
-		local vz = forwardUnit
-		local vx = sideUnit:Cross(vz)
+	local a = pointBearing(k)
+	local radial = Vector3.new(math.cos(a), 0, math.sin(a))
+	local up = Vector3.yAxis
+	local tangent = radial:Cross(up)
+	local offering = k == OFFERING_POINT
+	for i = 1, TIP_SLICES do
+		local t0, t1 = (i - 1) / TIP_SLICES, i / TIP_SLICES
+		local mid = (t0 + t1) / 2
+		local width = 2 * TIP_HALF_BASE * (1 - mid)
+		local centre = radial * (BASE_MID_R + TIP_H * mid) + Vector3.new(0, TIP_Y, 0)
 		table.insert(props, {
-			name = `BiomePoint{k}{half}`,
-			shape = Enum.PartType.Wedge,
-			size = Vector3.new(TIP_THICK, halfBase, height),
-			position = mid,
-			cframe = CFrame.fromMatrix(mid + sideUnit * (halfBase / 2) + forwardUnit * (height / 2), vx, sideUnit, vz),
-			color = Color3.fromRGB(22, 20, 26), -- locked: the client lights it
-			material = Enum.Material.Neon,
+			name = if offering then `OfferingTable{i}` else `BiomePoint{k}_{i}`,
+			size = Vector3.new(TIP_H / TIP_SLICES + 0.04, if offering then 0.5 else 0.16, width + 0.04),
+			position = centre,
+			cframe = CFrame.fromMatrix(centre, radial, up, tangent),
+			color = if offering then Color3.fromRGB(52, 50, 56) else Color3.fromRGB(22, 20, 26),
+			material = if offering then Enum.Material.Slate else Enum.Material.Neon,
 			canCollide = false,
 			castShadow = false,
 		})
 	end
+	if offering then
+		-- A gold lip around the table so it reads as a surface to put things on rather
+		-- than another lit point.
+		for _, edge in { -1, 1 } do
+			for i = 1, TIP_SLICES do
+				local t0, t1 = (i - 1) / TIP_SLICES, i / TIP_SLICES
+				local mid = (t0 + t1) / 2
+				local width = TIP_HALF_BASE * (1 - mid)
+				local centre = radial * (BASE_MID_R + TIP_H * mid)
+					+ tangent * (edge * width)
+					+ Vector3.new(0, TIP_Y + 0.3, 0)
+				table.insert(props, {
+					name = `OfferingRim{k}{edge}{i}`,
+					size = Vector3.new(TIP_H / TIP_SLICES + 0.1, 0.3, 0.5),
+					position = centre,
+					cframe = CFrame.fromMatrix(centre, radial, up, tangent),
+					color = GOLD,
+					material = Enum.Material.Neon,
+					canCollide = false,
+					castShadow = false,
+				})
+			end
+		end
+	end
 end
+
+local OFFERING_AT = Vector3.new(
+	math.cos(pointBearing(OFFERING_POINT)) * OFFERING_R,
+	0,
+	math.sin(pointBearing(OFFERING_POINT)) * OFFERING_R
+)
 
 local RING_SEGMENTS = 56
 local RING_R = 26.5
@@ -104,50 +149,13 @@ for i = 1, RING_SEGMENTS do
 	})
 end
 
--- The offering bowl: a stone basin with a gold rim on the sand just outside the
--- pentagram, in plain sight from spawn but OFF the straight walk to the fire. On the
--- line it was a toll booth — it took the sack of anyone heading for the obelisk. A few
--- steps to the side turns the same object into a decision.
-local BOWL_AT = Vector3.new(24, 0, 28)
-table.insert(props, {
-	name = "OfferingBasin",
-	shape = Enum.PartType.Cylinder,
-	size = Vector3.new(1.6, 8.4, 8.4),
-	position = BOWL_AT + Vector3.new(0, 0.8, 0),
-	rotation = Vector3.new(0, 0, 90),
-	color = Color3.fromRGB(46, 46, 52),
-	material = Enum.Material.Slate,
-	canCollide = true,
-})
-table.insert(props, {
-	name = "OfferingRim",
-	shape = Enum.PartType.Cylinder,
-	size = Vector3.new(0.3, 9.2, 9.2),
-	position = BOWL_AT + Vector3.new(0, 1.65, 0),
-	rotation = Vector3.new(0, 0, 90),
-	color = GOLD,
-	material = Enum.Material.Neon,
-	canCollide = false,
-	castShadow = false,
-})
-table.insert(props, {
-	name = "OfferingHollow",
-	shape = Enum.PartType.Cylinder,
-	size = Vector3.new(0.3, 6.4, 6.4),
-	position = BOWL_AT + Vector3.new(0, 1.7, 0),
-	rotation = Vector3.new(0, 0, 90),
-	color = Color3.fromRGB(18, 16, 20),
-	material = Enum.Material.SmoothPlastic,
-	canCollide = false,
-	castShadow = false,
-})
-
 -- The obelisk is the only light on a dark waste, so it has to actually GLOW rather
 -- than stand as a silhouette. A light INSIDE the stone lights nothing, so warm anchors
 -- ring the shaft and wash its four faces, and five more sit at the star tips and pour
 -- onto the sand. Invisible parts: the light is the prop.
 local GLOW = Color3.fromRGB(255, 172, 86) -- the sand pool: warm
-local WASH = Color3.fromRGB(255, 214, 176) -- the stone wash: pale, or the charcoal reads as sand
+local WASH = Color3.fromRGB(232, 236, 246) -- the stone wash: near-neutral. Warm light on
+-- grey stone turns it terracotta; only the flame and the sand pool are allowed to be warm.
 for k = 1, 4 do
 	local a = (k / 4) * math.pi * 2 + math.pi / 4
 	table.insert(props, {
@@ -193,15 +201,15 @@ return {
 			id = "offering",
 			kind = "offering",
 			shape = Enum.PartType.Cylinder,
-			size = Vector3.new(0.3, 9.6, 9.6),
-			position = BOWL_AT + Vector3.new(0, 1.8, 0),
+			size = Vector3.new(0.3, 2 * OFFERING_ZONE_R, 2 * OFFERING_ZONE_R),
+			position = OFFERING_AT + Vector3.new(0, 1.1, 0),
 			rotation = Vector3.new(0, 0, 90),
 			color = GOLD,
 			material = Enum.Material.Neon,
-			transparency = 0.86,
+			transparency = 0.84,
 			canCollide = false,
 			label = "OFFER",
-			sublabel = "OR WALK PAST AND BURN IT",
+			sublabel = "OR FEED IT TO THE FIRE",
 		},
 		{
 			id = "obelisk",
@@ -225,25 +233,25 @@ return {
 	},
 
 	-- The rig from games/hell-week/lighting.md. Applied by ContentLoader at boot.
-	-- Dim, never black. The balance that matters: a player 60 studs out must be able to
-	-- SEE the sand and the cactus around them, while the obelisk is still obviously the
-	-- brightest thing in the world. Tuned for the 700-stud desert — the numbers that
-	-- worked on a 350-stud shore left everything past the light pool as a black void,
-	-- which is the "darkness at first is worthless" failure in a bigger world.
+	-- The WHOLE world is lit (Justin, 2026-09-12), not a pool with a void around it: a
+	-- player anywhere on the 700-stud disk can see the sand, the dunes and the mesas on
+	-- the horizon. Contrast is kept by the obelisk being the only warm light and the only
+	-- thing that gets BRIGHTER, not by taking light away from everything else. Night
+	-- lowers the sky; it never blinds the player.
 	-- LightingStyle / Technology are plugin-only and set once in Studio.
 	lighting = {
 		ClockTime = 21.2,
-		Brightness = 2,
-		Ambient = Color3.fromRGB(44, 42, 50),
-		OutdoorAmbient = Color3.fromRGB(76, 74, 84),
+		Brightness = 3,
+		Ambient = Color3.fromRGB(86, 82, 88),
+		OutdoorAmbient = Color3.fromRGB(132, 126, 130),
 		ColorShift_Top = Color3.fromRGB(150, 140, 130),
 		GlobalShadows = true,
 		EnvironmentDiffuseScale = 0.25,
 		EnvironmentSpecularScale = 0.15,
 		atmosphere = {
-			Density = 0.32,
+			Density = 0.2,
 			Offset = 0.15,
-			Haze = 2.4,
+			Haze = 1.5,
 			Color = Color3.fromRGB(122, 114, 110),
 			Decay = Color3.fromRGB(66, 62, 66),
 			Glare = 0,
