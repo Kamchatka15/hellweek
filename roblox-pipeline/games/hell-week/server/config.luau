@@ -26,7 +26,7 @@ return {
 		parts = require(script.Parent.obelisk),
 		flameName = "CapFlame", -- the Neon core the loop scales with fuel; carries the HW-002 jet
 		facing = CFrame.Angles(0, 0, 0), -- +Z skull faces spawn (+Z), so the first thing seen is a face
-		feedRadius = 12, -- the gold ring around the 15.6-stud base; walking into it feeds
+		feedRadius = 14, -- the pentagram floor's edge (10.4-stud base at x2); walking onto it feeds
 		lightOffset = Vector3.new(0, 3, 0), -- the safe-radius light sits low so it reaches the sand
 		startingFuel = 0,
 		fuelCap = 15,
@@ -36,7 +36,7 @@ return {
 		-- total fuel ever fed at which the shore peels: Ring C after ~8, Ring D after 20
 		levelThresholds = { 8, 20 },
 		lightBrightness = 2,
-		flameSize = Vector3.new(2.5, 2.5, 2.5),
+		flameSize = Vector3.new(1.7, 1.7, 1.7),
 	},
 
 	-- One row per day. `stalker` is what it does at night: watch (stand still on the

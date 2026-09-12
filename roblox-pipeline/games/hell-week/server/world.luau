@@ -151,7 +151,7 @@ end
 -- spawn so they read on the first walk in. Parts come from bench.luau in the bench's
 -- own frame; one CFrame places all of them. Set dressing in Pass 1 — crafting is parked.
 local benchParts = require(script.Parent.bench)
-local benchAt = Vector3.new(15, 0, 6) -- clear of the obelisk base (7.8 half-width) and the teach line
+local benchAt = Vector3.new(70, 0, -140) -- just inside the Day-1 fog wall (175), Justin 2026-09-12; still right-of-centre from spawn
 local spawnAt = Vector3.new(0, 0, 30)
 local benchOrigin = CFrame.lookAt(benchAt, benchAt - (spawnAt - benchAt)) -- +Z faces spawn
 for _, spec in benchParts do
@@ -167,6 +167,50 @@ for _, spec in benchParts do
 		fire = spec.fire,
 		canCollide = spec.name == "Tabletop" or string.sub(spec.name, 1, 4) == "Leg_" or spec.name == "Shelf",
 		castShadow = spec.material ~= Enum.Material.Neon,
+	})
+end
+
+-- The pentagram stone floor (Justin, 2026-09-12): five gold lines and a gold ring inlaid
+-- on the slab under the obelisk. Gold Neon like the glyphs, so it reads at night and
+-- doubles as the "feed here" mark. (Reopens settled answer §1.1's "no pentagram logo" —
+-- owner's call, recorded in brief.md.)
+local PENT_R = 12.2
+local PENT_Y = 0.56
+local GOLD = Color3.fromRGB(255, 196, 64)
+local starPoints = {}
+for k = 0, 4 do
+	local a = math.rad(90 + 72 * k)
+	starPoints[k + 1] = Vector3.new(math.cos(a) * PENT_R, PENT_Y, math.sin(a) * PENT_R)
+end
+for k = 1, 5 do
+	local a = starPoints[k]
+	local b = starPoints[(k + 1) % 5 + 1] -- every second point: the star, not the pentagon
+	local mid = (a + b) / 2
+	table.insert(props, {
+		name = `Pentagram_Line{k}`,
+		size = Vector3.new(0.7, 0.12, (a - b).Magnitude),
+		position = mid,
+		cframe = CFrame.lookAt(mid, b),
+		color = GOLD,
+		material = Enum.Material.Neon,
+		canCollide = false,
+		castShadow = false,
+	})
+end
+local RING_SEGMENTS = 36
+local RING_R = 13.1
+for i = 1, RING_SEGMENTS do
+	local a = (i / RING_SEGMENTS) * math.pi * 2
+	local pos = Vector3.new(math.cos(a) * RING_R, PENT_Y, math.sin(a) * RING_R)
+	table.insert(props, {
+		name = `Pentagram_Ring{i}`,
+		size = Vector3.new(2 * math.pi * RING_R / RING_SEGMENTS + 0.3, 0.12, 0.6),
+		position = pos,
+		cframe = CFrame.lookAt(pos, Vector3.new(0, PENT_Y, 0)) * CFrame.Angles(0, math.pi / 2, 0),
+		color = GOLD,
+		material = Enum.Material.Neon,
+		canCollide = false,
+		castShadow = false,
 	})
 end
 
@@ -191,19 +235,19 @@ return {
 			id = "obelisk",
 			kind = "beacon",
 			shape = Enum.PartType.Cylinder,
-			size = Vector3.new(0.3, 24, 24), -- a gold halo just outside the 15.6-stud base
-			position = Vector3.new(0, 0.15, 0),
+			size = Vector3.new(0.5, 28, 28), -- the pentagram stone floor; standing on it feeds
+			position = Vector3.new(0, 0.25, 0),
 			rotation = Vector3.new(0, 0, 90),
-			color = theme.colors.flame,
-			material = Enum.Material.Neon,
-			transparency = 0.7,
-			canCollide = false,
+			color = Color3.fromRGB(40, 40, 44),
+			material = Enum.Material.Slate,
+			transparency = 0,
+			canCollide = true,
 		},
 	},
 
 	spawn = {
 		position = Vector3.new(0, 0.5, 30),
-		lookAt = Vector3.new(0, 6, 0), -- face the obelisk on arrival
+		lookAt = Vector3.new(0, 5, 0), -- face the obelisk on arrival
 		transparency = 0.85,
 		color = SAND,
 	},
