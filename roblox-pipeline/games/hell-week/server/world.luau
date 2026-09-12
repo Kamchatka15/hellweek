@@ -146,6 +146,29 @@ for _, part in wanderer("Wanderer2", -140, 20, 80) do
 	table.insert(props, part)
 end
 
+-- The crafting bench (Justin's art drop, 2026-09-12): Ring A, ~12 studs from the Wick,
+-- off the spawn line so it never hides the Ashwood path, its two plates turned toward
+-- spawn so they read on the first walk in. Parts come from bench.luau in the bench's
+-- own frame; one CFrame places all of them. Set dressing in Pass 1 — crafting is parked.
+local benchParts = require(script.Parent.bench)
+local benchAt = Vector3.new(11, 0, 4)
+local spawnAt = Vector3.new(0, 0, 30)
+local benchOrigin = CFrame.lookAt(benchAt, benchAt - (spawnAt - benchAt)) -- +Z faces spawn
+for _, spec in benchParts do
+	table.insert(props, {
+		name = `Bench_{spec.name}`,
+		shape = spec.shape,
+		size = spec.size,
+		position = benchAt,
+		cframe = benchOrigin * spec.cframe,
+		color = spec.color,
+		material = spec.material,
+		face = spec.face,
+		canCollide = spec.name == "Tabletop" or string.sub(spec.name, 1, 4) == "Leg_" or spec.name == "Shelf",
+		castShadow = spec.material ~= Enum.Material.Neon,
+	})
+end
+
 return {
 	-- The starting disk: a cylinder on its side is a vertical-axis disc. Size.X is
 	-- the thickness, Y/Z the diameter.

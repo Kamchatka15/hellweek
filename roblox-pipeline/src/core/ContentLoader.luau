@@ -94,11 +94,33 @@ local function block(spec: any, parent: Instance): BasePart
 	part.Shape = spec.shape or Enum.PartType.Block
 	part.Size = spec.size
 	local rotation = spec.rotation
-	if rotation then
+	if spec.cframe then
+		part.CFrame = spec.cframe -- a fully-specified placement (imported props)
+	elseif rotation then
 		part.CFrame = CFrame.new(spec.position)
 			* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
 	else
 		part.Position = spec.position
+	end
+	-- A sign: text on one face. Signs are set dressing, so they are data here rather
+	-- than a script per sign.
+	if spec.face then
+		local gui = Instance.new("SurfaceGui")
+		gui.Name = "Face"
+		gui.Face = spec.face.side or Enum.NormalId.Front
+		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		gui.PixelsPerStud = spec.face.pixelsPerStud or 50
+		gui.LightInfluence = 0
+		local text = Instance.new("TextLabel")
+		text.BackgroundTransparency = 1
+		text.Size = UDim2.fromScale(1, 1)
+		text.Font = spec.face.font or Enum.Font.GothamBlack
+		text.TextScaled = true
+		text.Text = spec.face.text
+		text.TextColor3 = spec.face.color or Color3.new(1, 1, 1)
+		text.TextXAlignment = spec.face.align or Enum.TextXAlignment.Center
+		text.Parent = gui
+		gui.Parent = part
 	end
 	part.Color = spec.color or Color3.fromRGB(120, 120, 120)
 	part.Material = spec.material or Enum.Material.SmoothPlastic
