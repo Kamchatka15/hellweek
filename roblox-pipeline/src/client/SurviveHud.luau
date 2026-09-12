@@ -135,6 +135,36 @@ local POINT_LOCKED = Color3.fromRGB(22, 20, 26)
 local POINT_OPEN = Color3.fromRGB(206, 34, 26)
 local POINT_MASTERED = Color3.fromRGB(64, 224, 96)
 
+-- The fifth point is the offering table's light, not a world.
+local OFFERING_COLOURS: { [string]: Color3 } = {
+	empty = Color3.fromRGB(74, 74, 82), -- grey: nothing in it
+	held = Color3.fromRGB(46, 122, 216), -- blue: something in it, nothing it can make
+	ready = Color3.fromRGB(64, 224, 96), -- green: a sacrifice is ready
+}
+local offeringParts: { BasePart } = {}
+
+local function paintOffering(state: string?)
+	local world = workspace:FindFirstChild("World")
+	if not world or not state then
+		return
+	end
+	if #offeringParts == 0 then
+		for _, part in world:GetChildren() do
+			local prefix = "OfferingPoint"
+			if part:IsA("BasePart") and string.sub(part.Name, 1, #prefix) == prefix then
+				table.insert(offeringParts, part)
+			end
+		end
+		if #offeringParts == 0 then
+			return -- the stone has not replicated yet
+		end
+	end
+	local colour = OFFERING_COLOURS[state] or OFFERING_COLOURS.empty
+	for _, part in offeringParts do
+		part.Color = colour
+	end
+end
+
 -- The five pentagram points, coloured from THIS player's progress: dark while a world
 -- is locked, red once it is open, green once it is mastered. Done on the client on
 -- purpose — in co-op each player reads their own stone rather than the room's.
@@ -265,6 +295,7 @@ function SurviveHud.setState(state: any)
 	fuelText.Text = `{string.upper(theme.names.beacon)}  {string.format("%.0f", state.fuel)}`
 
 	refreshTrials(state.challenges)
+	paintOffering(state.offeringState)
 	refreshRecipes(state.recipes)
 	refreshButtons(state)
 

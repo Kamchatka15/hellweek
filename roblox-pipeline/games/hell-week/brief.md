@@ -346,3 +346,20 @@ They label themselves from what the **server** says is in reach: `PICK UP / Ashw
 **INFO is the game's only text screen** and it carries three things: the world's name and the one-sentence how-to-play, the seven trials with the finished ones struck through, and **the recipe book** — what the obelisk can make and from what. That last one closes a real hole: a player could carry two cactus forever and never learn what they were for.
 
 **Trust surface.** This loop had zero client→server remotes and now has exactly one, `C2S_Act`, carrying a verb and nothing else — no target, no position, no amount. The server finds what is in range of where the player actually is and acts on that. A forged call can ask to pick something up; it cannot say what, or from where, or more than 12 times in 4 seconds.
+
+### 2026-09-12 — The table moves out, and the fifth point becomes its light (Justin, in chat)
+"The obelisk offer doesn't work where it is, put it outside the pentagram at one of the points. When there is nothing in the offering the pentagram is grey, when the offering has items in it but can't craft then the triangle is blue, and when the offering is full for a sacrifice then it is green."
+
+**The table stands outside the pentagram**, 40 studs out along the fifth point's bearing, facing the obelisk, on open ground with clear floor all round it. It did not work on the star: the player was fighting its own legs to reach it, and the zone was under the thing it belonged to. It is now a free-standing altar — a stone slab on four legs with a gold lip, a hollow sunk into the top, and two standing stones behind it so it reads as a place from across the waste.
+
+**The fifth point stayed and became the table's status light:**
+
+| Point | Means |
+|---|---|
+| **grey** | nothing has been offered |
+| **blue** | something is in it, but no recipe fits what is there |
+| **green** | a sacrifice is ready — dawn will make something of it |
+
+**Green is not a guess.** It runs the real resolver on the real bowl and asks whether anything would actually come out, recomputed when the bowl changes rather than ten times a second. So one cactus reads blue (two are needed to press water) and the second turns it green. Verified live in exactly that order.
+
+The pentagram now says everything at a glance: four futures, and whether the thing you are trading with is hungry, holding, or ready.

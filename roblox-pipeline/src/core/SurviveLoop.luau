@@ -59,6 +59,27 @@ local run = {
 	startedAt = 0,
 }
 
+-- ---------------------------------------------------------------- the offering light
+-- Three states, and the fifth point of the pentagram shows them:
+--   empty  nothing has been offered
+--   held   something is in it, but no recipe fits what is there
+--   ready  a sacrifice is ready — dawn will make something of it
+--
+-- "Ready" is not a guess: it runs the real resolver on the real bowl and asks whether
+-- anything would come out. Recomputed when the bowl changes rather than every packet,
+-- because resolving is a few passes over the recipe list and the HUD asks ten times a
+-- second.
+local bowlState = "empty"
+
+local function refreshBowlState()
+	if next(run.bowl) == nil then
+		bowlState = "empty"
+		return
+	end
+	local result = RecipeService.resolve(run.bowl)
+	bowlState = if next(result.products) ~= nil or #result.tools > 0 then "ready" else "held"
+end
+
 local insideBeacon: { [Player]: boolean } = {}
 local insideOffering: { [Player]: boolean } = {}
 local nextToastAt: { [Player]: { [string]: number } } = {}
@@ -781,6 +802,7 @@ end
 startRun = function()
 	PickupService.clear()
 	run.bowl = {}
+	refreshBowlState()
 	BeaconService.reset(config.beacon.startingFuel)
 	run.active = true
 	run.day = 0
@@ -876,6 +898,7 @@ local function offer(player: Player)
 		toast(player, "offerempty", theme.copy.offeringEmpty, "info")
 		return
 	end
+	refreshBowlState()
 	AnalyticsService.step(player, "first_offering")
 	AnalyticsService.track(player, "offered", count)
 	toast(player, "offered", theme.copy.offered, "good", 0)
@@ -911,6 +934,7 @@ function returnOfferings()
 
 	local result = RecipeService.resolve(run.bowl)
 	run.bowl = {}
+	refreshBowlState()
 
 	-- Leftovers come back AS THEMSELVES plus a bonus on the ladder. Converting them
 	-- outright would be odd alchemy — a player who offered stone hoping for a Wardstone
@@ -1239,6 +1263,7 @@ local function packet(player: Player, profile: any): any
 				action = context,
 			}
 		end)(),
+		offeringState = bowlState,
 		bowl = (function()
 			local n = 0
 			for _, count in run.bowl do

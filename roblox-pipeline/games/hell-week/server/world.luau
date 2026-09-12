@@ -83,8 +83,8 @@ local TIP_HALF_BASE = INNER_R * math.sin(math.rad(36))
 
 local OFFERING_POINT = 5
 local TABLE_TOP_Y = 3.4 -- waist-high: a table seen from spawn, not a mark on the floor
-local OFFERING_R = BASE_MID_R + TIP_H * 0.45
-local OFFERING_ZONE_R = 5
+local TABLE_R = 40 -- outside the 30-stud slab and the 26.5 ring: clear floor all round
+local OFFERING_ZONE_R = 8
 
 for k = 1, 4 do
 	local a = pointBearing(k)
@@ -109,78 +109,119 @@ for k = 1, 4 do
 	end
 end
 
--- ---------------------------------------------------------------- the offering table
--- A real table, waist-high and three-dimensional (owner call, 2026-09-12: the flat
--- inlay went unnoticed). Triangular top on four stone legs, gold lip round the edge,
--- a hollow sunk into it, standing on the fifth point. You walk UP to it; the zone is
--- the ground around it, because a table you can stand on is a platform, not a table.
-local OFFERING_AT
+-- ---------------------------------------------------------------- the offering
+-- The TABLE stands OUTSIDE the pentagram (owner call, 2026-09-12: it did not work
+-- where it was — a table sitting on the star had the player fighting its own legs to
+-- reach it). It is out on the open ground at 40 studs along the fifth point's bearing,
+-- facing the obelisk, with clear floor all round it.
+--
+-- The fifth POINT stays where it is and becomes the table's status light:
+--   grey   nothing has been offered
+--   blue   something is in it, but no recipe fits what is there
+--   green  a sacrifice is ready — dawn will make something
+-- The client paints it from the server's own answer; see SurviveLoop.offeringState.
+local TABLE_AT
 do
 	local a = pointBearing(OFFERING_POINT)
 	local radial = Vector3.new(math.cos(a), 0, math.sin(a))
 	local up = Vector3.yAxis
 	local tangent = radial:Cross(up)
 
+	-- the status light: the same tapering fan as a world point, on the fifth point
 	for i = 1, TIP_SLICES do
 		local t0, t1 = (i - 1) / TIP_SLICES, i / TIP_SLICES
 		local mid = (t0 + t1) / 2
 		local width = 2 * TIP_HALF_BASE * (1 - mid)
-		local centre = radial * (BASE_MID_R + TIP_H * mid) + Vector3.new(0, TABLE_TOP_Y, 0)
+		local centre = radial * (BASE_MID_R + TIP_H * mid) + Vector3.new(0, PENT_Y + 0.06, 0)
 		table.insert(fixtures, {
-			name = `OfferingTop{i}`,
-			size = Vector3.new(TIP_H / TIP_SLICES + 0.05, 0.55, width + 0.05),
+			name = `OfferingPoint{i}`,
+			size = Vector3.new(TIP_H / TIP_SLICES + 0.04, 0.16, width + 0.04),
 			position = centre,
 			cframe = CFrame.fromMatrix(centre, radial, up, tangent),
-			color = Color3.fromRGB(58, 56, 64),
-			material = Enum.Material.Slate,
-			canCollide = true,
+			color = Color3.fromRGB(74, 74, 82), -- grey: nothing offered
+			material = Enum.Material.Neon,
+			canCollide = false,
+			castShadow = false,
 		})
-		for _, edge in { -1, 1 } do
-			local lip = radial * (BASE_MID_R + TIP_H * mid)
-				+ tangent * (edge * width / 2)
-				+ Vector3.new(0, TABLE_TOP_Y + 0.34, 0)
-			table.insert(fixtures, {
-				name = `OfferingLip{i}_{edge}`,
-				size = Vector3.new(TIP_H / TIP_SLICES + 0.1, 0.22, 0.4),
-				position = lip,
-				cframe = CFrame.fromMatrix(lip, radial, up, tangent),
-				color = GOLD,
-				material = Enum.Material.Neon,
-				canCollide = false,
-				castShadow = false,
-			})
-		end
 	end
 
-	local apex = radial * PENT_R
-	local b1 = radial * BASE_MID_R + tangent * TIP_HALF_BASE
-	local b2 = radial * BASE_MID_R - tangent * TIP_HALF_BASE
-	local centre = (apex + b1 + b2) / 3
-	for li, foot in { apex * 0.93, b1 * 0.9, b2 * 0.9, centre } do
+	TABLE_AT = radial * TABLE_R
+	local facing = CFrame.fromMatrix(Vector3.zero, -radial:Cross(up), up, -radial)
+	local function at(offset: Vector3): CFrame
+		return CFrame.new(TABLE_AT + Vector3.new(0, offset.Y, 0)) * facing * CFrame.new(offset.X, 0, offset.Z)
+	end
+
+	-- top slab
+	table.insert(fixtures, {
+		name = "OfferingTop",
+		size = Vector3.new(10, 0.7, 5.6),
+		position = TABLE_AT,
+		cframe = at(Vector3.new(0, TABLE_TOP_Y, 0)),
+		color = Color3.fromRGB(58, 56, 64),
+		material = Enum.Material.Slate,
+		canCollide = true,
+	})
+	-- gold lip round all four edges
+	for li, edge in
+		{
+			{ Vector3.new(0, TABLE_TOP_Y + 0.44, 2.9), Vector3.new(10.4, 0.26, 0.5) },
+			{ Vector3.new(0, TABLE_TOP_Y + 0.44, -2.9), Vector3.new(10.4, 0.26, 0.5) },
+			{ Vector3.new(5.1, TABLE_TOP_Y + 0.44, 0), Vector3.new(0.5, 0.26, 6.2) },
+			{ Vector3.new(-5.1, TABLE_TOP_Y + 0.44, 0), Vector3.new(0.5, 0.26, 6.2) },
+		}
+	do
+		table.insert(fixtures, {
+			name = `OfferingLip{li}`,
+			size = edge[2],
+			position = TABLE_AT,
+			cframe = at(edge[1]),
+			color = GOLD,
+			material = Enum.Material.Neon,
+			canCollide = false,
+			castShadow = false,
+		})
+	end
+	-- legs
+	for li, foot in
+		{ Vector3.new(4.2, 0, 2.1), Vector3.new(-4.2, 0, 2.1), Vector3.new(4.2, 0, -2.1), Vector3.new(-4.2, 0, -2.1) }
+	do
 		table.insert(fixtures, {
 			name = `OfferingLeg{li}`,
-			size = Vector3.new(0.85, TABLE_TOP_Y, 0.85),
-			position = Vector3.new(foot.X, TABLE_TOP_Y / 2, foot.Z),
+			size = Vector3.new(0.9, TABLE_TOP_Y, 0.9),
+			position = TABLE_AT,
+			cframe = at(Vector3.new(foot.X, TABLE_TOP_Y / 2, foot.Z)),
 			color = Color3.fromRGB(44, 42, 50),
 			material = Enum.Material.Slate,
 			canCollide = true,
 		})
 	end
+	-- the hollow things go into
 	table.insert(fixtures, {
 		name = "OfferingHollow",
 		shape = Enum.PartType.Cylinder,
-		size = Vector3.new(0.3, 5.2, 5.2),
-		position = Vector3.new(centre.X, TABLE_TOP_Y + 0.32, centre.Z),
-		rotation = Vector3.new(0, 0, 90),
+		size = Vector3.new(0.35, 4.4, 4.4),
+		position = TABLE_AT,
+		cframe = at(Vector3.new(0, TABLE_TOP_Y + 0.36, 0)) * CFrame.Angles(0, 0, math.pi / 2),
 		color = Color3.fromRGB(16, 15, 19),
 		material = Enum.Material.SmoothPlastic,
 		canCollide = false,
 		castShadow = false,
 	})
-
-	OFFERING_AT = Vector3.new(centre.X, 0, centre.Z)
-	local _ = OFFERING_R
+	-- two standing stones behind it, so the table reads as a place from a distance
+	for li, side in { -1, 1 } do
+		table.insert(fixtures, {
+			name = `OfferingStone{li}`,
+			size = Vector3.new(1.5, 7.5, 1.5),
+			position = TABLE_AT,
+			cframe = at(Vector3.new(side * 6.4, 3.75, -1.4)) * CFrame.Angles(0, 0, math.rad(side * 4)),
+			color = Color3.fromRGB(48, 46, 54),
+			material = Enum.Material.Slate,
+			canCollide = true,
+		})
+	end
 end
+
+local OFFERING_AT = Vector3.new(TABLE_AT.X, 0, TABLE_AT.Z)
 
 -- ---------------------------------------------------------------- the camp's light
 -- A light INSIDE the stone lights nothing, so warm anchors ring the shaft and wash its

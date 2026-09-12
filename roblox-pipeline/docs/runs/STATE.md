@@ -17,6 +17,7 @@
 | Field | Value | Updated |
 |---|---|---|
 | Worlds | **All four generated and swappable 360°** — Ashen Waste 1,462 parts · Still Wood 2,158 · Drowned Quarter 1,175 · Kiln 1,024. Fixtures (obelisk, stone, points, table, light) never change; scenery/ground/rigs/fog swap whole on mastery | 2026-09-12 |
+| Offering | Table stands OUTSIDE the pentagram at 40 studs on the fifth point's bearing. That point is its status light: grey empty · blue holding · green a sacrifice is ready (the real resolver decides) | 2026-09-12 |
 | Controls | **PICK UP / ACTION / INFO**, always on screen and dimmed when idle; E / F / Tab. Auto-pickup off. INFO carries how-to-play, the trials and the recipe book. One remote (`C2S_Act`), verb only, server proves range | 2026-09-12 |
 | Held things | Bone Knife (cactus x2), Brand (9-stud ward + carried light), **Sigil — the artifact of faith, 19-stud ward**. None kill: the Tempter stays unkillable | 2026-09-12 |
 | World 1 | **The Ashen Waste** — a 700-stud desert, 1,156 generated scenery parts, three resources (Ashwood / Cactus / Stone) and four recipes run at the obelisk. Replaces The Quiet Shore | 2026-09-12 |
