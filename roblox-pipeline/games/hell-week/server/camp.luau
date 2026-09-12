@@ -373,9 +373,14 @@ local creatures = {
 			range = 10,
 			size = 0.78,
 			-- Night: red, and burning hard enough to find from across the waste.
+			-- The NEON PART is what carries at distance: it is emissive, so it reads
+			-- from far away without lighting anything. The PointLight is only there
+			-- to put a little colour on the rock around the head. Seen live at
+			-- brightness 4.2 / range 34 it washed whole mesas orange and killed the
+			-- night, which is the opposite of the point.
 			nightColor = Color3.fromRGB(255, 42, 28),
-			nightBrightness = 4.2,
-			nightRange = 34,
+			nightBrightness = 1.5,
+			nightRange = 13,
 		},
 
 		-- Two of them, 180 degrees apart at the edge of the biome. Fixed spots, so
@@ -440,7 +445,9 @@ local creatures = {
 				material = Enum.Material.Neon,
 				transparency = 0.12,
 				castShadow = false,
-				light = { color = Color3.fromRGB(255, 120, 36), brightness = 2.1, range = 22 },
+				-- Same lesson as the eyes: the neon sphere is the glow, this light is
+				-- only a pool at its feet.
+				light = { color = Color3.fromRGB(255, 120, 36), brightness = 1.15, range = 14 },
 			},
 			-- long arms, knuckles near the ground
 			{
@@ -494,7 +501,7 @@ local creatures = {
 				color = Color3.fromRGB(255, 108, 24),
 				material = Enum.Material.Neon,
 				castShadow = false,
-				light = { color = Color3.fromRGB(255, 100, 30), brightness = 1.2, range = 12 },
+				light = { color = Color3.fromRGB(255, 100, 30), brightness = 0.7, range = 8 },
 			},
 			-- cracks down the back, so it reads as magma from behind too
 			{
