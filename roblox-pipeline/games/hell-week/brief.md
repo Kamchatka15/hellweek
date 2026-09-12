@@ -265,3 +265,16 @@ Point 1 faces spawn; the rest run clockwise. A point's triangle is **dark** whil
 **It is not a second verb.** You still walk into a thing carrying a sack. What changed is that there are now two things to walk into, and the decision is where you stop. The first build put the bowl directly on the walk-in line and it became a toll booth that took the sack of anyone heading for the fire; a few steps to the side turned the same object into a choice.
 
 **The craft bench is cut** — the obelisk absorbed it. A bench and an offering bowl are two answers to one question, and the bowl is the one attached to the thing the whole game is about. The art stays on disk.
+
+### 2026-09-12 — World 1 is a desert, and the obelisk is the workbench (Justin, in chat)
+"Build out the first biome and it should be the desert biome first… as large as a biome in 99 Nights… with rocks and trees and cactus to make the needed supplies. Also cactus convert to water… remember the obelisk works as the workbench."
+
+**The Ashen Waste** replaces The Quiet Shore as world 1: a **700-stud disk** (4× the old area, a 22-second walk from the obelisk to the edge) of bleached dead sand. 1,156 generated scenery parts — dunes, rock mesas, dead trees, scrub, half-buried ruins, bone scatter, and one dry wash cutting across to give the eye a line — from `tools/gen_desert.py` on a fixed seed, so it is reproducible and diffable and needs no mesh upload.
+
+**Three resources instead of one.** Deadfall gives Ashwood (burns), cactus gives Cactus, boulders give Stone. Cactus and stone do **not** burn: the obelisk is the only thing that turns them into anything, which is what makes it the workbench rather than a fire with a bowl next to it.
+
+**Water is an ingredient, not a meter.** A desert invites a thirst bar and the brief already parked that idea, for the right reason. Instead: `2 Cactus → 1 Water`, and water is what every worthwhile recipe needs — `Water + 2 Ashwood → Emberwood`, `Water + Emberwood → Heartwood`, `Water + 2 Stone → Wardstone`. Recipes cascade in one dawn, so a sack of cactus and wood comes back as tempered fuel without the player knowing the chain.
+
+**The Wardstone ties the workbench to the wedge.** Fed to the fire it lifts one Weight, so the Gift becomes a three-way choice: leave it, take it and pay tomorrow, or take it and spend a day's cactus undoing it.
+
+The sack now holds **typed items, six slots**, and the HUD shows what is in it rather than a fullness bar — "4/6" cannot tell you whether you have the two cactus a recipe wants.

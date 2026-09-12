@@ -23,11 +23,11 @@ local BeaconService = require(Core.BeaconService)
 local ChallengeService = require(Core.ChallengeService)
 local ClockService = require(Core.ClockService)
 local ContentLoader = require(Core.ContentLoader)
-local OfferingService = require(Core.OfferingService)
 local DataService = require(Core.DataService)
-local EconomyService = require(Core.EconomyService)
 local PickupService = require(Core.PickupService)
+local RecipeService = require(Core.RecipeService)
 local RemoteGuard = require(Core.RemoteGuard)
+local SackService = require(Core.SackService)
 local StalkerService = require(Core.StalkerService)
 local StateSync = require(Core.StateSync)
 local ZoneService = require(Core.ZoneService)
@@ -56,6 +56,7 @@ local run = {
 	fuelOut = 0,
 	stalkerSeen = false,
 	downs = 0,
+	bowl = {} :: { [string]: number },
 	startedAt = 0,
 }
 
@@ -66,6 +67,10 @@ local nudged: { [Player]: boolean } = {}
 local seenStalkerToast: { [Player]: boolean } = {}
 local pickedUpEver: { [Player]: boolean } = {}
 local nudgeHighlight: Highlight? = nil
+
+-- Dawn hands the bowl back, and the clock reaches that point before the verb block is
+-- read, so it is declared here and filled in below.
+local returnOfferings: () -> ()
 
 local fogRing: { BasePart } = {}
 local stalkerModel: Model? = nil
@@ -333,22 +338,71 @@ local function fogRadiusForLevel(level: number): number
 	return list[math.clamp(level + 1, 1, #list)]
 end
 
--- ---------------------------------------------------------------- fuel on the floor
+-- ---------------------------------------------------------------- the ground
 
-local function placeFuel(position: Vector3, labelText: string?)
-	local f = config.fuel
+--- One item lying on the sand: a thing the player walks over and picks up. Products
+--- the obelisk hands back and raw items both come through here.
+local function placeItem(kind: string, position: Vector3)
+	local def = config.items[kind]
+	if not def then
+		return nil
+	end
 	return PickupService.place(position, {
-		name = theme.names.fuel,
-		value = f.value,
-		size = f.size,
-		color = theme.colors.fuel,
-		material = Enum.Material.Wood,
-		meta = { kind = "fuel" },
-		decorate = if labelText
+		name = def.label,
+		value = 1,
+		shape = def.shape,
+		size = def.size,
+		color = def.color,
+		material = def.material,
+		meta = { kind = kind, returned = true },
+		decorate = if def.glow
 			then function(part)
-				smallLabel(part, labelText)
+				local light = Instance.new("PointLight")
+				light.Color = def.glow.color
+				light.Brightness = def.glow.brightness
+				light.Range = def.glow.range
+				light.Shadows = false
+				light.Parent = part
 			end
 			else nil,
+	})
+end
+
+--- A harvestable node: cactus, boulder, deadfall. The pickup itself is an invisible
+--- marker at the base with the node's look parented to it, so walking to the base
+--- collects the whole thing and one Destroy takes the visuals with it.
+local function placeNode(resource: any, position: Vector3, labelText: string?)
+	local yaw = math.random() * 360
+	return PickupService.place(position, {
+		name = resource.node,
+		value = 1,
+		size = Vector3.new(1.6, 1.6, 1.6),
+		color = Color3.new(1, 1, 1),
+		meta = { kind = resource.kind, node = true },
+		rotation = Vector3.new(0, yaw, 0),
+		decorate = function(part)
+			part.Transparency = 1
+			for index, spec in resource.parts do
+				local piece = Instance.new("Part")
+				piece.Name = `{resource.node}_{index}`
+				piece.Anchored = true
+				piece.CanCollide = false
+				piece.CanTouch = false
+				piece.CanQuery = false
+				piece.Shape = spec.shape or Enum.PartType.Block
+				piece.Size = spec.size
+				piece.Color = spec.color
+				piece.Material = spec.material or Enum.Material.SmoothPlastic
+				local rot = spec.rotation or Vector3.zero
+				piece.CFrame = part.CFrame
+					* CFrame.new(spec.offset)
+					* CFrame.Angles(math.rad(rot.X), math.rad(rot.Y), math.rad(rot.Z))
+				piece.Parent = part
+			end
+			if labelText then
+				smallLabel(part, labelText)
+			end
+		end,
 	})
 end
 
@@ -357,23 +411,17 @@ local function randomInRing(inner: number, outer: number): Vector3
 	local theta = math.random() * math.pi * 2
 	-- sqrt keeps the density even across the band instead of bunching at the inner edge
 	local r = math.sqrt(math.random() * (outer ^ 2 - inner ^ 2) + inner ^ 2)
-	return Vector3.new(
-		origin.X + math.cos(theta) * r,
-		config.groundY + config.fuel.size.Y / 2,
-		origin.Z + math.sin(theta) * r
-	)
+	return Vector3.new(origin.X + math.cos(theta) * r, config.groundY, origin.Z + math.sin(theta) * r)
 end
 
-local function spawnRing(ring: any)
-	if PickupService.activeCount() >= config.fuel.maxOnFloor then
+local function spawnRing(resource: any, ring: any)
+	if PickupService.activeCount() >= config.maxNodes then
 		return
 	end
-	-- Pieces in the path: on the straight line from spawn to beacon, so the first
-	-- minute needs no full turn to find them.
+	-- Pieces in the path: on the straight line from spawn to the stone's edge, so the
+	-- first minute needs no full turn to find them.
 	if ring.path and ring.path > 0 then
 		local from = pack.world.spawn.position
-		-- Aim at the feed edge, not the centre: a wide beacon (an obelisk base) would
-		-- otherwise swallow the last piece.
 		local centre = config.beacon.position
 		local toward = Vector3.new(from.X - centre.X, 0, from.Z - centre.Z)
 		local to = centre
@@ -381,78 +429,34 @@ local function spawnRing(ring: any)
 		for index = 1, ring.path do
 			local t = index / (ring.path + 1)
 			local along = from:Lerp(to, t)
-			local jitter = Vector3.new((math.random() - 0.5) * 6, 0, 0)
-			local position = Vector3.new(along.X, config.groundY + config.fuel.size.Y / 2, along.Z) + jitter
-			placeFuel(position, if index == 1 then theme.copy.pickUp else nil)
+			local jitter = Vector3.new((math.random() - 0.5) * 10, 0, 0)
+			placeNode(
+				resource,
+				Vector3.new(along.X, config.groundY, along.Z) + jitter,
+				if index == 1 then theme.copy.pickUp else nil
+			)
 		end
 	end
 	for _ = 1, ring.count do
-		placeFuel(randomInRing(ring.inner, ring.outer), nil)
+		placeNode(resource, randomInRing(ring.inner, ring.outer))
 	end
 end
 
+--- Lay out every resource whose ring the obelisk has opened. `onlyLevel` restocks just
+--- the band that a fog peel has revealed.
 local function spawnOpenRings(onlyLevel: number?)
 	local level = BeaconService.level()
-	for _, ring in config.fuel.rings do
-		if ring.level > level then
-			continue
-		end
-		if onlyLevel ~= nil and ring.level ~= onlyLevel then
-			continue
-		end
-		spawnRing(ring)
-	end
-end
-
---- Lay a worked good out on the stone. These are the obelisk's answer to an offering,
---- so they sit where the player will walk back through, glowing by tier.
-local function placeReturn(tier: any, index: number, count: number)
-	local origin = config.beacon.position
-	local theta = (index / math.max(1, count)) * math.pi * 2 + math.random() * 0.4
-	local r = config.offering.scatter
-	local position = Vector3.new(
-		origin.X + math.cos(theta) * r,
-		config.groundY + tier.size.Y / 2 + 0.6,
-		origin.Z + math.sin(theta) * r
-	)
-	PickupService.place(position, {
-		name = tier.label,
-		value = tier.value,
-		size = tier.size,
-		color = tier.color,
-		material = tier.material,
-		meta = { kind = "fuel", tier = tier.id, returned = true },
-		decorate = if tier.glow
-			then function(part)
-				local light = Instance.new("PointLight")
-				light.Color = tier.glow.color
-				light.Brightness = tier.glow.brightness
-				light.Range = tier.glow.range
-				light.Shadows = false
-				light.Parent = part
+	for _, resource in config.resources do
+		for _, ring in resource.rings do
+			if ring.level > level then
+				continue
 			end
-			else nil,
-	})
-end
-
---- Dawn: the obelisk hands back what it was given, worth more than it took.
-local function returnOfferings()
-	local goods, value = OfferingService.harvest()
-	if #goods == 0 then
-		return
-	end
-	local index, total = 0, 0
-	for _, entry in goods do
-		total += entry.count
-	end
-	for _, entry in goods do
-		for _ = 1, entry.count do
-			index += 1
-			placeReturn(entry.tier, index, total)
+			if onlyLevel ~= nil and ring.level ~= onlyLevel then
+				continue
+			end
+			spawnRing(resource, ring)
 		end
 	end
-	fxAll("returned", { value = value, count = total })
-	toastAll("returned", theme.copy.returned, "good")
 end
 
 local function spawnLure()
@@ -470,7 +474,7 @@ local function spawnLure()
 		material = Enum.Material.Neon,
 		meta = { kind = "lure" },
 		decorate = function(part)
-			-- The wrong bloom: the only warm light that is not the beacon.
+			-- The wrong bloom: the only warm light that is not the obelisk.
 			local light = Instance.new("PointLight")
 			light.Color = theme.colors.lureLight
 			light.Brightness = c.lightBrightness
@@ -681,7 +685,7 @@ end
 
 startRun = function()
 	PickupService.clear()
-	OfferingService.reset()
+	run.bowl = {}
 	BeaconService.reset(config.beacon.startingFuel)
 	run.active = true
 	run.day = 0
@@ -695,23 +699,53 @@ startRun = function()
 	run.startedAt = os.clock()
 	StalkerService.setMode("hidden")
 	setFogRadius(fogRadiusForLevel(0))
-	for _, player in Players:GetPlayers() do
-		EconomyService.drainCarry(player, "run_reset")
-	end
+	SackService.clearAll()
 	ClockService.start(schedule())
 end
 
 -- ---------------------------------------------------------------- the verb
 
+--- Feed the fire. Only fuel burns: cactus and stone are crafting stock and stay in the
+--- sack, because silently eating them would punish a player for walking the wrong way.
+--- An item with an `onFeed` effect is spent here too — that is what a Wardstone is for.
 local function feed(player: Player)
-	local amount = EconomyService.drainCarry(player, "beacon")
+	local burnable = SackService.drain(player, function(kind)
+		local def = config.items[kind]
+		return def ~= nil and ((def.fuel or 0) > 0 or def.onFeed ~= nil)
+	end)
+
+	local amount, effects = 0, {}
+	for kind, count in burnable do
+		local def = config.items[kind]
+		amount += (def.fuel or 0) * count
+		if def.onFeed then
+			effects[def.onFeed] = (effects[def.onFeed] or 0) + count
+		end
+	end
+
+	for effect, count in effects do
+		if effect == "liftWeight" then
+			local lifted = math.min(run.weight, count)
+			run.weight -= lifted
+			if lifted > 0 then
+				toast(player, "weight", theme.copy.weightLifted, "good", 0)
+				AnalyticsService.track(player, "weight_lifted", lifted)
+			end
+		end
+	end
+
 	if amount <= 0 then
+		if next(effects) == nil and SackService.count(player) > 0 then
+			toast(player, "noburn", theme.copy.nothingBurns, "info")
+		end
+		if next(effects) ~= nil then
+			StateSync.requestAll()
+		end
 		return
 	end
+
 	local accepted = BeaconService.feed(amount)
 	if accepted < amount then
-		-- The beacon is full: hand the rest back rather than eat it.
-		EconomyService.addCarry(player, amount - accepted)
 		toast(player, "full", theme.copy.beaconFull, "info")
 	end
 	if accepted <= 0 then
@@ -732,21 +766,94 @@ local function feed(player: Player)
 	StateSync.requestAll()
 end
 
---- Walk into the bowl carrying a sack and the obelisk takes it. Nothing burns, the
---- light does not grow, and at dawn more comes back than went in. The whole mechanic
---- is one decision made by where the player stops walking.
+--- Walk into the bowl carrying a sack and the obelisk takes ALL of it — fuel, cactus,
+--- stone, whatever. Nothing burns, the light does not grow, and at dawn it hands back
+--- what its recipes could make. The whole mechanic is one decision made by where the
+--- player stops walking.
 local function offer(player: Player)
-	local amount = EconomyService.drainCarry(player, "offering")
-	if amount <= 0 then
+	local bag = SackService.drain(player, nil)
+	local count = 0
+	for kind, n in bag do
+		run.bowl[kind] = (run.bowl[kind] or 0) + n
+		count += n
+	end
+	if count <= 0 then
 		toast(player, "offerempty", theme.copy.offeringEmpty, "info")
 		return
 	end
-	OfferingService.deposit(amount)
 	AnalyticsService.step(player, "first_offering")
-	AnalyticsService.track(player, "offered", amount)
+	AnalyticsService.track(player, "offered", count)
 	toast(player, "offered", theme.copy.offered, "good", 0)
-	fx(player, "offer", { amount = amount })
+	fx(player, "offer", { count = count })
 	StateSync.requestAll()
+end
+
+--- Dawn: run the bowl through the recipes and lay out what came of it. Whatever no
+--- recipe wanted still comes back a tier up, so an offering is never a waste — only
+--- less clever than it could have been.
+function returnOfferings()
+	if next(run.bowl) == nil then
+		return
+	end
+	local result = RecipeService.resolve(run.bowl)
+	run.bowl = {}
+
+	-- Leftovers ride the value ladder: the plain "more than you gave" fallback.
+	local ladder = config.offering.ladder
+	local leftoverValue = 0
+	for kind, count in result.leftovers do
+		local def = config.items[kind]
+		leftoverValue += math.max(1, def and def.fuel or 1) * count
+	end
+	local bonus: { [string]: number } = {}
+	local budget = leftoverValue * config.offering.multiplier
+	for index = #ladder, 1, -1 do
+		local kind = ladder[index]
+		local def = config.items[kind]
+		local value = def and def.fuel or 1
+		if value > 0 then
+			local n = math.floor(budget / value)
+			if n > 0 then
+				bonus[kind] = (bonus[kind] or 0) + n
+				budget -= n * value
+			end
+		end
+	end
+
+	local out: { { kind: string, count: number } } = {}
+	local total = 0
+	for _, bag in { result.products, bonus } do
+		for kind, count in bag do
+			table.insert(out, { kind = kind, count = count })
+			total += count
+		end
+	end
+	if total == 0 then
+		return
+	end
+
+	local origin = config.beacon.position
+	local laid = 0
+	for _, entry in out do
+		for _ = 1, entry.count do
+			laid += 1
+			local theta = (laid / total) * math.pi * 2 + math.random() * 0.3
+			local r = config.offering.scatter
+			placeItem(
+				entry.kind,
+				Vector3.new(origin.X + math.cos(theta) * r, config.groundY + 1.4, origin.Z + math.sin(theta) * r)
+			)
+		end
+	end
+
+	for _, applied in result.applied do
+		award(applied.recipe.id)
+		for _, player in Players:GetPlayers() do
+			AnalyticsService.track(player, `recipe_{applied.recipe.id}`, applied.count)
+		end
+	end
+	fxAll("returned", { count = total })
+	toastAll("returned", theme.copy.returned, "good")
 end
 
 local function onCollect(player: Player, value: number, meta: any?): number
@@ -760,23 +867,27 @@ local function onCollect(player: Player, value: number, meta: any?): number
 		StateSync.requestAll()
 		return value -- the pile is gone either way
 	end
-	local accepted = EconomyService.addCarry(player, value)
-	if accepted > 0 then
-		if meta and meta.returned then
-			award("harvest")
-		end
-		pickedUpEver[player] = true
-		AnalyticsService.step(player, "first_pickup")
-		if nudgeHighlight then
-			nudgeHighlight:Destroy()
-			nudgeHighlight = nil
-		end
-		-- Already standing at the beacon: feed straight away.
-		if insideBeacon[player] then
-			feed(player)
-		end
+	local kind = meta and meta.kind
+	if not kind or not config.items[kind] then
+		return 0
 	end
-	return accepted
+	if not SackService.add(player, kind) then
+		return 0
+	end
+	if meta.returned then
+		award("harvest")
+	end
+	pickedUpEver[player] = true
+	AnalyticsService.step(player, "first_pickup")
+	if nudgeHighlight then
+		nudgeHighlight:Destroy()
+		nudgeHighlight = nil
+	end
+	-- Already standing on the stone: it burns straight away.
+	if insideBeacon[player] then
+		feed(player)
+	end
+	return 1
 end
 
 local function onBlocked(player: Player)
@@ -815,7 +926,8 @@ end
 local function onProfileLoaded(player: Player, profile: any)
 	AnalyticsService.markJoin(player)
 	joinedAt[player] = os.clock()
-	profile.carry = 0 -- fuel is per run, never carried between sessions
+	SackService.ensureDefaults(profile)
+	SackService.clear(player) -- the sack is per run, never carried between sessions
 	profile.bestDay = profile.bestDay or 0
 	profile.tutorialComplete = profile.tutorialComplete == true
 	ChallengeService.ensureDefaults(profile)
@@ -855,13 +967,31 @@ local function packet(player: Player, profile: any): any
 		fuelCap = BeaconService.fuelCap(),
 		radius = BeaconService.radius(),
 		beacon = BeaconService.position(),
-		carry = profile.carry,
-		carryCap = EconomyService.capFor(player),
+		carry = SackService.count(player),
+		sack = (function()
+			local _, order = SackService.contents(player)
+			local out = {}
+			for _, entry in order do
+				local def = config.items[entry.kind]
+				table.insert(
+					out,
+					{ kind = entry.kind, label = if def then def.label else entry.kind, count = entry.count }
+				)
+			end
+			return out
+		end)(),
+		carryCap = SackService.cap(player),
 		weight = run.weight,
 		level = BeaconService.level(),
 		bestDay = profile.bestDay or 0,
 		stalker = run.stalkerSeen,
-		offering = OfferingService.banked(),
+		bowl = (function()
+			local n = 0
+			for _, count in run.bowl do
+				n += count
+			end
+			return n
+		end)(),
 		challenges = if config.worldId then ChallengeService.packetFor(player, config.worldId) else nil,
 	}
 end
@@ -883,7 +1013,17 @@ function SurviveLoop.validate(cfg: any, world: any, thm: any)
 		)
 		expect(typeof(tuning.burn) == "number", `days[{index}] needs a burn`)
 	end
-	expect(typeof(cfg.fuel) == "table" and typeof(cfg.fuel.rings) == "table", "config.fuel.rings is required")
+	expect(typeof(cfg.items) == "table", "config.items is required")
+	expect(typeof(cfg.recipes) == "table", "config.recipes is required")
+	expect(typeof(cfg.resources) == "table" and #cfg.resources > 0, "config.resources must be a non-empty array")
+	for _, resource in cfg.resources do
+		expect(typeof(resource.kind) == "string", "every resource needs a kind")
+		expect(cfg.items[resource.kind] ~= nil, `resource '{resource.kind}' is not in config.items`)
+		expect(typeof(resource.rings) == "table" and #resource.rings > 0, `resource '{resource.kind}' needs rings`)
+		expect(typeof(resource.parts) == "table" and #resource.parts > 0, `resource '{resource.kind}' needs parts`)
+	end
+	expect(typeof(cfg.pickupRadius) == "number", "config.pickupRadius is required")
+	expect(typeof(cfg.maxNodes) == "number", "config.maxNodes is required")
 	expect(typeof(cfg.stalker) == "table", "config.stalker is required")
 	expect(typeof(cfg.lure) == "table", "config.lure is required")
 	expect(
@@ -895,16 +1035,7 @@ function SurviveLoop.validate(cfg: any, world: any, thm: any)
 	expect(typeof(cfg.onboarding) == "table", "config.onboarding is required")
 	expect(typeof(cfg.runEndPause) == "number", "config.runEndPause is required")
 	expect(typeof(cfg.offering) == "table", "config.offering is required")
-	expect(
-		typeof(cfg.offering.tiers) == "table" and #cfg.offering.tiers > 0,
-		"config.offering.tiers must be a non-empty array"
-	)
-	for _, tier in cfg.offering.tiers do
-		expect(
-			typeof(tier.id) == "string" and typeof(tier.value) == "number",
-			"every offering tier needs an id and a value"
-		)
-	end
+	expect(typeof(cfg.offering.ladder) == "table", "config.offering.ladder is required")
 	local hasBowl = false
 	for _, zone in world.zones do
 		hasBowl = hasBowl or zone.kind == "offering"
@@ -962,7 +1093,7 @@ function SurviveLoop.start(loaded: any)
 	if config.worlds then
 		ChallengeService.configure(config.worlds)
 	end
-	OfferingService.configure(config.offering)
+	RecipeService.configure(config.recipes)
 
 	local flame, light = buildBeacon()
 	stalkerModel = buildStalker()
@@ -993,15 +1124,16 @@ function SurviveLoop.start(loaded: any)
 		onTouch = onTouch,
 	})
 
-	EconomyService.setCapProvider(function()
+	SackService.setCapProvider(function()
 		return config.sack.cap
 	end)
+	SackService.changed:connect(StateSync.request)
 
 	PickupService.setup({
 		parent = pack.folder,
-		maxActive = config.fuel.maxOnFloor + 8,
+		maxActive = config.maxNodes + 40,
 		radiusFor = function()
-			return config.fuel.pickupRadius
+			return config.pickupRadius
 		end,
 		onCollect = onCollect,
 		onBlocked = onBlocked,
@@ -1086,7 +1218,7 @@ function SurviveLoop.start(loaded: any)
 		if feedAccumulator >= FEED_POLL then
 			feedAccumulator = 0
 			for player in insideBeacon do
-				if player.Parent and EconomyService.carry(player) > 0 then
+				if player.Parent and SackService.count(player) > 0 then
 					feed(player)
 				end
 			end

@@ -1,20 +1,21 @@
 -- theme — names, colours and copy for Hell Week. Replicated, because the HUD needs it.
 -- No tuning numbers live here: those are server-side in config.luau.
 --
--- Register (designers only, never printed): a quiet grave, low tide in a place that
--- used to be a beach. Not fire, not torture, not scripture. The player-facing zone
--- name is The Quiet Shore. Settled answers in games/hell-week/brief.md §1 — do not
+-- Register (designers only, never printed): a dead place that used to be lived in.
+-- Bleached, quiet, wrong. Not fire, not torture, not scripture. The player-facing zone
+-- name is The Ashen Waste. Settled answers in games/hell-week/brief.md §1 — do not
 -- reopen them here.
 
 return {
 	title = "Hell Week",
 	loop = "survive",
-	zoneName = "The Quiet Shore",
+	zoneName = "The Ashen Waste",
 
 	-- The engine's vocabulary slots, filled with this title's words.
 	names = {
 		beacon = "Obelisk",
 		fuel = "Ashwood",
+		water = "Water",
 		stalker = "Tempter",
 		lure = "Gift",
 		sack = "Sack",
@@ -55,8 +56,8 @@ return {
 	-- The Gift's bloom is the only competing warm, and it is deliberately WRONG — a
 	-- pink-orange that does not belong to the wick.
 	colors = {
-		sand = Color3.fromRGB(112, 114, 112),
-		water = Color3.fromRGB(8, 9, 12),
+		sand = Color3.fromRGB(168, 150, 122), -- bleached dead sand, never golden-hour warm
+		water = Color3.fromRGB(92, 178, 198),
 		post = Color3.fromRGB(70, 62, 56),
 		lip = Color3.fromRGB(46, 46, 50),
 		flame = Color3.fromRGB(255, 190, 70),
@@ -65,10 +66,10 @@ return {
 		stalker = Color3.fromRGB(9, 9, 13),
 		lure = Color3.fromRGB(255, 120, 96),
 		lureLight = Color3.fromRGB(255, 96, 120),
-		fog = Color3.fromRGB(90, 100, 120),
-		tree = Color3.fromRGB(150, 150, 146),
-		driftwood = Color3.fromRGB(130, 124, 116),
-		rock = Color3.fromRGB(84, 86, 90),
+		fog = Color3.fromRGB(104, 96, 92),
+		tree = Color3.fromRGB(104, 90, 74),
+		driftwood = Color3.fromRGB(126, 110, 90),
+		rock = Color3.fromRGB(78, 68, 60),
 		night = Color3.fromRGB(110, 120, 160),
 	},
 
@@ -87,13 +88,15 @@ return {
 		toastClock = "THE FIRE IS THE ONLY CLOCK",
 		toastWaits = "IT WAITS FOR THE LIGHT TO THIN",
 		pickUp = "PICK UP",
-		sackFull = "SACK FULL — CARRY IT TO THE OBELISK",
+		sackFull = "SACK FULL — TAKE IT TO THE OBELISK",
 		beaconFull = "THE FIRE IS FULL",
+		nothingBurns = "NONE OF THAT BURNS — OFFER IT INSTEAD",
+		weightLifted = "THE STONE TAKES THE WEIGHT",
 		notThatWay = "NOT THAT WAY",
 		downed = "THE DARK TOOK YOU",
 		lightOut = "THE LIGHT WENT OUT",
 		weekDone = "YOU LASTED THE WEEK",
-		fogPeels = "THE SHORE OPENS",
+		fogPeels = "THE WASTE OPENS",
 		offered = "THE OBELISK TAKES IT",
 		offeringEmpty = "NOTHING TO OFFER",
 		returned = "IT GAVE BACK MORE THAN IT TOOK",

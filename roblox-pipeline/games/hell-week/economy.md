@@ -1,39 +1,39 @@
-# Hell Week — economy (Wave 1)
+# Hell Week — economy — world 1, The Ashen Waste
 
-> The currency is **fuel**, not coins: Ashwood in, burn out. Days×1000 + wickLeft×10 − gifts×200 is the score. Candidate numbers are the brief's §6 table; the sim is `tools/survive_sim.py` (written 2026-09-12 because `econ_sim.py` only knows sweep-and-bank).
+> The currency is **fuel**, and from the desert on it is not the only resource. Ashwood burns; cactus and stone do not, and the obelisk is the only thing that turns them into something that does. `tools/survive_sim.py` models the fuel budget; it does **not** yet model recipes, which is named as a gap rather than papered over.
 
-## Candidate days (in `server/config.luau`)
+## Resources
 
-| Day | Day length | Night | Burn (units) | Ashwood on the floor | Tempter |
-|---|---|---|---|---|---|
-| 1 | 90 s | 40 s | 3 | 14 (Ring A 8 incl. 3 on the spawn line, Ring B 6) | watch only |
-| 2 | 90 s | 45 s | 4 | +14 respawn (+6 Ring C once 8 fed) | hunts outside the light |
-| 3 | 85 s | 50 s | 6 | same, + the Gift on the light-line | hunts + Gift |
-| 4–7 | 80→65 s | 55→70 s | 7→10 | **PARKED tuning** — placeholders so the week has a shape | same AI |
+| Item | Source | Fuel | What it is for |
+|---|---|---|---|
+| Ashwood | deadfall on the sand | 1 | the floor of the economy; burns as found |
+| Cactus | cactus, 39 across the waste | 0 | the only source of **water** |
+| Stone | boulders | 0 | Wardstones |
+| Water | 2 Cactus, at the obelisk | 0 | the ingredient every good recipe needs |
+| Emberwood | 1 Water + 2 Ashwood | 3 | three times the burn for two wood and a walk |
+| Heartwood | 1 Water + 1 Emberwood | 8 | the deep tier; a night in one item |
+| Wardstone | 1 Water + 2 Stone | 0 | fed to the fire, it lifts one **Weight** |
 
-Sack 3 · Wick holds 15 · radius 25 + 8×fuel, cap 90 · Ring C opens at 8 fed, Ring D at 20 · Gift +5 now, Weight +1, next burn ×1.25 per Weight · Tempter touch = −20% fuel, Weight +1.
+## Why water is not a thirst meter
 
-## Sim result (300 runs per row, one player, no co-op, no downed penalties)
+A desert wants one, and the brief parked "hunger meter as a fourth HUD number" for the right reason: it is a number that punishes you for existing and teaches nothing. Water as the **ingredient** does the opposite — it makes the second and third resources matter, it gives the obelisk a reason to be a workbench, and it costs no HUD at all.
 
-Re-run 2026-09-12 after the obelisk layout (feed edge at 30 studs, Ring A 32–50). Trips are now measured from the **feed edge**, not the centre — a 30-stud stone shortens every round trip by 60 studs, which the first version of the sim missed and which made a visual change look like a balance collapse.
+**Wardstone is the piece worth watching at Gate A.** Taking the Gift adds Weight and Weight raises tomorrow's burn; a Wardstone takes one back off. So the Gift is now a three-way choice — leave it, take it and eat the cost, or take it and spend a day's cactus undoing it. If testers never make a Wardstone, the recipe is too deep and the cost should drop to one stone.
 
-| player | gifts | median days survived | P(see Day 2) | P(see Day 4) | P(week) | Day-3 fuel before night (median) |
-|---|---|---|---|---|---|---|
-| slacker (25% of day gathering) | 0 | 5 | 100% | 100% | 0% | 11.0 |
-| slacker | 1 | 5 | 100% | 100% | 0% | 15.0 |
-| slacker | 3 | 4 | 100% | 100% | 0% | 15.0 |
-| casual (50%) | 0 | 7 | 100% | 100% | 100% | 15.0 |
-| casual | 1 | 7 | 100% | 100% | 72% | 15.0 |
-| casual | 3 | 4 | 100% | 100% | 0% | 15.0 |
-| engaged (75%) | any ≤1 | 7 | 100% | 100% | 100% | 15.0 |
-| sweat (100%) | any ≤1 | 7 | 100% | 100% | 100% | 15.0 |
-| any | 3 | 4 | 100% | 100% | 0% | 15.0 |
+## The clock
 
-## What it says
+| Day | Day | Night | Burn | Tempter |
+|---|---|---|---|---|
+| 1 | 100 s | 45 s | 3 | watch only |
+| 2 | 100 s | 50 s | 4 | hunts outside the light |
+| 3 | 95 s | 55 s | 6 | hunts + the Gift appears |
+| 4–7 | 90→75 s | 60→75 s | 8→14 | **PARKED tuning** |
 
-1. **Nobody fails Days 1–3 any more.** The wide stone made the loop easier: even a quarter-effort player reaches Day 5. The brief wanted Day 3 "tight if sloppy" and it is no longer tight for anyone. **A G2 lever, not a Pass 1 one** — the honest fixes are a lower beacon cap, a Day-3 burn above 6, or fewer Ring A pieces, and all three want Gate A watched first.
-2. **The Gift is still the only thing that kills you.** Three Gifts cap every profile at Day 4, and one costs a casual player the week 100% → 72%. The wedge survived the layout change intact, which is the part that mattered.
-3. **The cap (15) is still the ceiling everyone sits at** from Day 3 on, so the parked Days 4–7 escalation still threatens nobody. Same G2 decision as before.
+Sack 6 · obelisk holds 15 · radius 25 + 8×fuel, cap 90 · Ring C opens at 8 fed, Ring D at 20 · Gift +5 now, Weight +1, next burn ×1.25 per Weight.
+
+## The gap, named
+
+`survive_sim.py` still walks a one-resource world: it counts trips for fuel and knows nothing about cactus, water or recipes. Its last honest reading (one resource, feed-edge trips) was that Days 1–3 are safe for everyone and the Gift is the only thing that kills. **The desert almost certainly makes that easier still**, because Emberwood and Heartwood multiply what a trip is worth. Extending the sim to model recipes is the first queue item, and no number here should be frozen until it has.
 
 ## Shop stubs (drafted, unwired — `server/sku.luau`)
 

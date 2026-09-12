@@ -7,6 +7,8 @@
 **Justin's two clicks** — publish unlisted + Studio API access on (`docs/runs/PERSISTENCE_TEST.md`), and `Lighting.Technology = Future`. Then Claude runs the persist beat and Wave 4 dressing for Hell Week.
 
 ## Now
+- [ ] Teach `tools/survive_sim.py` about recipes and the three desert resources — it still walks a one-resource world, so every number in `games/hell-week/economy.md` is provisional
+- [ ] Wardstone cost check: if Gate A testers never craft one, drop it to 1 Water + 1 Stone
 - [ ] Wave-4 wiring patch for Hell Week, diff-ready: shelf IDs from `games/hell-week/shelf.md` mapped onto `world.luau` props (replace primitive trees/rocks/boat with inserts, recolored), so it applies in one step once InsertService is live
 - [ ] Find a night-drop sting on the Creator Store ("low drone hit", "dark sting"); add to the shelf
 - [ ] Wire the four audio moments (hush loop, feed flare, night creak, pickup) as pack data — `theme.audio` — and a tiny generic `SoundService`-side player in the engine (unattended: write it, do not sync to Studio)

@@ -218,7 +218,15 @@ function SurviveHud.setState(state: any)
 	local sackRatio = if state.carryCap > 0 then math.clamp(state.carry / state.carryCap, 0, 1) else 0
 	sackFill.Size = UDim2.fromScale(sackRatio, 1)
 	sackFill.BackgroundColor3 = if sackRatio >= 1 then theme.uiWarn else theme.colors.fuel
-	sackText.Text = `{string.upper(theme.names.sack)}  {Format.short(state.carry)} / {Format.short(state.carryCap)}`
+	-- What is in the sack, not just how full it is: a desert carries three kinds and
+	-- "4/6" cannot tell you whether you have the two cactus a recipe wants.
+	local carried = ""
+	for _, entry in state.sack or {} do
+		carried ..= `  {entry.label} {entry.count}`
+	end
+	sackText.Text = if carried == ""
+		then `{string.upper(theme.names.sack)}  {state.carry}/{state.carryCap}`
+		else `{state.carry}/{state.carryCap}{carried}`
 end
 
 -- The phase bar drains locally between packets so it reads as a clock, not a stutter.

@@ -5,6 +5,10 @@
 -- triangle is dark while its world is locked, red once opened, green once mastered;
 -- mastering a world means clearing its seven challenges.
 --
+-- World 1 is the desert by owner call (2026-09-12). The Quiet Shore it replaced was
+-- the same teach with grey sand and no second resource; the waste keeps the teach and
+-- adds the thing the workbench runs on.
+--
 -- WHY THESE FIVE. Every one has to (a) read differently at 200px, (b) be a different
 -- KIND of fear rather than the same night with new paint, and (c) run on the engine
 -- that already exists — a beacon you feed, a clock, a thing that walks the light-line.
@@ -20,16 +24,19 @@
 
 return {
 	{
-		id = "quiet-shore",
-		name = "The Quiet Shore",
-		note = "Grey sand, black glass water, a fog ring. The teach.",
+		id = "ashen-waste",
+		name = "The Ashen Waste",
+		note = "A 700-stud disk of bleached dead sand: dunes, rock mesas, dead trees, "
+			.. "cactus, half-buried ruins, one dry wash. The teach, and the world where "
+			.. "water enters the game — cactus is the only source of it, and water is "
+			.. "what the obelisk needs to make anything worth having.",
 		challenges = {
-			{ id = "first_light", label = "Feed the obelisk", hint = "Carry Ashwood into the stone." },
+			{ id = "first_light", label = "Feed the obelisk", hint = "Carry deadfall onto the stone." },
 			{ id = "first_night", label = "Hold the first night", hint = "Do not let the fire go out." },
-			{ id = "open_shore", label = "Push the fog back", hint = "Feed it eight." },
-			{ id = "harvest", label = "Take back what the fire made", hint = "Offer a sack and return at dawn." },
+			{ id = "press_water", label = "Press water from cactus", hint = "Two cactus in the bowl." },
+			{ id = "harvest", label = "Take back what the obelisk made", hint = "Offer a sack and return at dawn." },
+			{ id = "open_waste", label = "Push the fog back", hint = "Feed it eight." },
 			{ id = "refuse", label = "Reach day three taking no Gift", hint = "The easy pile costs tomorrow." },
-			{ id = "untouched", label = "Reach day three untouched", hint = "Stay inside the light at night." },
 			{ id = "the_week", label = "Last all seven days" },
 		},
 	},
