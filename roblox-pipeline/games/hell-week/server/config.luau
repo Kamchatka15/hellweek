@@ -90,9 +90,11 @@ return {
 	-- ---------------------------------------------------------------- the workbench
 	-- The obelisk IS the bench. Offer a sack into the bowl and these run on it at
 	-- dawn, in this order — two cactus become water BEFORE water tempers wood, so a
-	-- sack of cactus and ashwood cascades on its own. Leftovers that match nothing
-	-- come back one tier up anyway (`offering.multiplier`), so an offering is never a
-	-- waste, only less clever than it could have been.
+	-- sack of cactus and ashwood cascades on its own. The Wardstone is listed ABOVE
+	-- Heartwood on purpose: with a greedy resolver whichever comes first eats the
+	-- water, and the item that answers the Gift is worth more to the game than the deep
+	-- fuel tier. Leftovers come back as themselves plus a bonus on the ladder, so an
+	-- offering is never a waste — only less clever than it could have been.
 	recipes = {
 		{
 			id = "press_water",
@@ -107,16 +109,16 @@ return {
 			outputs = { emberwood = 1 },
 		},
 		{
-			id = "quicken_heart",
-			label = "Heartwood",
-			inputs = { water = 1, emberwood = 1 },
-			outputs = { heartwood = 1 },
-		},
-		{
 			id = "cut_ward",
 			label = "Wardstone",
 			inputs = { water = 1, stone = 2 },
 			outputs = { wardstone = 1 },
+		},
+		{
+			id = "quicken_heart",
+			label = "Heartwood",
+			inputs = { water = 1, emberwood = 1 },
+			outputs = { heartwood = 1 },
 		},
 	},
 

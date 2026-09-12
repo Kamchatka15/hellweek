@@ -52,7 +52,7 @@ export type Result = {
 function RecipeService.resolve(bag: { [string]: number }): Result
 	local pool: { [string]: number } = table.clone(bag)
 
-	local products: { [string]: number } = {}
+	local produced: { [string]: number } = {} -- every output ever made, intermediates included
 	local effects: { [string]: number } = {}
 	local applied: { { recipe: Recipe, count: number } } = {}
 	local firedBy: { [string]: number } = {}
@@ -73,7 +73,7 @@ function RecipeService.resolve(bag: { [string]: number }): Result
 					end
 				end
 				for kind, count in recipe.outputs or {} do
-					products[kind] = (products[kind] or 0) + count
+					produced[kind] = (produced[kind] or 0) + count
 					pool[kind] = (pool[kind] or 0) + count
 				end
 				if recipe.effect then
@@ -88,22 +88,18 @@ function RecipeService.resolve(bag: { [string]: number }): Result
 		end
 	end
 
-	-- Anything a recipe produced and a later recipe did not eat is a product the
-	-- player should receive; anything that was never touched is a leftover. The pool
-	-- holds both, so split it by whether the kind was ever produced.
+	-- The POOL is the only truth about what still exists: an intermediate that a later
+	-- recipe ate is gone, however many times it was produced along the way. Splitting
+	-- by the produced-ever tally instead handed the water back AND the wood it became.
+	local products: { [string]: number } = {}
 	local leftovers: { [string]: number } = {}
 	for kind, count in pool do
-		local made = products[kind] or 0
-		if made >= count then
-			products[kind] = count
-		else
-			products[kind] = if made > 0 then made else nil
-			leftovers[kind] = count - made
+		local asProduct = math.min(produced[kind] or 0, count)
+		if asProduct > 0 then
+			products[kind] = asProduct
 		end
-	end
-	for kind, count in products do
-		if count <= 0 then
-			products[kind] = nil
+		if count - asProduct > 0 then
+			leftovers[kind] = count - asProduct
 		end
 	end
 

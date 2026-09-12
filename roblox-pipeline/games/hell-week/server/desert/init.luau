@@ -9,7 +9,7 @@
 -- HARVESTABLE nodes are NOT in here. Cactus, boulders and deadfall are placed by the
 -- loop from config.resources so they can respawn; this file is the world that stays.
 --
--- 1156 parts across 2 chunks, because Studio refuses a script Source over 200,000
+-- 1155 parts across 2 chunks, because Studio refuses a script Source over 200,000
 -- characters. This stitches them back into one list.
 
 local out = {}

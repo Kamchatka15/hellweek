@@ -225,25 +225,27 @@ return {
 	},
 
 	-- The rig from games/hell-week/lighting.md. Applied by ContentLoader at boot.
-	-- Dim, never black: the sun is weak and the ambient is low so distance falls off
-	-- honestly, and the obelisk's own lights are what a player reads by. Raising
-	-- ambient to "fix" darkness flattens exactly the contrast this scene is made of.
+	-- Dim, never black. The balance that matters: a player 60 studs out must be able to
+	-- SEE the sand and the cactus around them, while the obelisk is still obviously the
+	-- brightest thing in the world. Tuned for the 700-stud desert — the numbers that
+	-- worked on a 350-stud shore left everything past the light pool as a black void,
+	-- which is the "darkness at first is worthless" failure in a bigger world.
 	-- LightingStyle / Technology are plugin-only and set once in Studio.
 	lighting = {
 		ClockTime = 21.2,
-		Brightness = 1.1,
-		Ambient = Color3.fromRGB(26, 27, 34),
-		OutdoorAmbient = Color3.fromRGB(34, 38, 50),
+		Brightness = 2,
+		Ambient = Color3.fromRGB(44, 42, 50),
+		OutdoorAmbient = Color3.fromRGB(76, 74, 84),
 		ColorShift_Top = Color3.fromRGB(150, 140, 130),
 		GlobalShadows = true,
 		EnvironmentDiffuseScale = 0.25,
 		EnvironmentSpecularScale = 0.15,
 		atmosphere = {
-			Density = 0.36,
+			Density = 0.32,
 			Offset = 0.15,
-			Haze = 2,
-			Color = Color3.fromRGB(104, 96, 92),
-			Decay = Color3.fromRGB(58, 54, 58),
+			Haze = 2.4,
+			Color = Color3.fromRGB(122, 114, 110),
+			Decay = Color3.fromRGB(66, 62, 66),
 			Glare = 0,
 		},
 		colorCorrection = {

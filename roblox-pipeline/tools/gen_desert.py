@@ -71,6 +71,17 @@ def emit(name, size, pos, *, shape="Block", rot=None, color=SAND, material="Sand
     parts.append("\t{ " + ", ".join(bits) + " }")
 
 
+# The walk-in corridor: spawn is at +Z 62 looking at the obelisk, so anything tall
+# standing on that line hides the one thing a new player has to see. Nothing gets
+# placed in this wedge out to CORRIDOR_R — the teach is worth a bald patch.
+CORRIDOR_HALF = 17.0
+CORRIDOR_R = 110.0
+
+
+def in_corridor(x, z):
+    return z > 0 and abs(x) < CORRIDOR_HALF and math.hypot(x, z) < CORRIDOR_R
+
+
 def scatter(count, inner, outer, fn, clear=CLEAR_R):
     """Even-density placement in an annulus (sqrt keeps it from bunching inward)."""
     placed = 0
@@ -80,6 +91,8 @@ def scatter(count, inner, outer, fn, clear=CLEAR_R):
         theta = rng.random() * math.tau
         r = math.sqrt(rng.random() * (outer**2 - inner**2) + inner**2)
         if r < clear:
+            continue
+        if in_corridor(math.cos(theta) * r, math.sin(theta) * r):
             continue
         x, z = math.cos(theta) * r, math.sin(theta) * r
         fn(placed, x, z, r)
@@ -192,7 +205,7 @@ for k in range(34):
     wob = math.sin(k * 0.7) * 16
     wx = math.cos(wash_yaw) * d - math.sin(wash_yaw) * wob
     wz = math.sin(wash_yaw) * d + math.cos(wash_yaw) * wob
-    if math.hypot(wx, wz) < CLEAR_R + 6:
+    if math.hypot(wx, wz) < CLEAR_R + 6 or in_corridor(wx, wz):
         continue
     emit(f"Wash{k}", (rng.uniform(20, 34), 0.45, rng.uniform(15, 26)), (wx, 0.12, wz),
          rot=(0, math.degrees(wash_yaw) + rng.uniform(-18, 18), 0),

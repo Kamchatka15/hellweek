@@ -8,16 +8,6 @@ local P, M = Enum.PartType, Enum.Material
 
 return {
 	{
-		name = "Scrub70",
-		shape = P.Ball,
-		size = V(5.1, 3.2, 4.8),
-		position = V(240.7, 1.0, -209.2),
-		color = C(70, 73, 63),
-		material = M.Grass,
-		canCollide = false,
-		castShadow = false,
-	},
-	{
 		name = "Scrub71",
 		shape = P.Ball,
 		size = V(4.0, 2.5, 3.8),

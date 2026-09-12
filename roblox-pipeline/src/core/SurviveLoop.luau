@@ -798,7 +798,10 @@ function returnOfferings()
 	local result = RecipeService.resolve(run.bowl)
 	run.bowl = {}
 
-	-- Leftovers ride the value ladder: the plain "more than you gave" fallback.
+	-- Leftovers come back AS THEMSELVES plus a bonus on the ladder. Converting them
+	-- outright would be odd alchemy — a player who offered stone hoping for a Wardstone
+	-- and had no water should get the stone back, not wood. The bonus is what keeps the
+	-- promise that the bowl always returns more than it took.
 	local ladder = config.offering.ladder
 	local leftoverValue = 0
 	for kind, count in result.leftovers do
@@ -822,7 +825,7 @@ function returnOfferings()
 
 	local out: { { kind: string, count: number } } = {}
 	local total = 0
-	for _, bag in { result.products, bonus } do
+	for _, bag in { result.products, result.leftovers, bonus } do
 		for kind, count in bag do
 			table.insert(out, { kind = kind, count = count })
 			total += count
