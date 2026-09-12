@@ -26,7 +26,7 @@ return {
 		parts = require(script.Parent.obelisk),
 		flameName = "CapFlame", -- the Neon core the loop scales with fuel; carries the HW-002 jet
 		facing = CFrame.Angles(0, 0, 0), -- +Z skull faces spawn (+Z), so the first thing seen is a face
-		feedRadius = 14, -- the pentagram floor's edge (10.4-stud base at x2); walking onto it feeds
+		feedRadius = 30, -- the pentagram stone's edge: step onto the star and you feed
 		lightOffset = Vector3.new(0, 3, 0), -- the safe-radius light sits low so it reaches the sand
 		startingFuel = 0,
 		fuelCap = 15,
@@ -35,7 +35,7 @@ return {
 		radiusCap = 90,
 		-- total fuel ever fed at which the shore peels: Ring C after ~8, Ring D after 20
 		levelThresholds = { 8, 20 },
-		lightBrightness = 2,
+		lightBrightness = 3.2, -- the pool on the sand; grows in range with fuel
 		flameSize = Vector3.new(1.7, 1.7, 1.7),
 	},
 
@@ -60,7 +60,7 @@ return {
 		-- Rings from the brief §5. `level` is the Wick level that opens the ring;
 		-- `path` puts that many pieces on the straight line spawn -> Wick (Ring A only).
 		rings = {
-			{ id = "A", inner = 14, outer = 50, level = 0, count = 5, path = 3 },
+			{ id = "A", inner = 32, outer = 50, level = 0, count = 5, path = 3 }, -- clear of the 30-stud stone
 			{ id = "B", inner = 50, outer = 175, level = 0, count = 6 },
 			{ id = "C", inner = 175, outer = 280, level = 1, count = 6 },
 			{ id = "D", inner = 280, outer = 345, level = 2, count = 4 },
@@ -98,8 +98,8 @@ return {
 	},
 
 	night = {
-		brightness = 0.55,
-		atmosphereDensity = 0.6,
+		brightness = 0.35, -- night dims the sky, never the obelisk
+		atmosphereDensity = 0.52,
 		transition = 4,
 	},
 

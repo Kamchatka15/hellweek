@@ -49,7 +49,10 @@ local function applyLook()
 	local radius = radiusFor(fuel)
 	if c.light then
 		c.light.Range = radius
-		c.light.Brightness = (c.lightBrightness or 2) * math.clamp(0.35 + fuel / math.max(1, c.fuelCap), 0.35, 1.3)
+		-- The floor is high on purpose: an unfed beacon still has to be the brightest
+		-- thing a player can see, or the first minute is a dark screen. Fuel changes how
+		-- FAR the light reaches (the radius, which is the rule) more than how hard it burns.
+		c.light.Brightness = (c.lightBrightness or 2) * math.clamp(0.7 + fuel / math.max(1, c.fuelCap), 0.7, 1.35)
 	end
 	if c.flame and c.flameSize then
 		local scale = 0.7 + 0.6 * math.clamp(fuel / math.max(1, c.fuelCap), 0, 1)

@@ -38,7 +38,9 @@ def cframe(loc, R):
     return "CFrame.new(%.3f, %.3f, %.3f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f)" % (
         x, z, -y, R[0][0], R[0][1], R[0][2], R[1][0], R[1][1], R[1][2], R[2][0], R[2][1], R[2][2])
 
-STONE = ("Color3.fromRGB(28, 28, 32)", "Slate")          # charcoal
+STONE = ("Color3.fromRGB(38, 38, 45)", "Slate")          # charcoal, but not black: a pure-black
+                                                          # stone reads as a silhouette at night no
+                                                          # matter how much light is thrown at it
 GOLD = ("Color3.fromRGB(255, 196, 64)", "Neon")           # reads at night
 BONE = ("Color3.fromRGB(226, 214, 190)", "SmoothPlastic")
 SOCKET = ("Color3.fromRGB(16, 14, 14)", "SmoothPlastic")
@@ -81,7 +83,7 @@ cyl("CapLip", 0.55, 0.16, (0, 0, 8.78), mat=STONE)
 # it. The obelisk IS the beacon (Justin, 2026-09-12): this is the light that holds the
 # night, so its jet is generous; the gameplay radius light sits at the base (loop).
 sphere("CapFlame", 0.42, (0, 0, 9.15), mat=("Color3.fromRGB(255, 176, 56)", "Neon"))
-parts[-1] = parts[-1].replace(" }", ", fire = { size = 2.6, height = 9, range = 16, brightness = 1.6, rate = 40, sparkRate = 10 } }", 1)
+parts[-1] = parts[-1].replace(" }", ", fire = { size = 2.6, height = 9, range = 44, brightness = 3, rate = 44, sparkRate = 12 } }", 1)
 
 # --- glyphs ------------------------------------------------------------------------
 def face_point(axis, sign, u, z, bump=1.22):

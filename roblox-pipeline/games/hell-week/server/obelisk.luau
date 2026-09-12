@@ -31,7 +31,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -53,7 +53,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -75,7 +75,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -97,7 +97,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -119,7 +119,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -141,7 +141,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -163,7 +163,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -185,7 +185,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -207,7 +207,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -229,7 +229,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -251,7 +251,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -273,7 +273,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = true,
 	},
@@ -295,7 +295,7 @@ return {
 			0.0000,
 			1.0000
 		),
-		color = Color3.fromRGB(28, 28, 32),
+		color = Color3.fromRGB(38, 38, 45),
 		material = Enum.Material.Slate,
 		canCollide = false,
 	},
@@ -320,7 +320,7 @@ return {
 		color = Color3.fromRGB(255, 176, 56),
 		material = Enum.Material.Neon,
 		canCollide = false,
-		fire = { size = 2.6, height = 9, range = 16, brightness = 1.6, rate = 40, sparkRate = 10 },
+		fire = { size = 2.6, height = 9, range = 44, brightness = 3, rate = 44, sparkRate = 12 },
 	},
 	{
 		name = "GS00_r",

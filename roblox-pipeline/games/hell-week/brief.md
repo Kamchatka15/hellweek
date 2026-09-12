@@ -236,3 +236,8 @@ Supersedes the "landmark only, Ring B" lines of the HW-001 packet above. The obe
 
 ### 2026-09-12 — Shorter obelisk, pentagram floor, bench to the fog edge (Justin, in chat)
 Obelisk scale ×2 (≈18 studs) so the cap flame sits in frame from spawn with more perspective. A charcoal stone slab (radius 14) under the base carries a **gold pentagram inlay** (five Neon lines + a ring); the slab is the feed zone. This reopens settled answer §1.1's "no pentagram logo" — owner's call. The bench moved to just inside the Day-1 fog wall (~157 studs from the obelisk, right-of-centre from spawn), read from "just inside zone 1"; if "zone 1" meant Ring A, it is one number in `world.luau` (`benchAt`).
+
+### 2026-09-12 — Bigger pentagram, and the obelisk has to glow (Justin, in chat)
+The star now has a 24-stud outer radius on a 30-stud stone, so the obelisk stands **inside** the pentagram rather than covering its centre. Spawn moved back to 48 studs and Ring A's inner edge to 32 so the stone is a walk, not a step, and no Ashwood lands on it.
+
+**Lighting, as a rule rather than a number:** dim is the register, black is a bug. The sun is weak (1.1, ClockTime 21.2) and ambient is low so distance falls off honestly; the obelisk is what a player reads by. A light *inside* a solid prop lights nothing, so four pale-warm anchors ring the shaft and wash its faces and five sit at the star tips and pour onto the sand. The beacon's own light keeps a high brightness floor (0.7 of full at zero fuel) because fuel is supposed to change how **far** the light reaches, not whether there is any. The stone stays charcoal (38,38,45) and the wash is pale, not orange — warm light on grey stone reads as sand and kills the gold.

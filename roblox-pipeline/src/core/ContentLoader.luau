@@ -132,6 +132,17 @@ local function block(spec: any, parent: Instance): BasePart
 	if spec.fire then
 		ContentLoader.fire(part, spec.fire)
 	end
+	-- A bare light. Useful on an invisible anchor: a light inside a solid prop lights
+	-- nothing, so the way to make a prop glow is to ring it with these.
+	if spec.light then
+		local light = Instance.new("PointLight")
+		light.Name = "Light"
+		light.Color = spec.light.color or Color3.fromRGB(255, 255, 255)
+		light.Brightness = spec.light.brightness or 1
+		light.Range = spec.light.range or 16
+		light.Shadows = spec.light.shadows == true
+		light.Parent = part
+	end
 	part.Parent = parent
 	return part
 end

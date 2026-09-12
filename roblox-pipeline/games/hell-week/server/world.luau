@@ -152,7 +152,7 @@ end
 -- own frame; one CFrame places all of them. Set dressing in Pass 1 — crafting is parked.
 local benchParts = require(script.Parent.bench)
 local benchAt = Vector3.new(70, 0, -140) -- just inside the Day-1 fog wall (175), Justin 2026-09-12; still right-of-centre from spawn
-local spawnAt = Vector3.new(0, 0, 30)
+local spawnAt = Vector3.new(0, 0, 48)
 local benchOrigin = CFrame.lookAt(benchAt, benchAt - (spawnAt - benchAt)) -- +Z faces spawn
 for _, spec in benchParts do
 	table.insert(props, {
@@ -174,7 +174,8 @@ end
 -- on the slab under the obelisk. Gold Neon like the glyphs, so it reads at night and
 -- doubles as the "feed here" mark. (Reopens settled answer §1.1's "no pentagram logo" —
 -- owner's call, recorded in brief.md.)
-local PENT_R = 12.2
+local PENT_R = 24 -- the star's outer radius: its inner pentagon (~9.2) clears the 5.2-stud base,
+local SLAB_R = 30 -- so the obelisk stands INSIDE the pentagram (Justin, 2026-09-12)
 local PENT_Y = 0.56
 local GOLD = Color3.fromRGB(255, 196, 64)
 local starPoints = {}
@@ -188,7 +189,7 @@ for k = 1, 5 do
 	local mid = (a + b) / 2
 	table.insert(props, {
 		name = `Pentagram_Line{k}`,
-		size = Vector3.new(0.7, 0.12, (a - b).Magnitude),
+		size = Vector3.new(1.3, 0.14, (a - b).Magnitude),
 		position = mid,
 		cframe = CFrame.lookAt(mid, b),
 		color = GOLD,
@@ -197,20 +198,53 @@ for k = 1, 5 do
 		castShadow = false,
 	})
 end
-local RING_SEGMENTS = 36
-local RING_R = 13.1
+local RING_SEGMENTS = 56
+local RING_R = 26.5
 for i = 1, RING_SEGMENTS do
 	local a = (i / RING_SEGMENTS) * math.pi * 2
 	local pos = Vector3.new(math.cos(a) * RING_R, PENT_Y, math.sin(a) * RING_R)
 	table.insert(props, {
 		name = `Pentagram_Ring{i}`,
-		size = Vector3.new(2 * math.pi * RING_R / RING_SEGMENTS + 0.3, 0.12, 0.6),
+		size = Vector3.new(2 * math.pi * RING_R / RING_SEGMENTS + 0.3, 0.14, 1.1),
 		position = pos,
 		cframe = CFrame.lookAt(pos, Vector3.new(0, PENT_Y, 0)), -- -Z toward the centre; the long X axis is the tangent
 		color = GOLD,
 		material = Enum.Material.Neon,
 		canCollide = false,
 		castShadow = false,
+	})
+end
+
+-- The obelisk is the only light on a dark shore, so it has to actually GLOW rather than
+-- stand as a silhouette (Justin, 2026-09-12: "it needs to glow because you are at the
+-- centre and obviously everything around you will be darker"). A light INSIDE the stone
+-- lights nothing, so warm anchors ring the shaft just outside it and wash its four
+-- faces, and five more sit at the star tips and pour onto the sand. Invisible parts:
+-- the light is the prop.
+local GLOW = Color3.fromRGB(255, 172, 86) -- the sand pool: warm
+local WASH = Color3.fromRGB(255, 214, 176) -- the stone wash: pale, or the charcoal reads as sand
+for k = 1, 4 do
+	local a = (k / 4) * math.pi * 2 + math.pi / 4
+	table.insert(props, {
+		name = `ObeliskGlow{k}`,
+		size = Vector3.new(0.4, 0.4, 0.4),
+		position = Vector3.new(math.cos(a) * 9, 9, math.sin(a) * 9),
+		transparency = 1,
+		canCollide = false,
+		castShadow = false,
+		light = { color = WASH, brightness = 1.5, range = 24 },
+	})
+end
+for k = 1, 5 do
+	local a = math.rad(90 + 72 * k)
+	table.insert(props, {
+		name = `StarGlow{k}`,
+		size = Vector3.new(0.4, 0.4, 0.4),
+		position = Vector3.new(math.cos(a) * (PENT_R - 2), 2.2, math.sin(a) * (PENT_R - 2)),
+		transparency = 1,
+		canCollide = false,
+		castShadow = false,
+		light = { color = GLOW, brightness = 1.5, range = 26 },
 	})
 end
 
@@ -235,7 +269,7 @@ return {
 			id = "obelisk",
 			kind = "beacon",
 			shape = Enum.PartType.Cylinder,
-			size = Vector3.new(0.5, 28, 28), -- the pentagram stone floor; standing on it feeds
+			size = Vector3.new(0.5, 2 * SLAB_R, 2 * SLAB_R), -- the pentagram stone floor; standing on it feeds
 			position = Vector3.new(0, 0.25, 0),
 			rotation = Vector3.new(0, 0, 90),
 			color = Color3.fromRGB(40, 40, 44),
@@ -246,8 +280,8 @@ return {
 	},
 
 	spawn = {
-		position = Vector3.new(0, 0.5, 30),
-		lookAt = Vector3.new(0, 5, 0), -- face the obelisk on arrival
+		position = Vector3.new(0, 0.5, 48), -- 18 studs of sand before the stone edge (r=30)
+		lookAt = Vector3.new(0, 6, 0), -- face the obelisk on arrival
 		transparency = 0.85,
 		color = SAND,
 	},
@@ -255,20 +289,23 @@ return {
 	-- The lighting rig from games/hell-week/lighting.md. Applied by ContentLoader at
 	-- boot. LightingStyle / Technology are plugin-only and set once in Studio.
 	lighting = {
-		ClockTime = 20.4,
-		Brightness = 1.8,
-		Ambient = Color3.fromRGB(20, 22, 28),
-		OutdoorAmbient = Color3.fromRGB(40, 48, 62),
-		ColorShift_Top = Color3.fromRGB(180, 160, 140),
+		-- Dim, never black. The sun is weak and the ambient is low so distance falls off
+		-- honestly, and the obelisk's own lights are what a player reads by. Raising
+		-- ambient to "fix" darkness flattens exactly the contrast this scene is made of.
+		ClockTime = 21.2,
+		Brightness = 1.1,
+		Ambient = Color3.fromRGB(26, 27, 34),
+		OutdoorAmbient = Color3.fromRGB(34, 38, 50),
+		ColorShift_Top = Color3.fromRGB(150, 140, 130),
 		GlobalShadows = true,
-		EnvironmentDiffuseScale = 0.4,
-		EnvironmentSpecularScale = 0.2,
+		EnvironmentDiffuseScale = 0.25,
+		EnvironmentSpecularScale = 0.15,
 		atmosphere = {
-			Density = 0.42,
+			Density = 0.36,
 			Offset = 0.15,
-			Haze = 2.5,
+			Haze = 2,
 			Color = Color3.fromRGB(90, 100, 120),
-			Decay = Color3.fromRGB(60, 66, 80),
+			Decay = Color3.fromRGB(52, 58, 72),
 			Glare = 0,
 		},
 		colorCorrection = {
@@ -277,9 +314,9 @@ return {
 			TintColor = Color3.fromRGB(220, 230, 240),
 		},
 		bloom = {
-			Intensity = 0.35,
-			Size = 24,
-			Threshold = 1.6, -- only the wick flame and the gift cross this
+			Intensity = 0.7,
+			Size = 28,
+			Threshold = 1.1, -- the gold glyphs, the pentagram and the cap fire bloom; nothing else
 		},
 	},
 }

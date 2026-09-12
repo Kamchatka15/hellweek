@@ -32,11 +32,15 @@ def parse(path):
     thresholds = [float(x) for x in re.search(r"levelThresholds\s*=\s*\{([^}]*)\}", t).group(1).split(",") if x.strip()]
     lure = re.search(r"lure\s*=\s*\{(.*?)\n\t\}", t, re.S).group(1)
     lv = lambda k: float(re.search(rf"\b{k}\s*=\s*([\d.]+)", lure).group(1))
+    feed = re.search(r"feedRadius\s*=\s*([\d.]+)", t)
     return dict(days=days, rings=rings, cap=g("cap"), fuelCap=g("fuelCap"), thresholds=thresholds,
-                startingFuel=g("startingFuel"), lureValue=lv("value"), burnMult=lv("burnMultiplier"))
+                startingFuel=g("startingFuel"), lureValue=lv("value"), burnMult=lv("burnMultiplier"),
+                feedRadius=float(feed.group(1)) if feed else 0.0)
 
-def trip_seconds(mean_r):
-    return 2 * mean_r / WALK + 3 * PICK_TIME + 6.0  # 6 s of looking around per trip
+def trip_seconds(mean_r, feed_r=0.0):
+    # You walk from the FEED EDGE out to the ring and back, not from the centre: a wide
+    # beacon (the obelisk's 30-stud stone) shortens every trip by its own radius.
+    return 2 * max(0.0, mean_r - feed_r) / WALK + 3 * PICK_TIME + 6.0  # 6 s of looking per trip
 
 def simulate(cfg, effort, gifts_on_day, rng):
     fuel, fed, weight = cfg["startingFuel"], 0.0, 0
@@ -52,7 +56,7 @@ def simulate(cfg, effort, gifts_on_day, rng):
             ring = min(floor, key=lambda r: r["inner"])
             mean_r = (ring["inner"] + ring["outer"]) / 2
             take = min(int(cfg["cap"]), pieces)
-            cost = trip_seconds(mean_r) * take / 3
+            cost = trip_seconds(mean_r, cfg["feedRadius"]) * take / 3
             if cost > budget: break
             budget -= cost; pieces -= take; gathered += take
             accepted = min(take, cfg["fuelCap"] - fuel); fuel += accepted; fed += accepted
@@ -75,7 +79,7 @@ def main():
     a = ap.parse_args()
     cfg = parse(os.path.join(ROOT, "games", a.slug, "server", "config.luau"))
     print(f"# Survive sim — {a.slug} — {a.runs} runs per row\n")
-    print("Cap %d · Wick holds %d · rings open at fed=%s · lure +%g, burn ×%g per Weight\n" % (cfg["cap"], cfg["fuelCap"], cfg["thresholds"], cfg["lureValue"], cfg["burnMult"]))
+    print("Cap %d · beacon holds %d · rings open at fed=%s · lure +%g, burn ×%g per Weight\n" % (cfg["cap"], cfg["fuelCap"], cfg["thresholds"], cfg["lureValue"], cfg["burnMult"]))
     print("| player | gifts | median days survived | P(see Day 2) | P(see Day 4) | P(week) | Day-3 fuel before night (median) |")
     print("|---|---|---|---|---|---|---|")
     for label, effort in [("slacker (25% of day)", 0.25), ("casual (50%)", 0.5), ("engaged (75%)", 0.75), ("sweat (100%)", 1.0)]:
@@ -85,7 +89,7 @@ def main():
             p = lambda n: 100 * sum(1 for x in days if x >= n) / len(days)
             d3 = [r[2]["fuel_before_night"] for r in res if len(r) >= 3]
             print(f"| {label} | {len(gifts)} | {statistics.median(days):.0f} | {p(1):.0f}% | {p(3):.0f}% | {p(7):.0f}% | {statistics.median(d3) if d3 else float('nan'):.1f} |")
-    print("\nAssumptions: walk 16 studs/s, 0.4 s per pickup, 6 s of looking per trip, sack always filled to cap, inner rings first, effort ±15%, no downed penalties, no co-op (one player).")
+    print("\nAssumptions: walk 16 studs/s, 0.4 s per pickup, 6 s of looking per trip, trips measured from the feed edge (feedRadius), sack always filled to cap, inner rings first, effort ±15%, no downed penalties, no co-op (one player).")
 
 if __name__ == "__main__":
     main()

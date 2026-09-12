@@ -15,25 +15,25 @@ Sack 3 · Wick holds 15 · radius 25 + 8×fuel, cap 90 · Ring C opens at 8 fed,
 
 ## Sim result (300 runs per row, one player, no co-op, no downed penalties)
 
+Re-run 2026-09-12 after the obelisk layout (feed edge at 30 studs, Ring A 32–50). Trips are now measured from the **feed edge**, not the centre — a 30-stud stone shortens every round trip by 60 studs, which the first version of the sim missed and which made a visual change look like a balance collapse.
+
 | player | gifts | median days survived | P(see Day 2) | P(see Day 4) | P(week) | Day-3 fuel before night (median) |
 |---|---|---|---|---|---|---|
-| slacker (25% of day gathering) | 0 | 3 | 100% | 58% | 0% | 8.0 |
-| slacker | 1 | 3 | 100% | 88% | 0% | 13.0 |
-| slacker | 3 | 4 | 100% | 88% | 0% | 13.0 |
-| casual (50%) | 0 | 7 | 100% | 100% | 99% | 15.0 |
-| casual | 1 | 6 | 100% | 100% | 0% | 15.0 |
+| slacker (25% of day gathering) | 0 | 5 | 100% | 100% | 0% | 11.0 |
+| slacker | 1 | 5 | 100% | 100% | 0% | 15.0 |
+| slacker | 3 | 4 | 100% | 100% | 0% | 15.0 |
+| casual (50%) | 0 | 7 | 100% | 100% | 100% | 15.0 |
+| casual | 1 | 7 | 100% | 100% | 72% | 15.0 |
 | casual | 3 | 4 | 100% | 100% | 0% | 15.0 |
-| engaged (75%) | 0 | 7 | 100% | 100% | 100% | 15.0 |
-| engaged | 1 | 7 | 100% | 100% | 100% | 15.0 |
-| engaged | 3 | 4 | 100% | 100% | 0% | 15.0 |
+| engaged (75%) | any ≤1 | 7 | 100% | 100% | 100% | 15.0 |
 | sweat (100%) | any ≤1 | 7 | 100% | 100% | 100% | 15.0 |
+| any | 3 | 4 | 100% | 100% | 0% | 15.0 |
 
 ## What it says
 
-1. **Day 1–2 teach is safe for everyone.** Even a player who gathers a quarter of the day sees Day 2. The brief's "slacker still sees Day 2" holds.
-2. **Day 3 bites only the slacker** (58% see Day 4). The brief wanted "tight if sloppy" — this is it. For everyone else Day 3 is comfortable, which is fine for Pass 1: the Day 3 question at Gate A is comprehension of the Gift, not difficulty.
-3. **The Gift is a real trap only when taken repeatedly.** One Gift is *helpful* to a slacker (58% → 88% see Day 4) and costs a casual player the week (99% → 0%). Three Gifts cap everyone at Day 4. That is a clip-able moral choice: the first one looks free, the third kills you. Hypothesis H2 is testable.
-4. **The Wick cap (15) is the soft spot for Days 4–7.** Every non-slacker sits at 15 fuel before every night from Day 3 on, so the parked escalation (burn 7→10) never threatens them. When Days 4–7 are tuned (Pass 2), the lever is either a lower cap (12), a small daytime idle burn, or Ring C/D fuel counts — **a G2 decision with Gate A in hand, not now.**
+1. **Nobody fails Days 1–3 any more.** The wide stone made the loop easier: even a quarter-effort player reaches Day 5. The brief wanted Day 3 "tight if sloppy" and it is no longer tight for anyone. **A G2 lever, not a Pass 1 one** — the honest fixes are a lower beacon cap, a Day-3 burn above 6, or fewer Ring A pieces, and all three want Gate A watched first.
+2. **The Gift is still the only thing that kills you.** Three Gifts cap every profile at Day 4, and one costs a casual player the week 100% → 72%. The wedge survived the layout change intact, which is the part that mattered.
+3. **The cap (15) is still the ceiling everyone sits at** from Day 3 on, so the parked Days 4–7 escalation still threatens nobody. Same G2 decision as before.
 
 ## Shop stubs (drafted, unwired — `server/sku.luau`)
 
