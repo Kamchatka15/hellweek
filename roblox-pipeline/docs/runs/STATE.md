@@ -17,9 +17,13 @@
 | Persistence | **Unverified.** Blocked on an unlisted publish (Justin's click). Test script ready: `docs/runs/PERSISTENCE_TEST.md` | 2026-09-12 |
 | Engine | 11 modules. `ReceiptService` deliberately absent until a product is approved at G5. R7 keeps the engine generic | 2026-09-12 |
 | Paid products | **None.** No `MarketplaceService` call in the repo. `sku.luau` is a draft ladder | 2026-09-12 |
-| Art | Grey-box. No sound. No art seed. G4 not started | 2026-09-12 |
+| Art | Grey-box. **Style spec + Creator Store shelf ready** (`research/2026-09-12-style-spec-fat-man.md`) — Justin cuts from it at G4. Nothing inserted yet | 2026-09-12 |
 | Enforcement | R1–R7 + loop cap + SessionStart + git backstop (now also rojo build / selene / stylua on the Mac) | 2026-09-12 |
 | Evidence | 6 records (5 process, 1 economy). 0 player evidence — Gate B has not happened. 0 open contradictions | 2026-09-12 |
+
+## The cut list is ready (`research/2026-09-12-sweep-and-bank-comps.md`)
+
+Top-three teardowns done (Mine a Mountain, Bee Swarm, Grow a Garden). Ten shapes proposed, budget applied, **line drawn after #5**: named upgrade tiers, a timed golden flood (the clip), a visible coin pile. Rare coin variants, the magnet bomb, gifting, zones and trading parked. **Justin moves the line — two minutes.**
 
 ## Waiting on Justin (only the irreversible ones)
 

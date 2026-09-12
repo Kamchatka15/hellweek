@@ -42,7 +42,7 @@ Promoted to Active by Justin on 2026-09-11. Brief: `games/fat-man-gets-rich/brie
 - **Why now:** Collect/sweep loops read instantly in a 2-second clip and survive the 2026 discovery re-weighting toward return rather than click, because the loop is repeatable rather than novelty-dependent.
 - **First-session moment:** The first flood, inside 60 seconds.
 - **Reason to open it tomorrow:** Offline earnings, collected on login. Capped, never punished.
-- **Closest comps:** to fill from the research lane before Gate A.
+- **Closest comps:** Mine a Mountain (bag-and-bank, 131K peak May–Aug 2026, now fading), Bee Swarm Simulator (the evergreen bag-and-bank feel), Grow a Garden (offline + appointment events, 22.3M peak). Teardowns in `research/patterns/`; blend in `research/2026-09-12-sweep-and-bank-comps.md` (filled 2026-09-12).
 - **Why it is not a clone:** shape only — sweep-and-bank; no comp's assets, names, characters or thumbnails.
 - **Why it would look better than the comps:** the flood is the visual bet — coin count, physics, light and audio tuned so it reads at 200px.
 - **Cheapest test:** grey-box flood + bank + one upgrade, playtested in Studio.
