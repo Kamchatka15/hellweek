@@ -70,6 +70,26 @@ flowchart TB
 
 Generative taste (inventing a mechanic from nothing) is not required of the owner and is not asked for. Subtractive taste is, and it is the scarcer skill: almost anyone can add a feature, and almost nobody cuts one. **The owner is supplying taste — just the half that actually decides whether a game is legible.**
 
+### Is the evidence ledger a fifth layer?
+
+Proposed name: a **wisdom layer**. The instinct is right, the placement is one level off, and the difference matters.
+
+**A control layer decides what ships.** Safety refuses a write. Quality passes or fails a build. The cut removes. Each one has a veto. **The evidence ledger has no veto and must never be given one** — the moment past results can block a new idea, the system becomes conservatism with a database, and "Claude gets stuck on an old process" is exactly what happens. An `n=1` finding from one game would start vetoing the second game.
+
+So the ledger is not a fifth layer. It is the **substrate Layer 3 runs on** — the thing that made Layer 3 possible instead of aspirational. Before it, "the learning loop" was a name for a folder of prose nobody read back.
+
+**Where wisdom actually sits.** Using the owner's own three words, the system separates them cleanly:
+
+| | What it is | Where it lives |
+|---|---|---|
+| **Information** | What is happening on the platform, true for everyone | `evidence/` research drops |
+| **Experience** | What happened to *us*, with the context that says when it transfers | `evidence/ledger/` records |
+| **Wisdom** | What we *changed* because of it | The defaults, the gate bars, the invariants |
+
+Wisdom is not stored — it is **promoted**. A record reaching `n=2` stops being a memory and becomes a default, at which point it shapes every future game without anyone consulting it. That promotion step is the whole machine. The ledger is where experience waits to earn it.
+
+The practical consequence: **do not let the ledger give advice in the imperative.** It reports what happened, with confidence and context attached, and the design step is free to ignore it. A ledger that says "you must" has stopped being evidence.
+
 ---
 
 ## 3 · The build loop — describe, expand, prune
