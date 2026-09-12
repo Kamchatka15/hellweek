@@ -161,14 +161,14 @@
 
 <!-- ============================== COVER ============================== -->
 <section class="cover">
-  <p class="eyebrow">Roblox Business · Justin &amp; Hunter · v1.1</p>
+  <p class="eyebrow">Roblox Business · Justin &amp; Hunter · v1.2</p>
   <div class="title-block">
     <h1>The Game Factory</h1>
     <p class="sub">Business plan and technical architecture for a system that builds many Roblox games — and gets better at it every time.</p>
   </div>
   <p class="thesis">A game is disposable. The factory is not. Every title that ships or dies must hand something back — a rule that hardened, a bar that rose, a piece of engine, a finding with its context attached — so the fourth game starts smarter than the third. This document says what that factory is, how its parts connect, where it could hurt a good game, and what is still missing.</p>
   <dl class="metagrid">
-    <dt>Written</dt><dd>12 September 2026 · v1.1 same day, after the second pass (economy simulated, contradictions fixed, digest rewired)</dd>
+    <dt>Written</dt><dd>12 September 2026 · v1.2 same night: copy-aggressively doctrine, the top-three teardowns, the style spec and Creator Store shelf, audio sourcing, and the six-move path to an initial testing model</dd>
     <dt>For</dt><dd>Justin (owner) · Hunter (design, playtest operations) · every future Claude and Grok session</dd>
     <dt>Governed by</dt><dd>docs/ROBLOX_SUCCESS_LOGIC.md — if this document fights that file, that file wins</dd>
     <dt>Canonical</dt><dd>roblox-pipeline/docs/FACTORY_PLAN.md · this PDF is a rendering</dd>
@@ -209,7 +209,8 @@
   <h2>The intent</h2>
 
   <h3>1.1 What we are building</h3>
-  <p class="lede">A system that turns a four-paragraph description into a working Roblox game, asks the same questions and applies the same filters every time, learns from each title, and does it for many games across many projects. The product is the factory. Any one game is a test case.</p>
+  <p class="lede">In the owner's words: <em>the factory has two functions — build the game through a process designed to monetize and retain, well enough to confirm the metrics; and gain wisdom to make this game and the next ones better.</em> A four-paragraph description goes in, a working model comes out, the same questions and filters apply every time, and it does this for many games across many projects. The product is the factory. Any one game is a test case.</p>
+  <p>Two working rules were added tonight and run through everything below. <strong>Copy aggressively:</strong> blank slates are slow, most games in a category look alike because the shape works, so the top three comparable games are torn down and blended before a line of design is written (§2.10). <strong>The first fifteen minutes must be solid, and the slice must look good enough to hold a kid</strong> — not at G4, but before the first kid ever sees it — because a grey box cannot produce real metrics, and real metrics are the only thing that decides whether a title deserves more energy.</p>
   <p>This distinction is not cosmetic. It decides where effort goes. A studio that treats each game as the product rebuilds its saving system, its shop, its security and its process every time, differently, and learns nothing transferable. A factory builds those once, keeps them, and spends each new title's effort on the only things that are actually new: the idea, the hook, the theme, the tuning, the art.</p>
 
   <h3>1.2 Who is building it, and how the work divides</h3>
@@ -321,7 +322,7 @@
   <div class="fig nb">
     <div class="flow vert">
       <div class="node"><b>Hour 0 — four paragraphs.</b><em>Justin describes the game in prose. The intake step drafts the six-question brief from it; he corrects, never fills. The ledger is asked what it already knows about this kind of game.</em></div><div class="arrow">↓</div>
-      <div class="node"><b>Hour 0–1 — expand, then cut.</b><em>Claude and Grok propose every applicable mechanic. Grok runs a confusion pass — "which of these would lose a ten-year-old?" The budget auto-cuts to the caps. Justin moves the line in two minutes. Everything below it goes to the parking list.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>Hour 0–1 — tear down the top three, expand, then cut.</b><em>The three closest games get the same teardown form: first sixty seconds, loop, meta, social, return hook, price ladder, complaints, style. Claude and Grok propose every applicable shape from them. Grok runs a confusion pass — "which of these would lose a ten-year-old?" The budget auto-cuts to the caps. Justin moves the line in two minutes. Below it: the parking list. Alongside: the style spec and a Creator Store shelf, so the slice is dressed from hour one.</em></div><div class="arrow">↓</div>
       <div class="node"><b>Hour 1–3 — the slice.</b><em>Content pack on the engine, hooks enforcing R1–R7 on every write, one core verb, one return hook, the onboarding artifact. Economy simulated before anyone plays. Two hypotheses written into the brief.</em></div><div class="arrow">↓</div>
       <div class="node gate"><b>Day 1–3 — Gate A.</b><em>Hunter runs three fresh kids through the verbatim script. Justin does the ten-minute fun-check. Stop-and-patch until they can say what the game is and want a second go. The budget's two questions get answered. First player evidence enters the ledger.</em></div><div class="arrow">↓</div>
       <div class="node gate"><b>Week 1 — art, then cold players.</b><em>Icon and thumbnail readable at 200px (G4). Then a listed publish with zero spend — Gate B — because an unlisted place meets no strangers. Two hundred to five hundred of them, and the retention table fills in.</em></div><div class="arrow">↓</div>
@@ -431,7 +432,7 @@
     <div class="flow">
       <div class="node">1 · Four paragraphs<em>Justin, free prose, no form</em></div><div class="arrow">→</div>
       <div class="node">2 · The fixed interview<em>same six questions every time · answers drafted FROM the prose · Justin only corrects</em></div><div class="arrow">→</div>
-      <div class="node">3 · Expansion<em>AI adds freely from the ledger, patterns and research · Claude and Grok both propose · nothing rejected · then Grok's confusion pass: "which of these loses a ten-year-old?" — a cheap second opinion from a different model before the cut</em></div>
+      <div class="node">3 · Expansion<em>fuelled by the top-three teardowns in research/patterns/ plus the ledger · AI adds freely, Claude and Grok both propose, nothing rejected · then Grok's confusion pass: "which of these loses a ten-year-old?"</em></div>
     </div>
     <div class="flow" style="margin-top:5pt;">
       <div class="node key">4 · Complexity budget<em>the auto-cut, before Justin ever looks · a number, not a judgment</em></div><div class="arrow">→</div>
@@ -658,6 +659,79 @@
   </table>
 </section>
 
+  <h3>2.10 Copy aggressively — shapes, style, colour, objects, sound</h3>
+  <p>Added to the doctrine tonight as §3.1 at the owner's direction: <em>"most of this stuff looks alike — if you can clone and copy something, do it; I'll remove or edit it in the editing process; speed everything up."</em> The earlier "no scraping or cloning" line was protecting speed and costing it. What follows is the rule as written, then the machinery that does the copying.</p>
+
+  <div class="fig nb">
+    <div class="split">
+      <div class="panel acc">
+        <p class="plabel">Copy freely, on sight, unprompted</p>
+        <ul>
+          <li>Loops, verbs, reward cadence, the first sixty seconds, meta and social loops <span>public, observable — the whole point of research</span></li>
+          <li>Price ladders, product types, event rhythms, what players complain about <span>same</span></li>
+          <li>UI layout, HUD density, camera, colour logic, VFX cadence, silhouette language — the <b>style</b> <span>from public video and the storefront</span></li>
+          <li><b>Creator Store models, textures, audio</b> (free or licensed) <span>legal by construction — this IS copying existing assets, inserted by ID through Studio MCP</span></li>
+          <li>Roblox Assistant / Cube 3D generations and Meshy / Ideogram outputs made <i>in the style of</i> the top three <span>ours to use</span></li>
+        </ul>
+      </div>
+      <div class="panel" style="border-left:4px solid var(--missing);">
+        <p class="plabel" style="color:var(--missing);">Stays out — not as taste, as what deletes the title</p>
+        <ul>
+          <li>Meshes, textures, audio or scripts ripped out of someone else's place <span>not possible through our tools; needs exploit tooling that bans the ACCOUNT, and the title is pulled the week it starts earning</span></li>
+          <li>Names, mascots, logos, characters with an owner <span>moderation removes on sight; the takedown lands after Gate B — Peter Griffin, 2026-09-11</span></li>
+          <li>Roblox private endpoints <span>terms-of-service violation → account risk; trackers give the same numbers legally</span></li>
+          <li>"Free" Store audio named after another game's sound <span>audio is fingerprinted on upload; free is not clear</span></li>
+        </ul>
+      </div>
+    </div>
+    <p class="cap"><b>Figure 17 — What "copy" means.</b> The left column is the default and is done as much as possible without asking. The right column is enforced by Roblox and copyright whatever this document says. <em>"Don't worry about being sued, worry about being successful first"</em> — agreed, and it is the argument for the right column: on this platform the thing that stops success is moderation deletion, and it arrives exactly when the metrics finally exist.</p>
+  </div>
+
+  <h4>The teardown — the same form for every comparable game</h4>
+  <p>A comparable game is torn down on a fixed template (<code>research/patterns/TEMPLATE.md</code>) so teardowns are comparable and the expansion step can propose from them mechanically: numbers and wave stage, the first sixty seconds, core verb and cadence, meta loop, social loop, return hook, event cadence, the monetization catalogue with the first purchase named, complaints (the wedge), a style spec, Creator Store equivalents, and two closing lines — <em>copy this</em> and <em>do not copy this</em>. Tonight's three for Fat Man Gets Rich:</p>
+  <table class="tight">
+    <thead><tr><th>Game</th><th>What it proves</th><th>Numbers, 12 Sep 2026</th><th>Wave</th><th>Copy this</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Mine a Mountain</td><td>Bag-and-bank in 2026: mine → bag full → sell → 12-tier named ladder + base-slot collection + hourly reset + a consumable sink</td><td>131,867 peak two weeks ago → ~6–19K now · 136.6M visits · 96.8% likes · born May 18</td><td><span class="chip missing">Fading</span> — 4 months old, the graveyard month</td><td>bag-full teaches the bank · keep-vs-sell · hourly reset as appointment · bombs = the late-wall fix · every upgrade has a name kids say</td></tr>
+      <tr><td class="name">Bee Swarm Simulator</td><td>The evergreen bag-and-bank <em>feel</em>: the trip home is the rhythm; a collection you can see; no early wall</td><td>~20K CCU · 4.6B visits · 96%</td><td><span class="chip built">Evergreen</span> since 2018</td><td>protect how the bank walk feels · one big bag meter · a visible collection · cheap first upgrade</td></tr>
+      <tr><td class="name">Grow a Garden</td><td>Offline progress capped not punished; restock timers and Saturday updates as appointments; the strongest gift-and-show-off loop on the platform</td><td>22.3M peak — the record</td><td><span class="chip built">Post-peak evergreen</span></td><td>offline that respects bedtime · a countdown toward something good · weekly update as event · gift surfaces · rare variants of the thing you collect</td></tr>
+    </tbody>
+  </table>
+  <p class="small">One fading wave and two evergreens bracket the title: Fat Man Gets Rich is Mine a Mountain's loop with Grow a Garden's return hook — and the thing neither Mine a Mountain nor our slice has yet is a social or clip surface. Mine a Mountain is the proof that this loop without one is a fading wave, not an evergreen. Seven more comps are on the reference board for style only.</p>
+
+  <h4>The worked cut list — the build loop run once, by hand</h4>
+  <p>Every applicable shape from the three, the complexity budget applied, the line drawn. This is what Justin sees, and moving the line is the whole of his job at this step.</p>
+  <table class="tight">
+    <thead><tr><th>#</th><th>Shape</th><th>From</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1</td><td>Bag-full teaches the bank — already built</td><td>MaM, BSS</td><td><span class="chip built">In</span> · hypothesis 1 tests it</td></tr>
+      <tr><td class="num">2</td><td>Offline earnings, capped not punished — built; number wrong (sim)</td><td>GaG</td><td><span class="chip built">In</span> · at Candidate C's rate</td></tr>
+      <tr><td class="num">3</td><td>Named upgrade tiers — Duffel, Wheelbarrow, Dump Truck</td><td>MaM's 12 pickaxes</td><td><span class="chip built">In</span> · theme file only, big readability win</td></tr>
+      <tr><td class="num">4</td><td><strong>A timed golden flood</strong> — every N minutes the pad erupts ×5, server-wide countdown</td><td>GaG restock timer, MaM hourly reset</td><td><span class="chip built">In</span> · <strong>this is the clip</strong> — the one social/clip hook</td></tr>
+      <tr><td class="num">5</td><td>A coin pile you can see — banked coins render as a growing pile others walk past</td><td>MaM base slots, BSS hive</td><td><span class="chip built">In</span> · system 3 of 4, the status surface with no cosmetic catalogue</td></tr>
+      <tr><td class="num">—</td><td colspan="3"><strong>Line drawn here.</strong> 4 of 4 systems · 3 of 3 on-screen numbers · onboarding artifact present.</td></tr>
+      <tr><td class="num">6</td><td>Rare coin variants (silver / gold / diamond)</td><td>GaG mutations</td><td><span class="chip partial">Parked</span> · a fourth on-screen concept; after Gate A</td></tr>
+      <tr><td class="num">7</td><td>A consumable sink — the magnet bomb</td><td>MaM bombs</td><td><span class="chip partial">Parked</span> · the economy sim's late-wall fix; G2 / live-ops</td></tr>
+      <tr><td class="num">8</td><td>Gift a flood to a friend</td><td>GaG gifting</td><td><span class="chip partial">Parked</span> · Gate B material</td></tr>
+      <tr><td class="num">9</td><td>Second area / zones by warmth</td><td>MaM</td><td><span class="chip partial">Parked</span> · doctrine §3: not before area one retains</td></tr>
+      <tr><td class="num">10</td><td>Trading</td><td>GaG</td><td><span class="chip partial">Parked</span> · not before Gate B and not without scam-guards</td></tr>
+    </tbody>
+  </table>
+
+  <h4>Style, colour and objects — the shelf</h4>
+  <p>Style is copyable; assets are inserted from the Creator Store by ID or generated in the style. The style spec for the title is five lines blended from the three teardowns — low-poly single-colour objects that read at 200px; gold on dark ground with the flood as the light source; one big readable bag meter; a bank that is a <em>building</em> you walk toward; cheerful, zero threat, the only countdown counting toward something good — plus the thumbnail formula all three agree on: one face, one giant version of the collectable, three words or fewer.</p>
+  <p>Under it sits a <strong>Creator Store shelf</strong>, found through Studio in one session and recorded by ID: low-poly gold coins and coin piles, a vault for the bank silhouette, cartoon tree packs, a fountain landmark, benches and lamps, a market stall for the upgrades zone, coin chimes, a cash-register cha-ching for banking, and three theme loops. All free. Nothing is pasted into the live place — assets are referenced from the content pack (<code>world.luau</code>, <code>theme.luau</code>) so the dressed slice rebuilds from disk like everything else. Justin cuts from the shelf; that is his G4, moved forward.</p>
+  <p><strong>The reference board</strong> (<code>art/reference/</code>, git-ignored, never ships) is where the owner keeps public store images and audio notes from the ten comps to rework by hand — a mood board, which is normal practice. What the build does not do is auto-download other creators' assets to produce minor-edit derivatives, for the reason in Figure 17's right column: a reworked rip fingerprints as the original.</p>
+
+  <h4>Sound</h4>
+  <p>Same rule, same shelf. Ranked sources, sharpest first (<code>skills/audio-sourcing.md</code>): the <strong>Creator Store audio library</strong> for everything in Phase 1 — licensed by Roblox, free, no upload, no moderation wait; generated SFX or ElevenLabs for a specific sound the Store lacks; Suno or Udio on the paid tier for a throwaway loop only, because AI-music copyright is unsettled; royalty-free libraries and subscription services last, since they add an upload-rights burden for no quality gain at this stage. Free Store audio named after another game's sound is skipped — audio is fingerprinted, and free is not clear.</p>
+
+  <div class="callout warn">
+    <h5>The coupling that turns three tasks into one click</h5>
+    <p>Loading Store assets into a running place uses <code>InsertService</code>, which — like DataStores — does not work until the place is <strong>published unlisted with Studio API access on</strong>. So dressing the slice, verifying that saves survive a restart, and putting the game in front of a kid for real numbers are all behind the same three clicks in <code>docs/runs/PERSISTENCE_TEST.md</code>. Until then the shelf can be wired but cannot render.</p>
+  </div>
+</section>
+
 <!-- ============================== PART 3 ============================== -->
 <section class="part">
   <p class="partnum">Part 3 · Agents, mechanisms and tasks</p>
@@ -685,6 +759,8 @@
       <tr><td class="name">Roblox Assistant · Cube 3D · Experiments · Creator Hub analytics</td><td>Roblox-side tool</td><td>First-party generation, native A/B testing, and the analytics ground truth. Used through MCP or in-Studio; Claude designs and reads, never re-implements.</td><td><span class="chip built">Available</span></td></tr>
       <tr><td class="name">Open Cloud</td><td>Roblox-side tool</td><td>Publishing and product catalogue. <strong>Human-gated, always.</strong> No Claude action reaches it.</td><td><span class="chip human">G5 only</span></td></tr>
       <tr><td class="name">studio_sync.py</td><td>Mechanism (workaround)</td><td>Serves the disk tree as JSON so Studio can pull it without a human click on the Rojo plugin — the only unattended disk→Studio path found in run 01. A test harness, not a Rojo replacement.</td><td><span class="chip partial">Workaround</span></td></tr>
+      <tr><td class="name">Top-three teardowns · style spec · Creator Store shelf</td><td>Resource (per title)</td><td>The copy-the-shape library and the legal-copy asset list every title starts from. Stocked for Fat Man Gets Rich tonight: three teardowns, ten-shape cut list, a five-line style spec, ~20 free asset IDs across models and audio.</td><td><span class="chip built">Stocked</span></td></tr>
+      <tr><td class="name">Reference board (art/reference/)</td><td>Resource (owner's)</td><td>Public store images and audio notes from ten comps, kept by Justin to rework by hand. Git-ignored. Never ships.</td><td><span class="chip built">Set up</span></td></tr>
       <tr><td class="name">Intake agent</td><td>Planned</td><td>Four paragraphs → the six-question brief, drafted for Justin to correct rather than fill.</td><td><span class="chip missing">Missing</span></td></tr>
       <tr><td class="name">Expansion agent</td><td>Planned</td><td>Reads the ledger and pattern library, proposes every applicable mechanic. Claude and Grok both contribute. Nothing rejected at this step.</td><td><span class="chip missing">Missing</span></td></tr>
       <tr><td class="name">Budget + cut-list generator</td><td>Planned</td><td>Applies the caps, ranks what is left, draws the recommended line, writes the parking list.</td><td><span class="chip missing">Missing</span></td></tr>
@@ -871,6 +947,7 @@
       <tr><td class="name">Closeout + changelog</td><td>Paperwork per title; the ritual becomes the work</td><td>The closeout is a template of about ten fields, most auto-filled from gate results and hypotheses — never an essay. The changelog is append-only one-liners</td><td>Low, if the template stays short</td></tr>
       <tr><td class="name">Contradiction protocol</td><td>Justin becomes the bottleneck; or conflicts pile up unread</td><td>Escalate only when a pending decision depends on one; otherwise they wait in a visible queue; every escalation arrives with the diagnosis done and "make it the next test" as an option</td><td>Low</td></tr>
       <tr><td class="name">Fixed interview and filters</td><td>Rigidity — a game that does not fit the six questions gets forced into them</td><td>Invariants versus defaults: the questions are defaults and can be deviated from in one declared line</td><td>Low</td></tr>
+      <tr><td class="name">Copy aggressively</td><td>One ripped asset, one owned name, or one re-uploaded song gets the title pulled — after Gate B, when it is finally worth something. And a single-source clone inherits its source's ceiling</td><td>Figure 17's right column; R6 warns on owned names; the "free is not clear" audio rule; the reference board never ships; blend three sources, never one</td><td><strong>Medium.</strong> Depends entirely on discipline at insert time — the shelf is vetted, the next search may not be</td></tr>
     </tbody>
   </table>
 
@@ -939,13 +1016,27 @@
       <div class="tile missing"><b>Closeout · session-close hook · hypotheses</b><span>the feeders of the learning loop</span></div>
       <div class="tile missing"><b>Onboarding agent</b><span>required by every game · no engine module</span></div>
       <div class="tile partial"><b>Economy sim · tests · CI</b><span>sim built and run (ladder exhausted day 3) · build+lint in pre-commit · TestEZ still missing</span></div>
-      <div class="tile missing"><b>Visual quality bar · craft library</b><span>"visually professional" has no definition and no home</span></div>
+      <div class="tile partial"><b>Style spec · Creator Store shelf · teardowns</b><span>defined and stocked for the first title · not yet wired into the pack · blocked on the publish</span></div>
       <div class="tile missing"><b>Title registry · physical factory split</b><span>deferred until a second title exists</span></div>
     </div>
-    <p class="cap"><b>Figure 15 — Status board, 12 September 2026, after the second pass.</b> Teal built, amber partial, red missing. Seven of fifteen built, four partial, four missing — ordered below.</p>
+    <p class="cap"><b>Figure 15 — Status board, 12 September 2026, end of day.</b> Teal built, amber partial, red missing. Seven built, five partial, three missing — ordered below.</p>
   </div>
 
-  <h3>5.2 The build order</h3>
+  <h3>5.2 The initial testing model — Phase 1 in six moves</h3>
+  <p>The owner's stated near-term goal, in his words: <em>"I just need the game to look better in Phase 1 initially, to keep the kids' interest, to get real metrics to see if I want to expend more energy on a project."</em> That is the definition of an initial testing model: a dressed, playable slice that survives fifteen minutes and a stranger, instrumented well enough to say whether to continue. Six moves, in order, three of them one afternoon's work.</p>
+  <div class="fig nb">
+    <div class="flow vert">
+      <div class="node gate"><b>1 · Publish unlisted, API access on — Justin, three clicks.</b><em>Unblocks InsertService (the shelf renders), DataStores (saves persist), and the comprehension test on a real build. docs/runs/PERSISTENCE_TEST.md.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>2 · Wire the shelf and the cut list into the pack — Claude.</b><em>Named tiers and audio IDs in theme.luau; fountain, trees, vault, stall and the golden-flood timer in world.luau and the loop; Candidate C's economy numbers pending G2. Everything rebuilds from disk.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>3 · Run the persistence test and an automated playtest — Claude.</b><em>Seven rows: real DataStore, restart, crash, double-join, migration. Then join → first flood → bank → upgrade with a clean console.</em></div><div class="arrow">↓</div>
+      <div class="node gate"><b>4 · Gate A — Hunter operates, three fresh kids, Justin fun-checks.</b><em>Goal comprehension, first action, pull. The budget's two questions. Hypotheses 1 and 2 get their first data. The ledger gets its first player evidence.</em></div><div class="arrow">↓</div>
+      <div class="node"><b>5 · Stop-and-patch, icon and thumbnail — Claude, Justin approves (G4).</b><em>One face, one giant coin, three words. Readable at 200px.</em></div><div class="arrow">↓</div>
+      <div class="node key"><b>6 · Gate B — listed, zero spend. The real metrics.</b><em>Two hundred to five hundred strangers from Roblox's own new-experience impressions. D1 against the doctrine floor. This is the number that decides whether the title deserves more energy — and the first thing the factory has ever actually learned from a player.</em></div>
+    </div>
+    <p class="cap"><b>Figure 18 — The initial testing model.</b> Purple boxes are the owner's. Move 1 is the gate everything else is behind; moves 2–3 are ready to run the moment it is done.</p>
+  </div>
+
+  <h3>5.3 The build order</h3>
   <p>Ordered by one principle: <strong>get a real game through a real Gate A first, and build only what unblocks that until it has happened.</strong> Everything after step 3 waits for the comprehension test's results, because those results are the first evidence the factory will ever hold about players, and several later items should be shaped by them.</p>
   <table>
     <thead><tr><th>#</th><th>Move</th><th>Owner</th><th>Size</th><th>Why in this position</th></tr></thead>
@@ -963,10 +1054,10 @@
     </tbody>
   </table>
 
-  <h3>5.3 Decisions that are genuinely Justin's</h3>
+  <h3>5.4 Decisions that are genuinely Justin's</h3>
   <p>Only the irreversible ones. Everything else in this document runs on stated defaults. The same list lives in <code>STATE.md</code>, which every session loads, so it cannot be forgotten.</p>
   <ol>
-    <li><strong>Publish an unlisted place</strong> so persistence can be tested. It is not a launch — unlisted, link-only — but it is a publish action, and the doctrine makes every publish a human click. <code>docs/runs/PERSISTENCE_TEST.md</code> has the three clicks (including the one everyone forgets: enabling Studio API access) and the seven-row test Claude runs the moment it is done.</li>
+    <li><strong>Publish an unlisted place with API access on.</strong> It is not a launch, but it is a publish action, and the doctrine makes every publish a human click. It now unblocks three things at once: the shelf rendering (InsertService), saves persisting (DataStores), and the comprehension test on a real build. <code>docs/runs/PERSISTENCE_TEST.md</code> has the three clicks — including the one everyone forgets, enabling Studio API access — and the seven-row test Claude runs the moment it is done.</li>
     <li><strong>G2 — the economy numbers.</strong> The simulation proposes Candidate C. Approve, adjust, or reject before the kids see it; the slice can be tested un-tuned, but the numbers in front of them should be the ones we mean.</li>
     
     <li><strong>Two doctrine wordings:</strong> the proposed §9 line is in STATE.md verbatim — <em>"Human owns: ship / no-ship, money, and the cut — removing what confuses. Generative taste is not asked of the owner; the AI proposes, the owner prunes."</em> Yes, no, or edit. And confirm the doctrine's Gate B floor governs; both other files now say it does.</li>

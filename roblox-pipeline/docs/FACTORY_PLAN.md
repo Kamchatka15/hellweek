@@ -2,11 +2,11 @@
 
 > **Governed by `docs/ROBLOX_SUCCESS_LOGIC.md` (standing orders).** If this file fights that file, that file wins.
 >
-> **Three forms, one source.** `FACTORY_PLAN.html` (beside this file, with `FACTORY_PLAN.assets/`) is the authored source. `The-Game-Factory.pdf` at the folder root is its print rendering — the one to *read*, with all sixteen figures. This `.md` is the generated text view for sessions that cannot open a PDF. **Edit the .html; regenerate the other two.** Never edit the PDF or this file by hand.
+> **Three forms, one source.** `FACTORY_PLAN.html` (beside this file, with `FACTORY_PLAN.assets/`) is the authored source. `The-Game-Factory.pdf` at the folder root is its print rendering — the one to *read*, with all eighteen figures. This `.md` is the generated text view for sessions that cannot open a PDF. **Edit the .html; regenerate the other two.** Never edit the PDF or this file by hand.
 >
-> Written 2026-09-12 · v1.1 (same day, after the second pass) · Re-verify platform facts by 2026-11-12.
+> Written 2026-09-12 · v1.2 (same night: copy-aggressively doctrine, teardowns, shelf, the six-move testing model) · Re-verify platform facts by 2026-11-12.
 
-Roblox Business · Justin & Hunter · v1.1
+Roblox Business · Justin & Hunter · v1.2
 
 # The Game Factory
 
@@ -15,7 +15,7 @@ Business plan and technical architecture for a system that builds many Roblox ga
 A game is disposable. The factory is not. Every title that ships or dies must hand something back — a rule that hardened, a bar that rose, a piece of engine, a finding with its context attached — so the fourth game starts smarter than the third. This document says what that factory is, how its parts connect, where it could hurt a good game, and what is still missing.
 
 Written  
-12 September 2026 · v1.1 same day, after the second pass (economy simulated, contradictions fixed, digest rewired)
+12 September 2026 · v1.2 same night: copy-aggressively doctrine, the top-three teardowns, the style spec and Creator Store shelf, audio sourcing, and the six-move path to an initial testing model
 
 For  
 Justin (owner) · Hunter (design, playtest operations) · every future Claude and Grok session
@@ -61,7 +61,9 @@ Part 1 · Business plan
 
 ### 1.1 What we are building
 
-A system that turns a four-paragraph description into a working Roblox game, asks the same questions and applies the same filters every time, learns from each title, and does it for many games across many projects. The product is the factory. Any one game is a test case.
+In the owner's words: *the factory has two functions — build the game through a process designed to monetize and retain, well enough to confirm the metrics; and gain wisdom to make this game and the next ones better.* A four-paragraph description goes in, a working model comes out, the same questions and filters apply every time, and it does this for many games across many projects. The product is the factory. Any one game is a test case.
+
+Two working rules were added tonight and run through everything below. **Copy aggressively:** blank slates are slow, most games in a category look alike because the shape works, so the top three comparable games are torn down and blended before a line of design is written (§2.10). **The first fifteen minutes must be solid, and the slice must look good enough to hold a kid** — not at G4, but before the first kid ever sees it — because a grey box cannot produce real metrics, and real metrics are the only thing that decides whether a title deserves more energy.
 
 This distinction is not cosmetic. It decides where effort goes. A studio that treats each game as the product rebuilds its saving system, its shop, its security and its process every time, differently, and learns nothing transferable. A factory builds those once, keeps them, and spends each new title's effort on the only things that are actually new: the idea, the hook, the theme, the tuning, the art.
 
@@ -225,7 +227,7 @@ Part 2 explains the factory by component. This page explains it by time — what
 
 ↓
 
-**Hour 0–1 — expand, then cut.***Claude and Grok propose every applicable mechanic. Grok runs a confusion pass — "which of these would lose a ten-year-old?" The budget auto-cuts to the caps. Justin moves the line in two minutes. Everything below it goes to the parking list.*
+**Hour 0–1 — tear down the top three, expand, then cut.***The three closest games get the same teardown form: first sixty seconds, loop, meta, social, return hook, price ladder, complaints, style. Claude and Grok propose every applicable shape from them. Grok runs a confusion pass — "which of these would lose a ten-year-old?" The budget auto-cuts to the caps. Justin moves the line in two minutes. Below it: the parking list. Alongside: the style spec and a Creator Store shelf, so the slice is dressed from hour one.*
 
 ↓
 
@@ -418,7 +420,7 @@ The risk that makes this hard is not that the rules are too strict. It is the op
 
 →
 
-3 · Expansion*AI adds freely from the ledger, patterns and research · Claude and Grok both propose · nothing rejected · then Grok's confusion pass: "which of these loses a ten-year-old?" — a cheap second opinion from a different model before the cut*
+3 · Expansion*fuelled by the top-three teardowns in research/patterns/ plus the ledger · AI adds freely, Claude and Grok both propose, nothing rejected · then Grok's confusion pass: "which of these loses a ten-year-old?"*
 
 4 · Complexity budget*the auto-cut, before Justin ever looks · a number, not a judgment*
 
@@ -701,6 +703,73 @@ Justin's standing rule, made concrete: the best tool wins, not Claude by default
 | Is it fun? Is it understood?               | **Real kids, Hunter operating** — irreplaceable                           | Protocol and observation                  |
 | Scheduled research and ops                 | Claude scheduled tasks (inside the existing plan)                         | Running — see Part 4 for the fix it needs |
 
+### 2.10 Copy aggressively — shapes, style, colour, objects, sound
+
+Added to the doctrine tonight as §3.1 at the owner's direction: *"most of this stuff looks alike — if you can clone and copy something, do it; I'll remove or edit it in the editing process; speed everything up."* The earlier "no scraping or cloning" line was protecting speed and costing it. What follows is the rule as written, then the machinery that does the copying.
+
+Copy freely, on sight, unprompted
+
+- Loops, verbs, reward cadence, the first sixty seconds, meta and social loops public, observable — the whole point of research
+- Price ladders, product types, event rhythms, what players complain about same
+- UI layout, HUD density, camera, colour logic, VFX cadence, silhouette language — the **style** from public video and the storefront
+- **Creator Store models, textures, audio** (free or licensed) legal by construction — this IS copying existing assets, inserted by ID through Studio MCP
+- Roblox Assistant / Cube 3D generations and Meshy / Ideogram outputs made *in the style of* the top three ours to use
+
+Stays out — not as taste, as what deletes the title
+
+- Meshes, textures, audio or scripts ripped out of someone else's place not possible through our tools; needs exploit tooling that bans the ACCOUNT, and the title is pulled the week it starts earning
+- Names, mascots, logos, characters with an owner moderation removes on sight; the takedown lands after Gate B — Peter Griffin, 2026-09-11
+- Roblox private endpoints terms-of-service violation → account risk; trackers give the same numbers legally
+- "Free" Store audio named after another game's sound audio is fingerprinted on upload; free is not clear
+
+**Figure 17 — What "copy" means.** The left column is the default and is done as much as possible without asking. The right column is enforced by Roblox and copyright whatever this document says. *"Don't worry about being sued, worry about being successful first"* — agreed, and it is the argument for the right column: on this platform the thing that stops success is moderation deletion, and it arrives exactly when the metrics finally exist.
+
+#### The teardown — the same form for every comparable game
+
+A comparable game is torn down on a fixed template (`research/patterns/TEMPLATE.md`) so teardowns are comparable and the expansion step can propose from them mechanically: numbers and wave stage, the first sixty seconds, core verb and cadence, meta loop, social loop, return hook, event cadence, the monetization catalogue with the first purchase named, complaints (the wedge), a style spec, Creator Store equivalents, and two closing lines — *copy this* and *do not copy this*. Tonight's three for Fat Man Gets Rich:
+
+| Game                | What it proves                                                                                                                                  | Numbers, 12 Sep 2026                                                                | Wave                                                                         | Copy this                                                                                                                                           |
+|---------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------|------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
+| Mine a Mountain     | Bag-and-bank in 2026: mine → bag full → sell → 12-tier named ladder + base-slot collection + hourly reset + a consumable sink                   | 131,867 peak two weeks ago → ~6–19K now · 136.6M visits · 96.8% likes · born May 18 | <span class="chip missing">Fading</span> — 4 months old, the graveyard month | bag-full teaches the bank · keep-vs-sell · hourly reset as appointment · bombs = the late-wall fix · every upgrade has a name kids say              |
+| Bee Swarm Simulator | The evergreen bag-and-bank *feel*: the trip home is the rhythm; a collection you can see; no early wall                                         | ~20K CCU · 4.6B visits · 96%                                                        | <span class="chip built">Evergreen</span> since 2018                         | protect how the bank walk feels · one big bag meter · a visible collection · cheap first upgrade                                                    |
+| Grow a Garden       | Offline progress capped not punished; restock timers and Saturday updates as appointments; the strongest gift-and-show-off loop on the platform | 22.3M peak — the record                                                             | <span class="chip built">Post-peak evergreen</span>                          | offline that respects bedtime · a countdown toward something good · weekly update as event · gift surfaces · rare variants of the thing you collect |
+
+One fading wave and two evergreens bracket the title: Fat Man Gets Rich is Mine a Mountain's loop with Grow a Garden's return hook — and the thing neither Mine a Mountain nor our slice has yet is a social or clip surface. Mine a Mountain is the proof that this loop without one is a fading wave, not an evergreen. Seven more comps are on the reference board for style only.
+
+#### The worked cut list — the build loop run once, by hand
+
+Every applicable shape from the three, the complexity budget applied, the line drawn. This is what Justin sees, and moving the line is the whole of his job at this step.
+
+| \#  | Shape                                                                                         | From                                | Verdict                                                                                           |
+|-----|-----------------------------------------------------------------------------------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
+| 1   | Bag-full teaches the bank — already built                                                     | MaM, BSS                            | <span class="chip built">In</span> · hypothesis 1 tests it                                        |
+| 2   | Offline earnings, capped not punished — built; number wrong (sim)                             | GaG                                 | <span class="chip built">In</span> · at Candidate C's rate                                        |
+| 3   | Named upgrade tiers — Duffel, Wheelbarrow, Dump Truck                                         | MaM's 12 pickaxes                   | <span class="chip built">In</span> · theme file only, big readability win                         |
+| 4   | **A timed golden flood** — every N minutes the pad erupts ×5, server-wide countdown           | GaG restock timer, MaM hourly reset | <span class="chip built">In</span> · **this is the clip** — the one social/clip hook              |
+| 5   | A coin pile you can see — banked coins render as a growing pile others walk past              | MaM base slots, BSS hive            | <span class="chip built">In</span> · system 3 of 4, the status surface with no cosmetic catalogue |
+| —   | **Line drawn here.** 4 of 4 systems · 3 of 3 on-screen numbers · onboarding artifact present. |                                     |                                                                                                   |
+| 6   | Rare coin variants (silver / gold / diamond)                                                  | GaG mutations                       | <span class="chip partial">Parked</span> · a fourth on-screen concept; after Gate A               |
+| 7   | A consumable sink — the magnet bomb                                                           | MaM bombs                           | <span class="chip partial">Parked</span> · the economy sim's late-wall fix; G2 / live-ops         |
+| 8   | Gift a flood to a friend                                                                      | GaG gifting                         | <span class="chip partial">Parked</span> · Gate B material                                        |
+| 9   | Second area / zones by warmth                                                                 | MaM                                 | <span class="chip partial">Parked</span> · doctrine §3: not before area one retains               |
+| 10  | Trading                                                                                       | GaG                                 | <span class="chip partial">Parked</span> · not before Gate B and not without scam-guards          |
+
+#### Style, colour and objects — the shelf
+
+Style is copyable; assets are inserted from the Creator Store by ID or generated in the style. The style spec for the title is five lines blended from the three teardowns — low-poly single-colour objects that read at 200px; gold on dark ground with the flood as the light source; one big readable bag meter; a bank that is a *building* you walk toward; cheerful, zero threat, the only countdown counting toward something good — plus the thumbnail formula all three agree on: one face, one giant version of the collectable, three words or fewer.
+
+Under it sits a **Creator Store shelf**, found through Studio in one session and recorded by ID: low-poly gold coins and coin piles, a vault for the bank silhouette, cartoon tree packs, a fountain landmark, benches and lamps, a market stall for the upgrades zone, coin chimes, a cash-register cha-ching for banking, and three theme loops. All free. Nothing is pasted into the live place — assets are referenced from the content pack (`world.luau`, `theme.luau`) so the dressed slice rebuilds from disk like everything else. Justin cuts from the shelf; that is his G4, moved forward.
+
+**The reference board** (`art/reference/`, git-ignored, never ships) is where the owner keeps public store images and audio notes from the ten comps to rework by hand — a mood board, which is normal practice. What the build does not do is auto-download other creators' assets to produce minor-edit derivatives, for the reason in Figure 17's right column: a reworked rip fingerprints as the original.
+
+#### Sound
+
+Same rule, same shelf. Ranked sources, sharpest first (`skills/audio-sourcing.md`): the **Creator Store audio library** for everything in Phase 1 — licensed by Roblox, free, no upload, no moderation wait; generated SFX or ElevenLabs for a specific sound the Store lacks; Suno or Udio on the paid tier for a throwaway loop only, because AI-music copyright is unsettled; royalty-free libraries and subscription services last, since they add an upload-rights burden for no quality gain at this stage. Free Store audio named after another game's sound is skipped — audio is fingerprinted, and free is not clear.
+
+##### The coupling that turns three tasks into one click
+
+Loading Store assets into a running place uses `InsertService`, which — like DataStores — does not work until the place is **published unlisted with Studio API access on**. So dressing the slice, verifying that saves survive a restart, and putting the game in front of a kid for real numbers are all behind the same three clicks in `docs/runs/PERSISTENCE_TEST.md`. Until then the shelf can be wired but cannot render.
+
 Part 3 · Agents, mechanisms and tasks
 
 ## Who and what does the work, and how they connect
@@ -728,6 +797,8 @@ Justin asked for the list. Here it is in full — every human, AI, automated mec
 | Roblox Assistant · Cube 3D · Experiments · Creator Hub analytics | Roblox-side tool       | First-party generation, native A/B testing, and the analytics ground truth. Used through MCP or in-Studio; Claude designs and reads, never re-implements.                                                                                                                                        | <span class="chip built">Available</span>               |
 | Open Cloud                                                       | Roblox-side tool       | Publishing and product catalogue. **Human-gated, always.** No Claude action reaches it.                                                                                                                                                                                                          | <span class="chip human">G5 only</span>                 |
 | studio_sync.py                                                   | Mechanism (workaround) | Serves the disk tree as JSON so Studio can pull it without a human click on the Rojo plugin — the only unattended disk→Studio path found in run 01. A test harness, not a Rojo replacement.                                                                                                      | <span class="chip partial">Workaround</span>            |
+| Top-three teardowns · style spec · Creator Store shelf           | Resource (per title)   | The copy-the-shape library and the legal-copy asset list every title starts from. Stocked for Fat Man Gets Rich tonight: three teardowns, ten-shape cut list, a five-line style spec, ~20 free asset IDs across models and audio.                                                                | <span class="chip built">Stocked</span>                 |
+| Reference board (art/reference/)                                 | Resource (owner's)     | Public store images and audio notes from ten comps, kept by Justin to rework by hand. Git-ignored. Never ships.                                                                                                                                                                                  | <span class="chip built">Set up</span>                  |
 | Intake agent                                                     | Planned                | Four paragraphs → the six-question brief, drafted for Justin to correct rather than fill.                                                                                                                                                                                                        | <span class="chip missing">Missing</span>               |
 | Expansion agent                                                  | Planned                | Reads the ledger and pattern library, proposes every applicable mechanic. Claude and Grok both contribute. Nothing rejected at this step.                                                                                                                                                        | <span class="chip missing">Missing</span>               |
 | Budget + cut-list generator                                      | Planned                | Applies the caps, ranks what is left, draws the recommended line, writes the parking list.                                                                                                                                                                                                       | <span class="chip missing">Missing</span>               |
@@ -781,16 +852,17 @@ Justin asked for the whole system to be worked through again. This part does tha
 
 ### 4.2 Where each mechanism could detract, limit, or distract — and what stops it
 
-| Mechanism                   | How it could hurt a good game                                                               | What stops it                                                                                                                                                                                      | Residual risk                                                                            |
-|-----------------------------|---------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
-| Safety hooks R1–R7          | A false block interrupts a build; a rule fires on legitimate code                           | Zero false positives across all 1,587 existing lines; each rule tested both ways; escape hatch with an audit log; new rules must pass the two-way test before landing                              | Low. The premise itself is untested (E-0005)                                             |
-| Complexity budget           | Caps a great idea that needed five systems; makes a first slice too thin to be fun          | Constrains the *first slice* only; nothing is deleted — parking list; a declared deviation is one line and two deviations make a new default; caps expire at the first Gate A and move on evidence | Medium until the first Gate A moves them. This is the mechanism to watch                 |
-| The gates                   | Slow shipping; Gate B needs 200–500 strangers, which is real effort for a two-person studio | By design — the doctrine's whole thesis is that spending before Gate B rents empty visits. Unlisted soft launch, DevForum and Discord tester pools, and Hunter's cohort widen the pool for free    | Real. Gate B is the most labour-intensive step and has never been run                    |
-| Comprehension test          | Recruiting three fresh kids per Gate A is a logistical burden; a bad day skews the result   | Hunter operates and his cohort rotates — a kid is fresh for each new title; 2-of-3 thresholds absorb one outlier                                                                                   | Medium. Practical, not conceptual                                                        |
-| Evidence ledger             | False confidence from one observation; or nobody files anything and it dies quietly         | Confidence always visible; nothing becomes a default below n=2; no veto power; the closeout requirement and session-close hook (not yet built) are what keep it fed                                | **High until the feeders exist.** A ledger nobody writes to is a graveyard with a schema |
-| Closeout + changelog        | Paperwork per title; the ritual becomes the work                                            | The closeout is a template of about ten fields, most auto-filled from gate results and hypotheses — never an essay. The changelog is append-only one-liners                                        | Low, if the template stays short                                                         |
-| Contradiction protocol      | Justin becomes the bottleneck; or conflicts pile up unread                                  | Escalate only when a pending decision depends on one; otherwise they wait in a visible queue; every escalation arrives with the diagnosis done and "make it the next test" as an option            | Low                                                                                      |
-| Fixed interview and filters | Rigidity — a game that does not fit the six questions gets forced into them                 | Invariants versus defaults: the questions are defaults and can be deviated from in one declared line                                                                                               | Low                                                                                      |
+| Mechanism                   | How it could hurt a good game                                                                                                                                                               | What stops it                                                                                                                                                                                      | Residual risk                                                                                               |
+|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------|
+| Safety hooks R1–R7          | A false block interrupts a build; a rule fires on legitimate code                                                                                                                           | Zero false positives across all 1,587 existing lines; each rule tested both ways; escape hatch with an audit log; new rules must pass the two-way test before landing                              | Low. The premise itself is untested (E-0005)                                                                |
+| Complexity budget           | Caps a great idea that needed five systems; makes a first slice too thin to be fun                                                                                                          | Constrains the *first slice* only; nothing is deleted — parking list; a declared deviation is one line and two deviations make a new default; caps expire at the first Gate A and move on evidence | Medium until the first Gate A moves them. This is the mechanism to watch                                    |
+| The gates                   | Slow shipping; Gate B needs 200–500 strangers, which is real effort for a two-person studio                                                                                                 | By design — the doctrine's whole thesis is that spending before Gate B rents empty visits. Unlisted soft launch, DevForum and Discord tester pools, and Hunter's cohort widen the pool for free    | Real. Gate B is the most labour-intensive step and has never been run                                       |
+| Comprehension test          | Recruiting three fresh kids per Gate A is a logistical burden; a bad day skews the result                                                                                                   | Hunter operates and his cohort rotates — a kid is fresh for each new title; 2-of-3 thresholds absorb one outlier                                                                                   | Medium. Practical, not conceptual                                                                           |
+| Evidence ledger             | False confidence from one observation; or nobody files anything and it dies quietly                                                                                                         | Confidence always visible; nothing becomes a default below n=2; no veto power; the closeout requirement and session-close hook (not yet built) are what keep it fed                                | **High until the feeders exist.** A ledger nobody writes to is a graveyard with a schema                    |
+| Closeout + changelog        | Paperwork per title; the ritual becomes the work                                                                                                                                            | The closeout is a template of about ten fields, most auto-filled from gate results and hypotheses — never an essay. The changelog is append-only one-liners                                        | Low, if the template stays short                                                                            |
+| Contradiction protocol      | Justin becomes the bottleneck; or conflicts pile up unread                                                                                                                                  | Escalate only when a pending decision depends on one; otherwise they wait in a visible queue; every escalation arrives with the diagnosis done and "make it the next test" as an option            | Low                                                                                                         |
+| Fixed interview and filters | Rigidity — a game that does not fit the six questions gets forced into them                                                                                                                 | Invariants versus defaults: the questions are defaults and can be deviated from in one declared line                                                                                               | Low                                                                                                         |
+| Copy aggressively           | One ripped asset, one owned name, or one re-uploaded song gets the title pulled — after Gate B, when it is finally worth something. And a single-source clone inherits its source's ceiling | Figure 17's right column; R6 warns on owned names; the "free is not clear" audio rule; the reference board never ships; blend three sources, never one                                             | **Medium.** Depends entirely on discipline at insert time — the shelf is vetted, the next search may not be |
 
 ##### The largest risk to this project tonight is not on that table
 
@@ -864,13 +936,41 @@ Part 5 · Status and build order
 
 **Economy sim · tests · CI**sim built and run (ladder exhausted day 3) · build+lint in pre-commit · TestEZ still missing
 
-**Visual quality bar · craft library**"visually professional" has no definition and no home
+**Style spec · Creator Store shelf · teardowns**defined and stocked for the first title · not yet wired into the pack · blocked on the publish
 
 **Title registry · physical factory split**deferred until a second title exists
 
-**Figure 15 — Status board, 12 September 2026, after the second pass.** Teal built, amber partial, red missing. Seven of fifteen built, four partial, four missing — ordered below.
+**Figure 15 — Status board, 12 September 2026, end of day.** Teal built, amber partial, red missing. Seven built, five partial, three missing — ordered below.
 
-### 5.2 The build order
+### 5.2 The initial testing model — Phase 1 in six moves
+
+The owner's stated near-term goal, in his words: *"I just need the game to look better in Phase 1 initially, to keep the kids' interest, to get real metrics to see if I want to expend more energy on a project."* That is the definition of an initial testing model: a dressed, playable slice that survives fifteen minutes and a stranger, instrumented well enough to say whether to continue. Six moves, in order, three of them one afternoon's work.
+
+**1 · Publish unlisted, API access on — Justin, three clicks.***Unblocks InsertService (the shelf renders), DataStores (saves persist), and the comprehension test on a real build. docs/runs/PERSISTENCE_TEST.md.*
+
+↓
+
+**2 · Wire the shelf and the cut list into the pack — Claude.***Named tiers and audio IDs in theme.luau; fountain, trees, vault, stall and the golden-flood timer in world.luau and the loop; Candidate C's economy numbers pending G2. Everything rebuilds from disk.*
+
+↓
+
+**3 · Run the persistence test and an automated playtest — Claude.***Seven rows: real DataStore, restart, crash, double-join, migration. Then join → first flood → bank → upgrade with a clean console.*
+
+↓
+
+**4 · Gate A — Hunter operates, three fresh kids, Justin fun-checks.***Goal comprehension, first action, pull. The budget's two questions. Hypotheses 1 and 2 get their first data. The ledger gets its first player evidence.*
+
+↓
+
+**5 · Stop-and-patch, icon and thumbnail — Claude, Justin approves (G4).***One face, one giant coin, three words. Readable at 200px.*
+
+↓
+
+**6 · Gate B — listed, zero spend. The real metrics.***Two hundred to five hundred strangers from Roblox's own new-experience impressions. D1 against the doctrine floor. This is the number that decides whether the title deserves more energy — and the first thing the factory has ever actually learned from a player.*
+
+**Figure 18 — The initial testing model.** Purple boxes are the owner's. Move 1 is the gate everything else is behind; moves 2–3 are ready to run the moment it is done.
+
+### 5.3 The build order
 
 Ordered by one principle: **get a real game through a real Gate A first, and build only what unblocks that until it has happened.** Everything after step 3 waits for the comprehension test's results, because those results are the first evidence the factory will ever hold about players, and several later items should be shaped by them.
 
@@ -887,11 +987,11 @@ Ordered by one principle: **get a real game through a real Gate A first, and bui
 | 9   | Visual quality bar; craft library home                                                     | Claude proposes, Justin's art seed                 | Medium                                             | Blocks G4, not Gate A. "Visually professional" needs a definition before art enters the repo at volume                                                                                                                                                                                                                                                                                                                                    |
 | 10  | Title registry; physical factory split                                                     | Claude                                             | Medium                                             | When the second title exists and can say what it needs. Not before                                                                                                                                                                                                                                                                                                                                                                        |
 
-### 5.3 Decisions that are genuinely Justin's
+### 5.4 Decisions that are genuinely Justin's
 
 Only the irreversible ones. Everything else in this document runs on stated defaults. The same list lives in `STATE.md`, which every session loads, so it cannot be forgotten.
 
-1.  **Publish an unlisted place** so persistence can be tested. It is not a launch — unlisted, link-only — but it is a publish action, and the doctrine makes every publish a human click. `docs/runs/PERSISTENCE_TEST.md` has the three clicks (including the one everyone forgets: enabling Studio API access) and the seven-row test Claude runs the moment it is done.
+1.  **Publish an unlisted place with API access on.** It is not a launch, but it is a publish action, and the doctrine makes every publish a human click. It now unblocks three things at once: the shelf rendering (InsertService), saves persisting (DataStores), and the comprehension test on a real build. `docs/runs/PERSISTENCE_TEST.md` has the three clicks — including the one everyone forgets, enabling Studio API access — and the seven-row test Claude runs the moment it is done.
 2.  **G2 — the economy numbers.** The simulation proposes Candidate C. Approve, adjust, or reject before the kids see it; the slice can be tested un-tuned, but the numbers in front of them should be the ones we mean.
 3.  **Two doctrine wordings:** the proposed §9 line is in STATE.md verbatim — *"Human owns: ship / no-ship, money, and the cut — removing what confuses. Generative taste is not asked of the owner; the AI proposes, the owner prunes."* Yes, no, or edit. And confirm the doctrine's Gate B floor governs; both other files now say it does.
 4.  **Hold the line in §4.2:** no further system work until Fat Man Gets Rich has been through Gate A with fresh testers. This is the decision that protects the project from its own scaffolding, and it is the one Claude cannot make for you.

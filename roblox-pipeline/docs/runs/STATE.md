@@ -17,7 +17,7 @@
 | Persistence | **Unverified.** Blocked on an unlisted publish (Justin's click). Test script ready: `docs/runs/PERSISTENCE_TEST.md` | 2026-09-12 |
 | Engine | 11 modules. `ReceiptService` deliberately absent until a product is approved at G5. R7 keeps the engine generic | 2026-09-12 |
 | Paid products | **None.** No `MarketplaceService` call in the repo. `sku.luau` is a draft ladder | 2026-09-12 |
-| Art | Grey-box. **Style spec + Creator Store shelf ready** (`research/2026-09-12-style-spec-fat-man.md`) — Justin cuts from it at G4. Nothing inserted yet | 2026-09-12 |
+| Art + sound | Grey-box. **Style spec, Creator Store shelf (models + audio) and the ten-comp reference board ready.** Dressing moved BEFORE Gate A by Justin's call (a grey box cannot hold a kid long enough for metrics). Wiring into the pack is next; rendering is blocked on the unlisted publish (InsertService) | 2026-09-12 |
 | Enforcement | R1–R7 + loop cap + SessionStart + git backstop (now also rojo build / selene / stylua on the Mac) | 2026-09-12 |
 | Evidence | 6 records (5 process, 1 economy). 0 player evidence — Gate B has not happened. 0 open contradictions | 2026-09-12 |
 
@@ -32,6 +32,10 @@ Top-three teardowns done (Mine a Mountain, Bee Swarm, Grow a Garden). Ten shapes
 3. **Approve the re-created weekly digest** (bound to this folder, writes to `research/`).
 4. **Doctrine wording, §9 role split:** proposed one-line amendment — *"Human owns: ship / no-ship, money, and **the cut** — removing what confuses. Generative taste is not asked of the owner; the AI proposes, the owner prunes."* Yes / no / edit.
 5. **Confirm** the doctrine's Gate B floor (~12%+ OK to test spend; under ~8–10% death) governs over the higher numbers in PIPELINE and SYSTEM-MAP — both files now say so; this is the confirmation.
+
+## Phase 1 — the initial testing model, six moves (`The-Game-Factory.pdf` §5.2)
+
+1 publish unlisted + API on (Justin) → 2 wire shelf + cut list into the pack (Claude) → 3 persistence test + auto-playtest (Claude) → 4 Gate A with three fresh kids (Hunter operates) → 5 patch + icon/thumbnail (G4) → 6 Gate B, listed, zero spend — the real number.
 
 ## Next real move
 

@@ -73,3 +73,22 @@ Justin: *"come up with solutions to this … go over it twice, think of new ways
 **Standing rule recorded in STATE.md:** no further system work until Fat Man Gets Rich has been through Gate A with three fresh testers.
 
 **Decisions now waiting on Justin (in STATE.md):** unlisted publish for the persistence test; G2 economy (Candidate C); doctrine §9 wording ("the cut"); confirm the Gate B floor.
+
+---
+
+## 2026-09-12 (night) · Copy aggressively, folded into the factory
+
+Justin: *"put this all into the game factory including all the scraping and copy other 3rd art, styles and colors and objects from other games, so I can quickly develop an initial testing model of the game."*
+
+| Change | Kind | Reason |
+|---|---|---|
+| Doctrine §3.1 "Copy aggressively" | **Justin's decision** (a core doctrine position) | "Most of this stuff looks alike — if you can clone and copy something do it; I'll edit it out." Two tables: copy on sight vs. what deletes the title regardless of doctrine |
+| `research/patterns/TEMPLATE.md` + three teardowns (Mine a Mountain, Bee Swarm, Grow a Garden) | Title research | The expansion step needs fuel; the idea log's comps field had said "to fill" since 09-11 |
+| `research/2026-09-12-sweep-and-bank-comps.md` — ten-shape cut list, line after #5 | The build loop, run once by hand | Justin moves the line |
+| `research/2026-09-12-style-spec-fat-man.md` + Creator Store shelf (~20 free IDs, models + audio) | Legal copying of existing assets | "Make the game look better in Phase 1 to keep the kids' interest" |
+| `skills/audio-sourcing.md` | Ranked sources | Justin's "where is the best place to get music" |
+| `art/reference/` board, git-ignored | Owner's mood board | Justin's request for a folder to rework comps' art by hand. The build feeds ORIGINAL work from it; it does not auto-download assets to make derivatives — a reworked rip fingerprints as the original and is pulled after Gate B |
+| Dressing moved BEFORE Gate A | **Justin's decision** | A grey box cannot hold a kid long enough to produce metrics |
+| FACTORY_PLAN v1.2: §1.1 thesis in Justin's words; §2.10 Copy aggressively (Fig. 17); teardowns + worked cut list; shelf + board + sound; §5.2 the initial testing model in six moves (Fig. 18); risk row for copying; status refreshed | Document | As asked — everything from tonight in one place |
+
+**The coupling recorded everywhere it matters:** InsertService (dressing) and DataStores (saves) are both blocked until the unlisted publish with API access. One click unblocks dressing, persistence, and the comprehension test on a real build.
