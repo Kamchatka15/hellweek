@@ -106,9 +106,31 @@ Does **not** count (do not spend the session on these unless asked):
 - “Fully refined” / feature-complete before anyone has played
 - Paid ads or paid YouTubers before benchmarks
 - Local LLMs, extra agents, extra hardware
-- Scraping or cloning another game’s content
+- Building from a blank slate when a working shape already exists (see §3.1)
 
 Default build order: **playable slice → instrument → patch → clip**. Not **complete GDD → then players**.
+
+### 3.1 Copy aggressively (amended by Justin, 2026-09-12)
+
+**Blank slates are slow. Most games in a category look alike because the shape works. Copy the shape, blend the best of the top three, and let the owner cut what he does not want.** The earlier "no scraping or cloning" line is withdrawn; it was protecting speed and it was costing it.
+
+What "copy" means here, so nobody hesitates:
+
+| Copy freely, on sight | Why it is fast |
+|---|---|
+| Loops, verbs, reward cadence, the first 60 seconds, meta and social loops | Public, observable, the entire point of Phase R |
+| Price ladders, product types, event rhythms, what players complain about | Same |
+| UI layout, HUD density, camera, colour logic, VFX cadence, silhouette language — the **style** | Observed from public video and the storefront |
+| **Creator Store models, textures, audio (free or licensed)** | Legal by construction — this *is* copying existing assets, and Studio MCP inserts them by ID |
+| Roblox Assistant / Cube 3D generations, and Meshy / Tripo / Ideogram outputs made *in the style of* the top three | Ours to use |
+
+| Do not, and it is not a taste rule | Why |
+|---|---|
+| Ripping meshes, textures, audio or scripts out of someone else's place | Not possible through our tools; needs exploit tooling that gets the *account* banned, and the title is deleted the week it starts earning |
+| Names, mascots, logos, characters with an owner | Moderation removes on sight; the takedown lands after Gate B (Peter Griffin, 2026-09-11) |
+| Roblox private endpoints | Terms-of-service violation → account risk. Trackers and the public storefront give the same numbers legally |
+
+The second table is not doctrine; it is what Roblox and copyright do regardless of what this file says. Everything in the first table is the default, done unprompted, as much of it as possible.
 
 ---
 
@@ -235,7 +257,7 @@ Never claim a feature is done without a playtest path (MCP start play + what sho
 ## 11. Anti-patterns (refuse these by default)
 
 - “Let’s launch ads to get data” on an unmeasured loop
-- “Let’s clone the #1 game in the genre”
+- “Let’s clone the #1 game in the genre *and only that one*” — copy the shape of the top **three** and blend; a single-source clone inherits its source's ceiling and its lawsuit (§3.1)
 - “Let’s build three genres and see”
 - “Feature-complete then market”
 - “YouTube long-form first”

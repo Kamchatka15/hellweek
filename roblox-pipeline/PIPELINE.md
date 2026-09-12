@@ -114,7 +114,7 @@ The point: answer *"why is this genre popular, why do players keep playing, and 
 
 **Deliverables to the repo:** `research/genre-brief.md`, `research/competitor-matrix.csv`, `research/policy-flags.md`, and **three pitches**, each one page, scored 1–5 on: session-length potential, spend-loop clarity, build cost, wave timing, policy risk, differentiation-vs-wedge, Hunter-testability. → **G1: you pick.**
 
-**Research rules (in `skills/research-legal.md`):** public storefront/tracker data and public videos only. No private-endpoint scraping, no place-file copies, no asset rips, no mascot clones. We steal *shapes* (loops, cadences, price ladders), never *stuff*.
+**Research rules (in `skills/research-legal.md`, amended 2026-09-12):** copy the top three aggressively — loops, cadences, price ladders, style, and Creator Store assets by ID. Public storefront/tracker data and public videos are the source. What stays out is what gets the title or the account deleted: ripped assets, owned names and mascots, private endpoints.
 
 ---
 

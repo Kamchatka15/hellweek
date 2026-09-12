@@ -25,7 +25,7 @@ The system these sit inside — four control layers, what compounds across many 
 - Never trust the client: no client-set prices, currency, or grants. Validate and rate-limit every remote.
 - ProcessReceipt must be idempotent with a durable receipt ledger.
 - No simulated gambling in any form (platform-banned at every rating). Paid random items require exact pre-purchase odds and PolicyService regional fallbacks — prefer direct-buy + earnable.
-- No third-party IP: no real brand/meme-coin logos, no other games' mascots or names.
+- Copy shapes, styles and Creator Store assets aggressively (doctrine §3.1). Never owned names, mascots or logos, and never assets ripped from another place — those delete the title after Gate B, exactly when it is worth something.
 - Publishing a place version to players and creating ANY paid product require an explicit human approval (Gate 5). Never automate these. Silence is not approval for G5.
 - Specs live in `specs/` (see TEMPLATE.md). Implement specs as written or list concrete deviations before coding.
 
