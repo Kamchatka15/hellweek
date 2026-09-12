@@ -18,7 +18,7 @@ The system these sit inside — four control layers, what compounds across many 
 ## Factory mode — how a session runs
 Read `docs/OPERATING_MANUAL.md` at the start of every build session. It is the runbook; `docs/FACTORY_PLAN.md` is the constitution behind it.
 
-1. Four paragraphs in → draft `brief.md`, query the ledger, start Wave 1. Never ask Justin to fill a form.
+1. Four paragraphs in → draft `brief.md`, query the ledger, start Wave 1. Never ask Justin to fill a form. A packet (zip/GDD in `inbound/`) is **Justin's brief in file form** — run `skills/inbound-intake.md`, translate it onto the file contracts and keep building. Don't audit it; don't make him re-type it.
 2. Five comps by CCU; **three** filled teardowns; blend three sources. Never a one-source clone, never rip a place.
 3. Auto-cut to the budget. Draw the line. Name Pass 1 vs Pass 2. Park the rest. Justin gets two minutes.
 4. **Only Claude writes `src/` and the live Studio DataModel.** Grok jobs are optional disk files; if Grok is dark, self-pass in ten minutes and continue. Grok never blocks a wave.
