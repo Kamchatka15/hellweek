@@ -168,6 +168,37 @@ def r6(path, text):
     return [(n, l.strip()) for n, l in _code_lines(text) if brands.search(l)]
 
 
+def _game_slugs():
+    d = os.path.join(PIPE, "games")
+    try:
+        return [x for x in os.listdir(d) if os.path.isdir(os.path.join(d, x))
+                and not x.startswith(".")]
+    except OSError:
+        return []
+
+
+@rule("R7", "Engine module knows about a specific game", BLOCK,
+      "src/core/ is the factory; games/ is the title. The moment an engine module "
+      "names one game, the engine stops being reusable and nothing is portable to a "
+      "second project. Read it from the content pack instead.")
+def r7(path, text):
+    rel = _rel(path).replace("\\", "/")
+    if "src/core/" not in rel:
+        return []
+    slugs = _game_slugs()
+    pats = [re.compile(r"\bgames/")]
+    for slug in slugs:
+        pats.append(re.compile(re.escape(slug), re.I))
+        pats.append(re.compile(re.escape(slug.replace("-", "")), re.I))
+    hits = []
+    for n, line in _code_lines(text):
+        for pp in pats:
+            if pp.search(line):
+                hits.append((n, line.strip()))
+                break
+    return hits
+
+
 # ---------------------------------------------------------------- scan / report
 
 ALLOW = re.compile(r"--\s*@rbx-allow:\s*(R\d+)\s*(.*)")

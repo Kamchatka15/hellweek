@@ -312,7 +312,7 @@ An escalation arrives with the diagnosis already done and three options — foll
 
 Same line as everything else here: filing and diagnosing changes a document and is reversible, so it is automatic. Choosing which belief shapes a game's core loop is not reversible once built, so it is Justin's.
 
-**Every autonomous change is appended to `docs/runs/CHANGELOG.md` with the evidence that caused it.** Append-only, never rewritten. That file is how Justin audits a system that is changing itself — without having to be in the room when it does.
+**Every autonomous change is appended to `evidence/CHANGELOG.md` with the evidence that caused it.** Append-only, never rewritten. That file is how Justin audits a system that is changing itself — without having to be in the room when it does.
 
 **The failure this prevents:** a system that quietly drifts. If Claude can rewrite the rules and nothing records why, then in four titles' time nobody — including Claude — knows what the rules are supposed to be or which of them were ever tested.
 
@@ -364,6 +364,12 @@ Two rows say **needs a home**. Those are the concrete next builds.
 
 | # | Decision | Why it needs Justin |
 |---|---|---|
-| 1 | **The budget caps** — 1 verb, 1 return hook, ≤1 clip hook, ≤4 systems, ≤3 on-screen numbers | These are the goalposts. They were proposed, not derived, and they will constrain every game the factory ever makes. They should be owned, and then moved when evidence says to |
-| 2 | **Who runs the comprehension test** | It cannot be Justin — he designed the game and already knows the answer. Hunter's cohort is the obvious pool; confirm that is the standing arrangement |
-| 3 | **Restructure the folder** (§4) | Moving the factory up to the root and leaving `games/<slug>/` behind touches every path in the repo. Worth doing before the second title exists, painful after |
+All three closed on 2026-09-12 at Justin's direction — see `evidence/CHANGELOG.md` for the full reasoning.
+
+| # | Decision | Outcome |
+|---|---|---|
+| 1 | The budget caps | **Reframed.** Provisional defaults with an expiry, owned by nobody, moved by the first Gate A. A cap is a taste judgment wearing a number's clothing — ratifying a guess makes it harder to change, not better. → `docs/BUDGET.md` |
+| 2 | Who runs the comprehension test | **Decided.** 3+ kids who have never seen it; Hunter is the operator, not the subject — he is contaminated the same way Justin is on any title he designed. → `skills/playtest-comprehension.md` |
+| 3 | Restructure the folder | **Reversed.** Do not move it. The boundary is what makes the factory portable, not the layout, and the boundary is now enforced by hook R7. The move happens when a second title actually needs it |
+
+Nothing is currently waiting on Justin.
