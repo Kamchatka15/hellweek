@@ -146,29 +146,48 @@ for _, part in wanderer("Wanderer2", -140, 20, 80) do
 	table.insert(props, part)
 end
 
--- The crafting bench (Justin's art drop, 2026-09-12): Ring A, ~12 studs from the Wick,
--- off the spawn line so it never hides the Ashwood path, its two plates turned toward
--- spawn so they read on the first walk in. Parts come from bench.luau in the bench's
--- own frame; one CFrame places all of them. Set dressing in Pass 1 — crafting is parked.
-local benchParts = require(script.Parent.bench)
-local benchAt = Vector3.new(70, 0, -140) -- just inside the Day-1 fog wall (175), Justin 2026-09-12; still right-of-centre from spawn
-local spawnAt = Vector3.new(0, 0, 48)
-local benchOrigin = CFrame.lookAt(benchAt, benchAt - (spawnAt - benchAt)) -- +Z faces spawn
-for _, spec in benchParts do
-	table.insert(props, {
-		name = `Bench_{spec.name}`,
-		shape = spec.shape,
-		size = spec.size,
-		position = benchAt,
-		cframe = benchOrigin * spec.cframe,
-		color = spec.color,
-		material = spec.material,
-		face = spec.face,
-		fire = spec.fire,
-		canCollide = spec.name == "Tabletop" or string.sub(spec.name, 1, 4) == "Leg_" or spec.name == "Shelf",
-		castShadow = spec.material ~= Enum.Material.Neon,
-	})
-end
+-- The craft bench is CUT (Justin, 2026-09-12: "so i dont need a workbench"). The
+-- obelisk absorbed it: offerings go into the bowl and come back worked. The art and
+-- its generator stay on disk (`server/bench.luau`, `tools/bench_from_blender.py`) —
+-- cut is not deleted, and a later world may want a bench that is not this one.
+
+-- The offering bowl: a stone basin with a gold rim on the sand just outside the
+-- pentagram, in plain sight from spawn but OFF the straight walk to the fire. On the
+-- line it was a toll booth — it took the sack of anyone heading for the obelisk. A few
+-- steps to the side turns the same object into a decision.
+local BOWL_AT = Vector3.new(24, 0, 28)
+table.insert(props, {
+	name = "OfferingBasin",
+	shape = Enum.PartType.Cylinder,
+	size = Vector3.new(1.6, 8.4, 8.4),
+	position = BOWL_AT + Vector3.new(0, 0.8, 0),
+	rotation = Vector3.new(0, 0, 90),
+	color = Color3.fromRGB(46, 46, 52),
+	material = Enum.Material.Slate,
+	canCollide = true,
+})
+table.insert(props, {
+	name = "OfferingRim",
+	shape = Enum.PartType.Cylinder,
+	size = Vector3.new(0.3, 9.2, 9.2),
+	position = BOWL_AT + Vector3.new(0, 1.65, 0),
+	rotation = Vector3.new(0, 0, 90),
+	color = Color3.fromRGB(255, 196, 64),
+	material = Enum.Material.Neon,
+	canCollide = false,
+	castShadow = false,
+})
+table.insert(props, {
+	name = "OfferingHollow",
+	shape = Enum.PartType.Cylinder,
+	size = Vector3.new(0.3, 6.4, 6.4),
+	position = BOWL_AT + Vector3.new(0, 1.7, 0),
+	rotation = Vector3.new(0, 0, 90),
+	color = Color3.fromRGB(18, 16, 20),
+	material = Enum.Material.SmoothPlastic,
+	canCollide = false,
+	castShadow = false,
+})
 
 -- The pentagram stone floor (Justin, 2026-09-12): five gold lines and a gold ring inlaid
 -- on the slab under the obelisk. Gold Neon like the glyphs, so it reads at night and
@@ -198,6 +217,7 @@ for k = 1, 5 do
 		castShadow = false,
 	})
 end
+
 -- The five point triangles — one per world (`server/biomes.luau`). Dark while a world
 -- is locked, red once it is open, green once it is mastered. Each is two right-angled
 -- wedges laid flat back to back, so the pair reads from above as the filled triangle
@@ -301,6 +321,20 @@ return {
 	-- The feed spot: a faint gold ring on the sand around the obelisk base. Walking into
 	-- it feeds whatever you carry. The loop binds the kind; the loader only draws it.
 	zones = {
+		{
+			id = "offering",
+			kind = "offering",
+			shape = Enum.PartType.Cylinder,
+			size = Vector3.new(0.3, 9.6, 9.6),
+			position = Vector3.new(24, 1.8, 28),
+			rotation = Vector3.new(0, 0, 90),
+			color = Color3.fromRGB(255, 196, 64),
+			material = Enum.Material.Neon,
+			transparency = 0.86,
+			canCollide = false,
+			label = "OFFER",
+			sublabel = "OR WALK PAST AND BURN IT",
+		},
 		{
 			id = "obelisk",
 			kind = "beacon",

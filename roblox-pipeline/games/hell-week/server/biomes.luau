@@ -27,7 +27,7 @@ return {
 			{ id = "first_light", label = "Feed the obelisk", hint = "Carry Ashwood into the stone." },
 			{ id = "first_night", label = "Hold the first night", hint = "Do not let the fire go out." },
 			{ id = "open_shore", label = "Push the fog back", hint = "Feed it eight." },
-			{ id = "third_day", label = "Reach the third day" },
+			{ id = "harvest", label = "Take back what the fire made", hint = "Offer a sack and return at dawn." },
 			{ id = "refuse", label = "Reach day three taking no Gift", hint = "The easy pile costs tomorrow." },
 			{ id = "untouched", label = "Reach day three untouched", hint = "Stay inside the light at night." },
 			{ id = "the_week", label = "Last all seven days" },

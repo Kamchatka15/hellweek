@@ -23,6 +23,7 @@ local BeaconService = require(Core.BeaconService)
 local ChallengeService = require(Core.ChallengeService)
 local ClockService = require(Core.ClockService)
 local ContentLoader = require(Core.ContentLoader)
+local OfferingService = require(Core.OfferingService)
 local DataService = require(Core.DataService)
 local EconomyService = require(Core.EconomyService)
 local PickupService = require(Core.PickupService)
@@ -403,6 +404,57 @@ local function spawnOpenRings(onlyLevel: number?)
 	end
 end
 
+--- Lay a worked good out on the stone. These are the obelisk's answer to an offering,
+--- so they sit where the player will walk back through, glowing by tier.
+local function placeReturn(tier: any, index: number, count: number)
+	local origin = config.beacon.position
+	local theta = (index / math.max(1, count)) * math.pi * 2 + math.random() * 0.4
+	local r = config.offering.scatter
+	local position = Vector3.new(
+		origin.X + math.cos(theta) * r,
+		config.groundY + tier.size.Y / 2 + 0.6,
+		origin.Z + math.sin(theta) * r
+	)
+	PickupService.place(position, {
+		name = tier.label,
+		value = tier.value,
+		size = tier.size,
+		color = tier.color,
+		material = tier.material,
+		meta = { kind = "fuel", tier = tier.id, returned = true },
+		decorate = if tier.glow
+			then function(part)
+				local light = Instance.new("PointLight")
+				light.Color = tier.glow.color
+				light.Brightness = tier.glow.brightness
+				light.Range = tier.glow.range
+				light.Shadows = false
+				light.Parent = part
+			end
+			else nil,
+	})
+end
+
+--- Dawn: the obelisk hands back what it was given, worth more than it took.
+local function returnOfferings()
+	local goods, value = OfferingService.harvest()
+	if #goods == 0 then
+		return
+	end
+	local index, total = 0, 0
+	for _, entry in goods do
+		total += entry.count
+	end
+	for _, entry in goods do
+		for _ = 1, entry.count do
+			index += 1
+			placeReturn(entry.tier, index, total)
+		end
+	end
+	fxAll("returned", { value = value, count = total })
+	toastAll("returned", theme.copy.returned, "good")
+end
+
 local function spawnLure()
 	local c = config.lure
 	local origin = config.beacon.position
@@ -575,6 +627,9 @@ local function onPhase(name: string, cycle: number, length: number)
 		if run.stalkerSeen then
 			StalkerService.setMode("watch")
 		end
+		if cycle >= 2 then
+			returnOfferings()
+		end
 		recordBestDay()
 		-- Reaching a day means the night before it was held.
 		if cycle >= 2 then
@@ -626,6 +681,7 @@ end
 
 startRun = function()
 	PickupService.clear()
+	OfferingService.reset()
 	BeaconService.reset(config.beacon.startingFuel)
 	run.active = true
 	run.day = 0
@@ -676,6 +732,23 @@ local function feed(player: Player)
 	StateSync.requestAll()
 end
 
+--- Walk into the bowl carrying a sack and the obelisk takes it. Nothing burns, the
+--- light does not grow, and at dawn more comes back than went in. The whole mechanic
+--- is one decision made by where the player stops walking.
+local function offer(player: Player)
+	local amount = EconomyService.drainCarry(player, "offering")
+	if amount <= 0 then
+		toast(player, "offerempty", theme.copy.offeringEmpty, "info")
+		return
+	end
+	OfferingService.deposit(amount)
+	AnalyticsService.step(player, "first_offering")
+	AnalyticsService.track(player, "offered", amount)
+	toast(player, "offered", theme.copy.offered, "good", 0)
+	fx(player, "offer", { amount = amount })
+	StateSync.requestAll()
+end
+
 local function onCollect(player: Player, value: number, meta: any?): number
 	if meta and meta.kind == "lure" then
 		local accepted = BeaconService.feed(value)
@@ -689,6 +762,9 @@ local function onCollect(player: Player, value: number, meta: any?): number
 	end
 	local accepted = EconomyService.addCarry(player, value)
 	if accepted > 0 then
+		if meta and meta.returned then
+			award("harvest")
+		end
 		pickedUpEver[player] = true
 		AnalyticsService.step(player, "first_pickup")
 		if nudgeHighlight then
@@ -785,6 +861,7 @@ local function packet(player: Player, profile: any): any
 		level = BeaconService.level(),
 		bestDay = profile.bestDay or 0,
 		stalker = run.stalkerSeen,
+		offering = OfferingService.banked(),
 		challenges = if config.worldId then ChallengeService.packetFor(player, config.worldId) else nil,
 	}
 end
@@ -817,6 +894,22 @@ function SurviveLoop.validate(cfg: any, world: any, thm: any)
 	expect(typeof(cfg.night) == "table", "config.night is required")
 	expect(typeof(cfg.onboarding) == "table", "config.onboarding is required")
 	expect(typeof(cfg.runEndPause) == "number", "config.runEndPause is required")
+	expect(typeof(cfg.offering) == "table", "config.offering is required")
+	expect(
+		typeof(cfg.offering.tiers) == "table" and #cfg.offering.tiers > 0,
+		"config.offering.tiers must be a non-empty array"
+	)
+	for _, tier in cfg.offering.tiers do
+		expect(
+			typeof(tier.id) == "string" and typeof(tier.value) == "number",
+			"every offering tier needs an id and a value"
+		)
+	end
+	local hasBowl = false
+	for _, zone in world.zones do
+		hasBowl = hasBowl or zone.kind == "offering"
+	end
+	expect(hasBowl, "world.zones needs a zone of kind 'offering' (the bowl)")
 	if cfg.worlds then
 		expect(typeof(cfg.worldId) == "string", "config.worldId must name which of config.worlds is this pack")
 		local found = false
@@ -865,10 +958,11 @@ function SurviveLoop.start(loaded: any)
 	theme = pack.theme
 	SurviveLoop.validate(config, pack.world, theme)
 
-	AnalyticsService.configure({ "first_pickup", "first_feed", "first_night", "day_3", "run_end" })
+	AnalyticsService.configure({ "first_pickup", "first_feed", "first_offering", "first_night", "run_end" })
 	if config.worlds then
 		ChallengeService.configure(config.worlds)
 	end
+	OfferingService.configure(config.offering)
 
 	local flame, light = buildBeacon()
 	stalkerModel = buildStalker()
@@ -917,7 +1011,9 @@ function SurviveLoop.start(loaded: any)
 
 	for _, zone in pack.world.zones do
 		local part = pack.zoneParts[zone.id]
-		if part and zone.kind == "beacon" then
+		if part and zone.kind == "offering" then
+			ZoneService.create(part, { onEnter = offer })
+		elseif part and zone.kind == "beacon" then
 			ZoneService.create(part, {
 				onEnter = function(player)
 					insideBeacon[player] = true

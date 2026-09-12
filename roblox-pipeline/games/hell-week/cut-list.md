@@ -20,7 +20,6 @@
 - Look: 99 Nights bar, grey/gold, lighting rig
 - Landmark prop: **HW-001 Obelisk** (black stone, gold glyphs, one skull per face, fire cap). Place in Ring B, visible from the Wick, not blocking Ring A teach. Ref: `GrokBDownloads/HW-001_Obelisk_01/2d/HW-001-obelisk-v3-oneskull-34.jpg`
 - Fire jet on the cap from `2d/HW-002-fire-v1.jpg` (particle + short light)
-- Craft bench (Bones / Fire plates) in Ring A, 8–12 studs from Wick. See `crafting-table.md`. No candles — the same HW-002 fire jet on the bench and on the Wick instead.
 - Persist: bestDay + tutorialComplete
 - Instrumentation: day reached, death reason, gifts taken, fuel in/out
 
@@ -28,6 +27,7 @@
 
 - **Five worlds, one per pentagram point** (`server/biomes.luau`): The Quiet Shore · The Still Wood · The Drowned Quarter · The Long Salt · The Kiln. Each point's triangle is dark (locked), red (open), green (mastered).
 - **Seven trials per world**, listed in a pull-down at the upper right, completed ones struck through. The Quiet Shore's seven are wired to real signals; the other four worlds are data only.
+- **The offering.** A stone bowl beside the pentagram, in sight of spawn but off the straight walk to the fire. Walk into it with a sack and the obelisk takes it; at dawn it lays out more than it took, one tier up (Ashwood → Emberwood → Heartwood). Burn it tonight or grow it for tomorrow — the same verb, and the decision is *where you stop walking*.
 
 **Budget: this puts the slice over, and the caps are how Gate A is read, so it is written down rather than absorbed.**
 
@@ -43,6 +43,8 @@
 The trials menu is collapsed by default, so what a new player actually sees is one extra button, not a fourth meter. That is an argument, not evidence. **Gate A answers it:** if a tester never opens the menu, or opens it and stops playing, the cap was right and the menu moves to a between-runs screen. `docs/BUDGET.md` says a cap moved by evidence is the system working.
 
 ## PARKED
+
+- **Craft bench** — CUT 2026-09-12 (Justin: "so i dont need a workbench"). The obelisk absorbed it: offerings go in the bowl and come back worked, so a second crafting object would be a second answer to the same question. The art and its generator stay on disk (`server/bench.luau`, `tools/bench_from_blender.py`); cut is not deleted, and a later world may want a bench that is not this one.
 
 - Zones named Gehenna, Tartarus, Abyss, Lake of Fire, Outer Darkness, Hades
 - Scripture, sermons, salvation products, Satan by name

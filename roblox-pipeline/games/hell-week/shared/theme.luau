@@ -18,6 +18,7 @@ return {
 		stalker = "Tempter",
 		lure = "Gift",
 		sack = "Sack",
+		offering = "Offering",
 	},
 
 	weightVisibleFromDay = 3,
@@ -93,6 +94,9 @@ return {
 		lightOut = "THE LIGHT WENT OUT",
 		weekDone = "YOU LASTED THE WEEK",
 		fogPeels = "THE SHORE OPENS",
+		offered = "THE OBELISK TAKES IT",
+		offeringEmpty = "NOTHING TO OFFER",
+		returned = "IT GAVE BACK MORE THAN IT TOOK",
 		challengeTitle = "TRIALS",
 		challengeDone = "TRIAL PASSED",
 		dayLabel = "Day",

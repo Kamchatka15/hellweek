@@ -256,3 +256,12 @@ The pentagram has five points, so the game has five worlds. Picked for three thi
 Point 1 faces spawn; the rest run clockwise. A point's triangle is **dark** while its world is locked, **red** once opened, **green** once mastered. Mastering means clearing that world's **seven trials**, listed in a pull-down at the upper right with the finished ones struck through. Clearing all seven opens the next world.
 
 **Pass 1 reality:** only The Quiet Shore exists, and only its seven trials are wired to real signals (first feed, hold night one, push the fog back, reach day three, reach day three having taken no Gift, reach day three untouched, last the week). The other four worlds are data so the stone has something true to draw. Building any of them is its own wave. Progress is per player and persisted, so in co-op everyone reads their own stone.
+
+### 2026-09-12 — The offering, and the bench is cut (Justin, in chat)
+"You place offerings in at the obelisk, and it returns finished or modified products to you." Built as a stone bowl on the sand beside the pentagram — in plain sight from spawn, **off** the straight walk to the fire. Walk in carrying a sack and the obelisk takes it: nothing burns, the light does not grow, and at dawn it lays out more than it took, packaged into the best tiers the total affords. **Ashwood (1) → Emberwood (3) → Heartwood (8)**, at ×1.6, so three Ashwood offered come back as an Emberwood and an Ashwood.
+
+**Why a delay and not an instant swap:** it turns the core verb into the game's own question. Fuel handed over is fuel not burned tonight, so an offering is a bet that there will be a tomorrow — which is the same bet the Gift asks in reverse. One line in `config.offering` if instant is wanted instead.
+
+**It is not a second verb.** You still walk into a thing carrying a sack. What changed is that there are now two things to walk into, and the decision is where you stop. The first build put the bowl directly on the walk-in line and it became a toll booth that took the sack of anyone heading for the fire; a few steps to the side turned the same object into a choice.
+
+**The craft bench is cut** — the obelisk absorbed it. A bench and an offering bowl are two answers to one question, and the bowl is the one attached to the thing the whole game is about. The art stays on disk.

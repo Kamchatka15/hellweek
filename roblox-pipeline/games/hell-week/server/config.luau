@@ -113,6 +113,43 @@ return {
 		nudgeAfter = 25, -- no feed by then: pulse the meter and highlight the nearest Ashwood
 	},
 
+	-- THE OFFERING (Justin, 2026-09-12). The bowl sits on the path in, before the
+	-- stone: burn your sack tonight for light you need now, or give it to the obelisk
+	-- and take back more of it at dawn. The ladder is what "better items" means —
+	-- value in, richer goods out, packaged into the best tiers the total affords.
+	offering = {
+		multiplier = 1.6, -- 3 Ashwood in -> ~4.8 back: one Emberwood and an Ashwood
+		scatter = 10, -- studs from the obelisk that the worked goods are laid out
+		tiers = {
+			{
+				id = "ashwood",
+				label = "Ashwood",
+				value = 1,
+				size = Vector3.new(1.1, 1.1, 3.4),
+				color = Color3.fromRGB(226, 224, 212),
+				material = Enum.Material.Wood,
+			},
+			{
+				id = "emberwood",
+				label = "Emberwood",
+				value = 3,
+				size = Vector3.new(1.3, 1.3, 3.6),
+				color = Color3.fromRGB(196, 118, 52),
+				material = Enum.Material.Wood,
+				glow = { color = Color3.fromRGB(255, 150, 60), brightness = 1.1, range = 9 },
+			},
+			{
+				id = "heartwood",
+				label = "Heartwood",
+				value = 8,
+				size = Vector3.new(1.6, 1.6, 4),
+				color = Color3.fromRGB(255, 196, 64),
+				material = Enum.Material.Neon,
+				glow = { color = Color3.fromRGB(255, 200, 90), brightness = 1.8, range = 14 },
+			},
+		},
+	},
+
 	score = { perDay = 1000, perFuel = 10, perLure = 200 },
 
 	runEndPause = 8,
