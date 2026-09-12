@@ -133,6 +133,7 @@ The point: answer *"why is this genre popular, why do players keep playing, and 
 - **KPI contract** (what "working" means, agreed before code):
   - join → first reward < 60s for ≥90% of new players
   - D1 ≥ 20% to proceed, ≥ 25% to spend on ads (calibrate against Creator Hub's similar-game benchmarks once we have 100+ DAU — rules of thumb until then)
+    *Reconciled 2026-09-12:* these are **tiers**, not gates. The doctrine's Gate B floor governs (§5: ~12%+ is enough to test small spend; under ~8–10% is death). Read 20% as "good" and 25% as "hit territory" — never as the bar a title must clear to continue.
   - avg session ≥ 8 min at v1; 19+ min is hit territory
   - D7 ≥ 8–10%; payer conversion and ARPDAU tracked from day one, judged at week 4, not day 3
 → **G2: you approve prices + targets.**
@@ -169,7 +170,7 @@ The point: answer *"why is this genre popular, why do players keep playing, and 
 2. **Automated playtest loop (Studio MCP), every build:** start playtest → spawn → reach first reward (timed — must be <60s) → open shop → test-mode purchase → verify receipt ledger → console clean of errors → screenshots at 0/1/3/10 min. I review the screenshots against one question: *would a 9-year-old know what to tap?*
 3. **Unit tests** (TestEZ) green on every merge.
 4. **The Hunter protocol (the irreplaceable part):** session 1 — Hunter plays, we watch silently, notes on the first 60 seconds; session 2 — think-aloud; session 3 — friends session (do they explain it to each other? what do they show off?). Three questions after: what was the best moment? what confused you? would your friends play this tomorrow? **No AI substitutes for this.** DevForum "looking for playtesters" + Discord tester servers widen the pool for free.
-5. **Soft launch** unlisted/link-only → measure against the G2 KPI contract → iterate the hook until D1 clears the bar **before** any money goes to ads. If D1 < 15% after three hook iterations: archive, write down learnings, next pitch.
+5. **Soft launch** → measure against the G2 KPI contract → iterate the hook until D1 clears the bar **before** any money goes to ads. *Clarified 2026-09-12:* **unlisted / link-only is for Gate A** (persistence test, friends, Hunter's cohort). **Gate B needs 200–500 strangers, and an unlisted place gets none** — so Gate B is a **listed publish with zero spend**: Roblox's own new-experience impressions are the cheapest cold traffic there is and exactly the algorithm we want to test, widened for free by DevForum playtest posts and tester Discords. Listing is a G5 click. If D1 sits under the doctrine's floor after three honest hook iterations: archive, write the closeout, next pitch.
 
 ---
 
@@ -265,7 +266,7 @@ Needs you + the Mac (~20 minutes, I'll drive when connected):
   - *2026-09-11: DONE — Studio MCP enabled in Assistant settings; Claude Desktop wired via Studio quick-connect (restart the Claude app to load it); `.mcp.json` added to this repo so Claude Code CLI sessions pick it up automatically.*
 - [ ] Install Rojo plugin in Studio + `rojo` CLI (or Aftman) on the Mac
 - [ ] Creator Hub: confirm the group/account that will own experiences; Open Cloud API key (least privilege) stored in a password manager — never in chat, never in the repo
-- [ ] Decide first target: a new genre via full Phase R, or migrate Hunter's Layer Mine into the repo and run it through Phases D→O as the pilot (good dry run; his call too)
+- [x] Decide first target — *2026-09-11: Fat Man Gets Rich (Justin). Layer Mine parked with its research and mesh kit retained. See `docs/IDEA_LOG.md`.*
 - [ ] Optional: pick the image tool at G4 time, not before
 
 *Standing rule for every future session: re-verify platform facts (§1–§2 numbers, policies) if more than ~2 months old, before acting on them.*

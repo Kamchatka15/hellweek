@@ -32,3 +32,13 @@ A stranger, with nobody in voice chat, completes: **collect coins → spend them
 - Does the flood come from a triggered event, a rare spawn, or a player action?
 - Is the coin pile visible to other players (status), or private (HUD only)?
 - What is the first purchase, concretely?
+
+
+## Hypotheses this title is testing (proposed 2026-09-12 — Justin corrects, never fills)
+
+Every title carries one or two predictions specific enough to be wrong, so the closeout has something to be wrong against (`docs/SYSTEM_ARCHITECTURE.md` §5).
+
+1. **"A first payout that overfills the bag teaches banking with no tutorial."** Settled by Gate A's comprehension test: 2 of 3 fresh testers bank unprompted within 60s. *Refuted if* they stand on the pad confused when the bag is full.
+2. **"Capped offline earnings are enough of a reason to return for a snack-shape game — no daily-login reward needed."** Settled at Gate B by D1 return against the doctrine floor, with offline credit visible in the funnel events. *Refuted if* D1 sits under the floor while the economy sim's fix (offline ≤ 0.5 bursts/hour) is in place — then the return hook, not the tuning, is wrong.
+
+Both go to `evidence/ledger/` at closeout as confirmed / refuted / inconclusive.

@@ -1,21 +1,37 @@
 #!/bin/sh
-# rbx_guard backstop. Claude Code hooks only fire inside Claude Code; this fires
-# for every commit, whoever wrote the code. Bypass (rarely): git commit --no-verify
+# Backstop 1: rbx_guard on staged Luau (R1-R7). Backstop 2: rojo build + selene + stylua.
+# Claude Code hooks only fire inside Claude Code; this fires for every commit, whoever wrote it.
+# Bypass (rarely, and say why in the commit message): git commit --no-verify
 ROOT=$(git rev-parse --show-toplevel)
+PIPE="$ROOT/roblox-pipeline"
+export PATH="$HOME/.rokit/bin:$PATH"
+
 FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.luau?$' || true)
-[ -z "$FILES" ] && exit 0
-TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-PATHS=""
-for f in $FILES; do
-  mkdir -p "$TMP/$(dirname "$f")"
-  git show ":$f" > "$TMP/$f" 2>/dev/null || continue
-  PATHS="$PATHS $TMP/$f"
-done
-[ -z "$PATHS" ] && exit 0
-# shellcheck disable=SC2086
-if ! (cd "$ROOT" && python3 "$ROOT/.claude/hooks/rbx_guard.py" $PATHS); then
-  echo ""
-  echo "COMMIT BLOCKED by rbx_guard. Paths above are staged copies; fix the real file."
-  exit 1
+if [ -n "$FILES" ]; then
+  TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+  PATHS=""
+  for f in $FILES; do
+    mkdir -p "$TMP/$(dirname "$f")"
+    git show ":$f" > "$TMP/$f" 2>/dev/null || continue
+    PATHS="$PATHS $TMP/$f"
+  done
+  # shellcheck disable=SC2086
+  if [ -n "$PATHS" ] && ! (cd "$ROOT" && python3 "$ROOT/.claude/hooks/rbx_guard.py" $PATHS); then
+    echo ""; echo "COMMIT BLOCKED by rbx_guard. Paths above are staged copies; fix the real file."; exit 1
+  fi
 fi
+
+# Build + lint + format only when something under roblox-pipeline changed.
+CHANGED=$(git diff --cached --name-only | grep -E '^roblox-pipeline/(src|games|default\.project\.json|selene\.toml|stylua\.toml)' || true)
+[ -z "$CHANGED" ] && exit 0
+cd "$PIPE" || exit 0
+if command -v rojo >/dev/null 2>&1; then
+  rojo build default.project.json -o "${TMPDIR:-/tmp}/rbx-precommit.rbxl" >/dev/null 2>&1 || { echo "COMMIT BLOCKED: rojo build failed (run: rojo build default.project.json)"; exit 1; }
+else echo "pre-commit: rojo not on PATH here — build check skipped (fine on a non-Mac shell; not fine on the Mac)"; fi
+if command -v selene >/dev/null 2>&1; then
+  selene src games >/dev/null 2>&1 || { echo "COMMIT BLOCKED: selene found problems (run: selene src games)"; exit 1; }
+else echo "pre-commit: selene not on PATH here — lint skipped"; fi
+if command -v stylua >/dev/null 2>&1; then
+  stylua --check src games >/dev/null 2>&1 || { echo "COMMIT BLOCKED: stylua --check failed (run: stylua src games)"; exit 1; }
+else echo "pre-commit: stylua not on PATH here — format check skipped"; fi
 exit 0

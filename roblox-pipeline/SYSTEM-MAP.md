@@ -167,7 +167,7 @@ xychart-beta
 
 ## 9 · Kill-or-scale decision — the portfolio gate
 
-The unemotional rule that keeps us fast. Soft-launch D1 decides the game's fate. Above 25%, pour fuel on it. Below 15% after three honest hook rewrites, kill it the same week — farewell event, write the learnings, reuse the code modules on the next pitch. A fast funeral is a win: it's what frees us to catch the next wave.
+The unemotional rule that keeps us fast. Soft-launch D1 decides the game's fate. Above 25%, pour fuel on it. Below 15% after three honest hook rewrites, kill it the same week — farewell event, write the learnings, reuse the code modules on the next pitch. A fast funeral is a win: it's what frees us to catch the next wave. *Reconciled 2026-09-12: the numbers here are tiers above the doctrine's Gate B floor (~12%+ OK to test small spend, under ~8–10% is death); where they disagree the doctrine governs and the doctrine's floor is the kill line.*
 
 ```mermaid
 flowchart TD

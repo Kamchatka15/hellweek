@@ -17,6 +17,10 @@
 
 Hunter may be a subject for a title he had **no** design input on. That is worth tracking honestly in the result.
 
+## Not the same test as the Hunter protocol
+
+`PIPELINE.md` §7.4 ("the Hunter protocol": Hunter plays across three sessions, think-aloud, friends session, *what was the best moment / what confused you / would your friends play tomorrow*) is the **G3 fun-check** — is it fun, is it clippable. This file is **Gate A's comprehension check** — is it understood by someone with no context. Both run. Different subjects, different questions, and neither replaces the other.
+
 ## The script — run it exactly, every time
 
 Same questions every time is the point. Deviating makes results incomparable, which defeats the ledger.
