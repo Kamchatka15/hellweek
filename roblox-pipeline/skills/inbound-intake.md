@@ -20,9 +20,28 @@ Extracts safely (path-traversal and size guards), inventories, and writes `inbou
 
 The packet is never a second source of truth. Once translated, the real copy lives at its proper path under `roblox-pipeline/`; `inbound/` is a dated archive nobody reads again.
 
+## Fast path — when the packet already speaks our language
+
+Grok has read the factory PDF and knows the gates, the budget and the file shapes, so a packet from it will often arrive **already in our structure**. `intake_zip.py` detects this and says so in the manifest (six-question brief, cut list with a line, teardowns on our template, hypotheses, budget awareness, gate awareness).
+
+When it does, **do not rebuild what already exists.** Switch from translating to verifying:
+
+| Already there | Do this instead of re-deriving |
+|---|---|
+| A six-question brief | Adopt it. Add the ledger query and the two hypotheses if missing |
+| A cut list with a line already drawn | **Keep their line.** Check it against the budget, note any overage in one row, and give it to Justin to move — he still moves it, but he moves *their* line, not a fresh one |
+| Teardowns on our template | Adopt the shapes. **Verify the numbers** — CCU, wave stage, like ratio — against the trackers ourselves. Numbers are the one thing never taken on trust, from anyone |
+| Economy numbers | Adopt the *shape*, re-run `tools/econ_sim.py`. Simulation is cheap and it caught a day-3 exhaustion in numbers I wrote myself |
+| A style spec | Adopt it. Fill the Creator Store shelf against it if IDs are missing |
+| Named Pass 1 / Pass 2 | Adopt as written |
+
+**Then spend the saved time on the holes**, not on re-doing the work. A packet that arrives with a brief and a cut list should reach Wave 3 in the same sitting.
+
+Two things are still ours regardless of how well-shaped the packet is: **numbers get verified** (tracker stats, economy sims) and **code gets written on our engine**. Neither is distrust — a number nobody checked is a rumour whoever wrote it, and pasted Luau has not been through R1–R7.
+
 ## Translate onto the file contracts
 
-A packet will not be in our shape. Convert it — keep the substance, drop their structure.
+When the fast path does not apply, the packet will not be in our shape. Convert it — keep the substance, drop their structure.
 
 | Packet has | Becomes | Note |
 |---|---|---|
