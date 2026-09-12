@@ -34,9 +34,9 @@ Standing order: **propose freely, switch rarely.** Any genuinely good game idea 
 
 ## Entries
 
-### 2026-09-11 — Peter Gets Rich — `Active`
+### 2026-09-11 — Fat Man Gets Rich — `Active`
 
-Promoted to Active by Justin on 2026-09-11. Brief: `games/peter-gets-rich/brief.md`.
+Promoted to Active by Justin on 2026-09-11. Brief: `games/fat-man-gets-rich/brief.md`.
 
 - **Hook (1 sentence):** One action sends hundreds of coins cascading and you sweep them up — the payout is physical, not a number in a corner.
 - **Why now:** Collect/sweep loops read instantly in a 2-second clip and survive the 2026 discovery re-weighting toward return rather than click, because the loop is repeatable rather than novelty-dependent.
@@ -50,4 +50,4 @@ Promoted to Active by Justin on 2026-09-11. Brief: `games/peter-gets-rich/brief.
 
 ### 2026-09-11 — Layer Mine — `Parked`
 
-Parked when Peter Gets Rich was promoted. Not killed and not a Gate decision — a title swap by Justin. Research (`research/2026-09-11-mining-genre-winners.md`) and the `LM_Station_SurfaceKiosk_01` mesh kit stay in the repo and are still valid if it comes back.
+Parked when Fat Man Gets Rich was promoted. Not killed and not a Gate decision — a title swap by Justin. Research (`research/2026-09-11-mining-genre-winners.md`) and the `LM_Station_SurfaceKiosk_01` mesh kit stay in the repo and are still valid if it comes back.

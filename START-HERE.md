@@ -39,10 +39,14 @@ Roblox Business/
    ├─ SYSTEM-MAP.md           ← diagram SOURCE (renders on GitHub; feeds system-map.html)
    ├─ default.project.json    ← Rojo map: which folder becomes which Studio service
    ├─ .mcp.json               ← MCP server wiring (Studio)
+   ├─ rokit.toml              ← pinned toolchain (rojo, selene, stylua). `rokit install` sets up a fresh Mac.
+   ├─ selene.toml / stylua.toml ← lint + format config. Both must be clean before a commit.
    │
    ├─ docs/                   ← doctrine and durable decisions
    │  ├─ ROBLOX_SUCCESS_LOGIC.md   the standing orders (outranks every other file)
+   │  ├─ GAME_FACTORY.md           engine + content-pack split; how "create a ___ game" becomes 2 hours
    │  ├─ IDEA_LOG.md               all game ideas, with status: Logged → Shortlisted → Active
+   │  ├─ runs/                     one log per build session: what was read, refused, stalled, written
    │  └─ reference/GROK_ASSIST_HANDOFF.md   the original Grok handoff doc, kept for history
    │
    ├─ skills/                 ← 8 BINDING convention files, read as rules not suggestions
@@ -60,12 +64,29 @@ Roblox Business/
    │  ├─ 2026-09-11-mining-genre-winners.md   dated genre drop
    │  └─ patterns/                 reusable mechanics teardowns (leaderboards, live-events)
    │
-   ├─ specs/TEMPLATE.md       ← module spec format; every module gets one before code
-   ├─ src/                    ← THE game code. server / client / shared. Rojo-mapped to Studio.
+   ├─ specs/                  ← module spec format + dated slice specs, written before the code
+   │
+   ├─ games/                  ← CONTENT PACKS. One folder per title; the only per-game work.
+   │  └─ fat-man-gets-rich/        ACTIVE TITLE
+   │     ├─ brief.md                  the six-question input; written before any code
+   │     ├─ server/config.luau        every tuning number (server-only — prices never replicate)
+   │     ├─ server/world.luau         the grey-box layout, as data; built at run time
+   │     ├─ server/sku.luau           DRAFT price ladder. Wired to nothing. Gate 5 is a human click.
+   │     └─ shared/theme.luau         names, colors, copy (replicated — the HUD needs it)
+   │
+   ├─ src/                    ← THE engine. Rojo-mapped to Studio. A new game must not change it.
+   │  ├─ core/                     the 11 engine services (data, remotes, economy, progression,
+   │  │                            pickups, zones, rewards, analytics, loader, loop, sync)
+   │  ├─ shared/                   Signal, Net, Format
+   │  ├─ server/                   boot order, nothing else
+   │  └─ client/                   HUD + flood FX (UIKit here is engine; needs its own mount)
    ├─ art/                    ← working art for the active title (see README inside)
    ├─ liveops/                ← post-launch operating material (see README inside)
    └─ tools/
       ├─ build_map.mjs            regenerates system-map.html from SYSTEM-MAP.md
+      ├─ studio_sync.py           serves the Rojo tree as JSON so Studio MCP can pull it with no
+      │                           human click — the Rojo plugin's Connect button is editor UI,
+      │                           and MCP simulated input only reaches play mode
       └─ meshimport/              glb → Roblox import scripts + IMPORT.md
 ```
 
@@ -78,8 +99,10 @@ Roblox Business/
 | Doctrine / standing orders | `roblox-pipeline/docs/` | Loaded by path from `CLAUDE.md` every session |
 | A new game idea — any time, any genre | `roblox-pipeline/docs/IDEA_LOG.md` | Pitched immediately, never acted on without Justin |
 | A binding convention | `roblox-pipeline/skills/` | Add the file, then reference it from `CLAUDE.md` |
-| Game code | `roblox-pipeline/src/` | The only home of code. Studio MCP edits get mirrored back here same session. |
+| Engine code (reused by every game) | `roblox-pipeline/src/core/` | The only home of code. Studio MCP edits get mirrored back here same session. |
+| Anything specific to one title | `roblox-pipeline/games/<slug>/` | Tuning, world, theme, SKUs. If a new game forces an `src/core/` change, make the change generic and fold it into the engine — never leave it in one game. |
 | Module design | `roblox-pipeline/specs/` | Written before the code, from `TEMPLATE.md` |
+| What happened in a build session | `roblox-pipeline/docs/runs/` | `YYYY-MM-DD-run-NN.md`. What was read, refused, stalled on, and written from scratch. |
 | Market / genre research | `roblox-pipeline/research/` | Dated filenames: `YYYY-MM-DD-topic.md` |
 | Reusable mechanic teardown | `roblox-pipeline/research/patterns/` | Shapes we copy; never assets we copy |
 | Work-in-progress art | `roblox-pipeline/art/` | Approved Bot art comes from `GrokBDownloads/` instead |

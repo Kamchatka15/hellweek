@@ -1,12 +1,15 @@
 {
-  "name": "game",
+  "name": "fat-man-gets-rich",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
+      "Core": { "$path": "src/core" },
+      "Pack": { "$path": "games/fat-man-gets-rich/server" },
       "Server": { "$path": "src/server" }
     },
     "ReplicatedStorage": {
-      "Shared": { "$path": "src/shared" }
+      "Shared": { "$path": "src/shared" },
+      "Pack": { "$path": "games/fat-man-gets-rich/shared" }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {

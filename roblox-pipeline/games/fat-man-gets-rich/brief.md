@@ -1,18 +1,19 @@
-# GAME BRIEF — Peter Gets Rich
+# GAME BRIEF — Fat Man Gets Rich
 
 > Input to the pipeline. Written before any code (`docs/GAME_FACTORY.md` §2).
 > Status: **ACTIVE TITLE** as of 2026-09-11. Layer Mine is parked (research + SurfaceKiosk mesh kit retained).
 
 | Field | Answer |
 |---|---|
-| Working title | Peter Gets Rich |
-| Slug | `peter-gets-rich` |
+| Working title | Fat Man Gets Rich |
+| Slug | `fat-man-gets-rich` |
 | Loop verb | **Collect** (coin gathering) |
 | Hook (2 seconds) | **Coin flood** — one action sends hundreds of coins cascading; the player sweeps them up |
 | Reason to open it tomorrow | **Offline earnings** — coins accrue while away, collected on login |
 | Session shape | **Snack** (3–5 minutes) |
 | Monetization | **Full fair-play catalog** — one overdelivering first purchase (25–99 R$) + acceleration SKUs |
 | Art seed | TBD — grey-box for the first slice |
+| Title change | `peter-gets-rich` → `fat-man-gets-rich` on 2026-09-11 (Justin). The original reference was Peter Griffin; Family Guy is Fox/Disney IP and was refused at build time. The rename removes the conflict — the mascot is an original everyman. |
 
 ## What the first session must do
 
