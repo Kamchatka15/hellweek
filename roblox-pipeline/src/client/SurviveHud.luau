@@ -16,9 +16,14 @@ local TweenService = game:GetService("TweenService")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Format = require(Shared.Format)
 local theme = require(ReplicatedStorage:WaitForChild("Pack").theme)
+local OpeningAct = require(script.Parent.OpeningAct)
 local UIKit = require(script.Parent.UIKit)
 
 local SurviveHud = {}
+
+-- While the opening act owns the screen, toasts wait and the fade-in is the act's.
+local openingActive = false
+local heldToasts: { { message: string, tone: string } } = {}
 
 local gui: ScreenGui
 local dayValue: TextLabel
@@ -164,6 +169,10 @@ end
 -- ---------------------------------------------------------------- moments
 
 function SurviveHud.toast(message: string, tone: string)
+	if openingActive then
+		table.insert(heldToasts, { message = message, tone = tone })
+		return
+	end
 	local color = theme.uiText
 	if tone == "good" then
 		color = theme.uiGood
@@ -221,7 +230,9 @@ end
 
 function SurviveHud.fx(kind: string, payload: any?)
 	if kind == "fadeIn" then
-		fadeFromBlack(1.4)
+		if not openingActive then
+			fadeFromBlack(1.4)
+		end
 	elseif kind == "downed" then
 		blackout.BackgroundTransparency = 0.1
 		task.delay(0.9, function()
@@ -419,7 +430,37 @@ function SurviveHud.init(): ScreenGui
 		ZIndex = 9,
 		Parent = gui,
 	})
-	fadeFromBlack(1.4)
+	if theme.opening then
+		openingActive = true
+		-- Feet stay still while the card is up; the world is black anyway.
+		local controls = nil
+		pcall(function()
+			local playerScripts = Players.LocalPlayer:WaitForChild("PlayerScripts", 5)
+			local module = playerScripts and playerScripts:WaitForChild("PlayerModule", 5)
+			controls = module and require(module):GetControls()
+			if controls then
+				controls:Disable()
+			end
+		end)
+		OpeningAct.play(gui, theme.opening, function()
+			openingActive = false
+			fadeFromBlack(1.4)
+			if controls then
+				pcall(function()
+					controls:Enable()
+				end)
+			end
+			local queued = heldToasts
+			heldToasts = {}
+			for index, item in queued do
+				task.delay(1.2 + (index - 1) * 3.4, function()
+					SurviveHud.toast(item.message, item.tone)
+				end)
+			end
+		end)
+	else
+		fadeFromBlack(1.4)
+	end
 
 	RunService.RenderStepped:Connect(function()
 		tickClock()

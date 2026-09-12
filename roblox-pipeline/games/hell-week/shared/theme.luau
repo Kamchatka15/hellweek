@@ -22,6 +22,34 @@ return {
 
 	weightVisibleFromDay = 3,
 
+	-- The opening act (Justin, 2026-09-12): a title card over the black at every join,
+	-- skippable with a tap. Narration is the largest register; the voice is the bold,
+	-- blood-drenched one; the meaning sits quiet beneath it. NOTE: this reopens two of
+	-- the brief's own rules on purpose — "no paragraph in the first minute" (§4) and
+	-- the no-angels/no-heaven register (§1.1). Owner's call, recorded in brief.md.
+	opening = {
+		narration = {
+			"You awake as if from a dream.",
+			"You are not in your bed.",
+			"Then you hear a dark, ancient voice speak...",
+		},
+		voice = {
+			"Ten shemen aût akhu nu pet",
+			"nety wenes nen em pet",
+			"Per pen en keku pu",
+			"qastuef em nuḥu en khet nesret",
+		},
+		meaningLead = "Somehow you know it means:",
+		meaning = "Whither is fled the glory of the angels, which we should have in heaven? "
+			.. "This is a home of darkness, terribly bound with fettering bonds of fire.",
+		skipHint = "TAP TO SKIP",
+		narrationColor = Color3.fromRGB(214, 210, 200),
+		voiceColor = Color3.fromRGB(168, 8, 8),
+		voiceStroke = Color3.fromRGB(38, 0, 0),
+		dripColor = Color3.fromRGB(118, 4, 4),
+		meaningColor = Color3.fromRGB(196, 186, 170),
+	},
+
 	-- Five style lines (games/hell-week/theme.md): grey sand / black water + wick gold.
 	-- The Gift's bloom is the only competing warm, and it is deliberately WRONG — a
 	-- pink-orange that does not belong to the wick.

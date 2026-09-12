@@ -219,3 +219,11 @@ Score (compute, show at run end, no full board UI required in Pass 1):
 - **Owned names:** none in the design. Title, zone and every proper noun are original; "99 Nights" appears only as a comp. The PDF flag ("doge7") was a byte string inside a binary PDF, not text.
 - **Coercion:** none. No timers that punish absence, no "invite N friends", no locked days.
 - **Religious register:** settled answer §1.1 holds — nothing in `theme.luau` copy references scripture, salvation, or any parked place name.
+
+
+## Owner amendments after intake
+
+### 2026-09-12 — Opening act (Justin, in chat)
+An opening act plays over the black at **every join**, skippable with a tap after 1.5 s (`shared/theme.luau` → `opening`, rendered by `src/client/OpeningAct.luau`): three narration lines (largest, pale), the four-line voice (bold horror face, blood-red with running drips), then "Somehow you know it means:" and the meaning in a quiet serif. The HUD holds any toast until the act ends, the character's controls are off while it plays, and the world fades in after.
+
+This **reopens two of the brief's own rules on purpose**, by the owner: §4's "no paragraph, no cutscene in the first minute", and settled answer §1.1's register (the meaning names angels, heaven and bonds of fire — it is Old English verse, not scripture, but it is the register the settled answer kept off the tile). Recorded here so Gate A can weigh it: the act costs ~23 s of Day 1's 90 s clock when watched to the end, and the comprehension script should note whether kids skip it.
