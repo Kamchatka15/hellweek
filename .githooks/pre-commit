@@ -1,0 +1,21 @@
+#!/bin/sh
+# rbx_guard backstop. Claude Code hooks only fire inside Claude Code; this fires
+# for every commit, whoever wrote the code. Bypass (rarely): git commit --no-verify
+ROOT=$(git rev-parse --show-toplevel)
+FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.luau?$' || true)
+[ -z "$FILES" ] && exit 0
+TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+PATHS=""
+for f in $FILES; do
+  mkdir -p "$TMP/$(dirname "$f")"
+  git show ":$f" > "$TMP/$f" 2>/dev/null || continue
+  PATHS="$PATHS $TMP/$f"
+done
+[ -z "$PATHS" ] && exit 0
+# shellcheck disable=SC2086
+if ! (cd "$ROOT" && python3 "$ROOT/.claude/hooks/rbx_guard.py" $PATHS); then
+  echo ""
+  echo "COMMIT BLOCKED by rbx_guard. Paths above are staged copies; fix the real file."
+  exit 1
+fi
+exit 0
