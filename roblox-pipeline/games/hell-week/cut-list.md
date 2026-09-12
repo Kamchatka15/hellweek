@@ -27,7 +27,10 @@
 
 - **Four worlds on four pentagram points** (`server/biomes.luau`): The Ashen Waste · The Still Wood · The Drowned Quarter · The Kiln. Each point's triangle is dark (locked), red (open), green (mastered). **The fifth point is the offering table.**
 - **Seven trials per world**, listed in a pull-down at the upper right, completed ones struck through. The Quiet Shore's seven are wired to real signals; the other four worlds are data only.
-- **The offering.** The fifth pentagram point, a raised stone table with a gold lip, right of centre and off the straight walk to the fire. Walk into it with a sack and the obelisk takes it; at dawn it lays out more than it took, one tier up (Ashwood → Emberwood → Heartwood). Burn it tonight or grow it for tomorrow — the same verb, and the decision is *where you stop walking*.
+- **The offering.** The fifth pentagram point: a waist-high stone table on four legs with a gold lip and a hollow sunk into it.
+- **Teepees with chests**, 6–9 per world. A chest gives several things at once and is the only place crafted tiers appear unmade.
+- **Held things:** Bone Knife (harvest), Brand (carried light + 9-stud ward), **Sigil** (the artifact of faith, 19-stud ward). Crafted at the obelisk. **None of them kill** — see below.
+- **The 360° world swap.** Mastering a world rebuilds the ground and scenery around the player. All four worlds generated. Walk into it with a sack and the obelisk takes it; at dawn it lays out more than it took, one tier up (Ashwood → Emberwood → Heartwood). Burn it tonight or grow it for tomorrow — the same verb, and the decision is *where you stop walking*.
 
 **Budget: this puts the slice over, and the caps are how Gate A is read, so it is written down rather than absorbed.**
 
@@ -50,7 +53,8 @@ The trials menu is collapsed by default, so what a new player actually sees is o
 - Scripture, sermons, salvation products, Satan by name
 - Classes / diamond lobby shop
 - Rescue sleepers, beds, day multiplier
-- Weapons, flashlight, combat
+- Weapons that KILL the Tempter, and combat. Reopened by Justin 2026-09-12 ("weapons and tools to defend himself") and answered with **wards, not kills**: in this genre the threat being unkillable is the game, and a weapon that ends it ends the loop with it. A real kill mechanic is a different night and wants rebuilding, not bolting on — say the word.
+- Flashlight (the Brand replaced it)
 - Extra bosses / biomes
 - Weekly leaderboard UI (compute score only)
 - Squad oil, collections

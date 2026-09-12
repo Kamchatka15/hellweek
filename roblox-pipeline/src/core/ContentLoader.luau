@@ -21,6 +21,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ContentLoader = {}
 
 local WORLD_FOLDER = "World"
+local SCENERY_FOLDER = "Scenery"
 
 local function fail(message: string): never
 	error(`[ContentLoader] invalid content pack: {message}`, 0)
@@ -242,6 +243,32 @@ function ContentLoader.tweenLighting(spec: any, seconds: number)
 				TweenService:Create(instance, info, props):Play()
 			end)
 		end
+	end
+end
+
+--- Replace everything in World/Scenery with `specs`. The fixtures — the stone, the
+--- pentagram, the table, the light — are NOT in here and survive the swap, which is
+--- what lets a world change 360 degrees around a player who has not moved.
+function ContentLoader.buildScenery(pack: any, specs: { any })
+	local existing = pack.folder:FindFirstChild(SCENERY_FOLDER)
+	if existing then
+		existing:Destroy()
+	end
+	local folder = Instance.new("Folder")
+	folder.Name = SCENERY_FOLDER
+	folder.Parent = pack.folder
+	for _, spec in specs do
+		block(spec, folder)
+	end
+	return folder
+end
+
+--- Repaint the ground. A world swap changes what is underfoot as well as what is on it.
+function ContentLoader.setFloor(pack: any, spec: any)
+	local floor = pack.folder:FindFirstChild("Floor")
+	if floor and floor:IsA("BasePart") and typeof(spec) == "table" then
+		floor.Color = spec.color or floor.Color
+		floor.Material = spec.material or floor.Material
 	end
 end
 

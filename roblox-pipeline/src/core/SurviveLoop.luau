@@ -29,6 +29,7 @@ local RemoteGuard = require(Core.RemoteGuard)
 local SackService = require(Core.SackService)
 local StalkerService = require(Core.StalkerService)
 local StateSync = require(Core.StateSync)
+local ToolService = require(Core.ToolService)
 local ZoneService = require(Core.ZoneService)
 
 local Shared = game:GetService("ReplicatedStorage").Shared
@@ -70,6 +71,11 @@ local nudgeHighlight: Highlight? = nil
 -- Dawn hands the bowl back, and the clock reaches that point before the verb block is
 -- read, so it is declared here and filled in below.
 local returnOfferings: () -> ()
+
+-- Which world's scenery is standing right now. The obelisk never moves; this is the
+-- only thing that changes when a world is mastered.
+local activeWorldId: string = ""
+local activeFog: { number } = {}
 
 local fogRing: { BasePart } = {}
 local stalkerModel: Model? = nil
@@ -333,7 +339,7 @@ local function setFogRadius(radius: number)
 end
 
 local function fogRadiusForLevel(level: number): number
-	local list = config.fog.radiusByLevel
+	local list = if #activeFog > 0 then activeFog else config.fog.radiusByLevel
 	return list[math.clamp(level + 1, 1, #list)]
 end
 
@@ -441,6 +447,50 @@ local function spawnRing(resource: any, ring: any)
 	end
 end
 
+--- A chest in the mouth of each teepee. The scenery says where a teepee IS; what is
+--- inside it and when it comes back is the loop's business, so a chest can restock
+--- between runs without the world being rebuilt.
+local function spawnChests()
+	local biome = pack.world.biomes and pack.world.biomes[activeWorldId]
+	local spots = biome and biome.data and biome.data.teepees
+	if not spots or not config.chest then
+		return
+	end
+	for index, at in spots do
+		local facing = math.atan2(-at.Z, -at.X) -- the mouth looks back at the obelisk
+		local mouth = at + Vector3.new(math.cos(facing), 0, math.sin(facing)) * config.chest.standOff
+		PickupService.place(Vector3.new(mouth.X, config.groundY, mouth.Z), {
+			name = theme.names.chest,
+			value = 1,
+			size = Vector3.new(1.6, 1.6, 1.6),
+			color = Color3.new(1, 1, 1),
+			meta = { chest = true, index = index },
+			rotation = Vector3.new(0, math.deg(facing), 0),
+			decorate = function(part)
+				part.Transparency = 1
+				for pi, spec in config.chest.parts do
+					local piece = Instance.new("Part")
+					piece.Name = `Chest_{pi}`
+					piece.Anchored = true
+					piece.CanCollide = false
+					piece.CanTouch = false
+					piece.CanQuery = false
+					piece.Shape = spec.shape or Enum.PartType.Block
+					piece.Size = spec.size
+					piece.Color = spec.color
+					piece.Material = spec.material or Enum.Material.Wood
+					local rot = spec.rotation or Vector3.zero
+					piece.CFrame = part.CFrame
+						* CFrame.new(spec.offset)
+						* CFrame.Angles(math.rad(rot.X), math.rad(rot.Y), math.rad(rot.Z))
+					piece.Parent = part
+				end
+				smallLabel(part, theme.copy.chestLabel)
+			end,
+		})
+	end
+end
+
 --- Lay out every resource whose ring the obelisk has opened. `onlyLevel` restocks just
 --- the band that a fog peel has revealed.
 local function spawnOpenRings(onlyLevel: number?)
@@ -455,6 +505,9 @@ local function spawnOpenRings(onlyLevel: number?)
 			end
 			spawnRing(resource, ring)
 		end
+	end
+	if onlyLevel == nil then
+		spawnChests()
 	end
 end
 
@@ -500,7 +553,11 @@ end
 local function setMood(night: boolean)
 	local c = config.night
 	local seconds = c.transition
-	ContentLoader.tweenLighting(if night then c.rig else pack.world.lighting, seconds)
+	local biome = pack.world.biomes and pack.world.biomes[activeWorldId]
+	local rig = if biome
+		then (if night then biome.night else biome.day)
+		else (if night then c.rig else pack.world.lighting)
+	ContentLoader.tweenLighting(rig, seconds)
 
 	local scale = if night then 1 else (c.campGlowByDay or 0.15)
 	local info = TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
@@ -696,6 +753,31 @@ local function onPhase(name: string, cycle: number, length: number)
 	StateSync.requestAll()
 end
 
+--- Swap the world 360 degrees around the player. The obelisk, its stone, the points
+--- and the table stay exactly where they are; the ground repaints, the scenery is torn
+--- down and rebuilt from the new world's data, the fog re-rings and the lighting
+--- becomes that world's. Nobody is teleported and nothing is reloaded.
+local function swapBiome(worldId: string)
+	local biome = pack.world.biomes and pack.world.biomes[worldId]
+	if not biome or worldId == activeWorldId then
+		return
+	end
+	activeWorldId = worldId
+	activeFog = biome.fog or config.fog.radiusByLevel
+	ContentLoader.setFloor(pack, biome.floor)
+	ContentLoader.buildScenery(pack, biome.data.scenery)
+	setFogRadius(fogRadiusForLevel(BeaconService.level()))
+	setMood(run.phase == "night")
+	PickupService.clear()
+	spawnOpenRings(nil)
+	toastAll("biome", theme.copy.worldChanged, "good")
+	fxAll("biome", { world = worldId })
+	for _, player in Players:GetPlayers() do
+		AnalyticsService.track(player, `world_{worldId}`, 1)
+	end
+	StateSync.requestAll()
+end
+
 startRun = function()
 	PickupService.clear()
 	run.bowl = {}
@@ -808,6 +890,25 @@ function returnOfferings()
 	if next(run.bowl) == nil then
 		return
 	end
+	-- Drop any tool recipe whose tool everyone already holds, so it stops consuming a
+	-- stone and a stick every dawn to make a knife nobody can be given.
+	local wanted = {}
+	for _, recipe in config.recipes do
+		local needed = recipe.tool == nil
+		if not needed then
+			for _, player in Players:GetPlayers() do
+				if not ToolService.has(player, recipe.tool) then
+					needed = true
+					break
+				end
+			end
+		end
+		if needed then
+			table.insert(wanted, recipe)
+		end
+	end
+	RecipeService.configure(wanted)
+
 	local result = RecipeService.resolve(run.bowl)
 	run.bowl = {}
 
@@ -862,6 +963,19 @@ function returnOfferings()
 		end
 	end
 
+	-- A crafted tool goes straight into the hands of whoever is standing there. It is
+	-- not laid on the ground, because a Sigil lying in the dark is a joke.
+	for _, toolId in result.tools do
+		for _, player in Players:GetPlayers() do
+			if ToolService.grant(player, toolId) then
+				local def = ToolService.definition(toolId)
+				toast(player, `tool_{toolId}`, `{theme.copy.toolMade}  {if def then def.label else toolId}`, "good", 0)
+				AnalyticsService.step(player, "first_tool")
+				AnalyticsService.track(player, `tool_{toolId}`, 1)
+			end
+		end
+	end
+
 	for _, applied in result.applied do
 		award(applied.recipe.id)
 		for _, player in Players:GetPlayers() do
@@ -883,12 +997,66 @@ local function onCollect(player: Player, value: number, meta: any?): number
 		StateSync.requestAll()
 		return value -- the pile is gone either way
 	end
+	if meta and meta.chest then
+		-- A chest is worth walking to: several things at once, as much as the sack
+		-- will hold. Anything that does not fit is left on the ground beside it, so a
+		-- full sack never silently eats a find.
+		local taken, spilled = {}, {}
+		for _, entry in config.chest.loot do
+			if math.random() > (entry.chance or 1) then
+				continue
+			end
+			for _ = 1, entry.count or 1 do
+				if SackService.add(player, entry.kind) then
+					taken[entry.kind] = (taken[entry.kind] or 0) + 1
+				else
+					spilled[entry.kind] = (spilled[entry.kind] or 0) + 1
+				end
+			end
+		end
+		local total = 0
+		for _, n in taken do
+			total += n
+		end
+		if total == 0 then
+			toast(player, "sack", theme.copy.sackFull, "warn")
+			return 0
+		end
+		local root = rootOf(player)
+		if root then
+			local index = 0
+			for kind, n in spilled do
+				for _ = 1, n do
+					index += 1
+					local a = (index / 8) * math.pi * 2
+					placeItem(kind, root.Position + Vector3.new(math.cos(a) * 4, -1.4, math.sin(a) * 4))
+				end
+			end
+		end
+		AnalyticsService.step(player, "first_chest")
+		AnalyticsService.track(player, "chest_opened", total)
+		award("open_chest")
+		toast(player, "chest", theme.copy.chestOpened, "good", 0)
+		fx(player, "chest", { count = total })
+		pickedUpEver[player] = true
+		StateSync.requestAll()
+		return 1
+	end
 	local kind = meta and meta.kind
 	if not kind or not config.items[kind] then
 		return 0
 	end
 	if not SackService.add(player, kind) then
 		return 0
+	end
+	-- A held tool can make the same node worth more. The bonus is server-side and read
+	-- from what the player is actually holding, not from anything they send.
+	if meta.node then
+		for _ = 1, ToolService.harvestBonus(player, kind) do
+			if not SackService.add(player, kind) then
+				break
+			end
+		end
 	end
 	if meta.returned then
 		award("harvest")
@@ -1081,7 +1249,7 @@ function SurviveLoop.validate(cfg: any, world: any, thm: any)
 	expect(kinds.beacon, "world.zones needs a zone of kind 'beacon' (the feed spot)")
 
 	expect(typeof(thm.names) == "table", "theme.names is required")
-	for _, key in { "beacon", "fuel", "stalker", "lure", "sack" } do
+	for _, key in { "beacon", "fuel", "stalker", "lure", "sack", "chest" } do
 		expect(typeof(thm.names[key]) == "string", `theme.names.{key} is required`)
 	end
 	expect(typeof(thm.colors) == "table", "theme.colors is required")
@@ -1114,6 +1282,10 @@ function SurviveLoop.start(loaded: any)
 		ChallengeService.configure(config.worlds)
 	end
 	RecipeService.configure(config.recipes)
+	if config.tools then
+		ToolService.configure(config.tools)
+		ToolService.start()
+	end
 
 	local flame, light = buildBeacon()
 	stalkerModel = buildStalker()
@@ -1136,6 +1308,7 @@ function SurviveLoop.start(loaded: any)
 		model = stalkerModel :: Model,
 		origin = BeaconService.position,
 		safeRadius = BeaconService.radius,
+		wardRadius = ToolService.wardRadius,
 		standOff = config.stalker.standOff,
 		speed = config.stalker.speed,
 		touchDistance = config.stalker.touchDistance,
@@ -1160,6 +1333,11 @@ function SurviveLoop.start(loaded: any)
 	})
 
 	StateSync.setBuilder(packet)
+
+	-- Stand the starting world up before anything else asks where the ground is.
+	if pack.world.biomes then
+		swapBiome(config.worldId)
+	end
 
 	for _, zone in pack.world.zones do
 		local part = pack.zoneParts[zone.id]
@@ -1208,6 +1386,18 @@ function SurviveLoop.start(loaded: any)
 			spawnOpenRings(level)
 			if theme.copy.fogPeels then
 				toastAll("peel", theme.copy.fogPeels, "good")
+			end
+		end
+	end)
+
+	-- Mastering a world opens the next one and the ground becomes it. This is the
+	-- whole progression: four worlds, one obelisk, and the player never leaves it.
+	ChallengeService.mastered:connect(function(_player, worldId)
+		local order = ChallengeService.worlds()
+		for index, world in order do
+			if world.id == worldId and order[index + 1] then
+				swapBiome(order[index + 1].id)
+				break
 			end
 		end
 	end)

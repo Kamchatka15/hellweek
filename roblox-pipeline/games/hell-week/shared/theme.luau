@@ -20,6 +20,7 @@ return {
 		lure = "Gift",
 		sack = "Sack",
 		offering = "Offering",
+		chest = "Chest",
 	},
 
 	weightVisibleFromDay = 3,
@@ -110,6 +111,10 @@ return {
 		offered = "THE OBELISK TAKES IT",
 		offeringEmpty = "NOTHING TO OFFER",
 		returned = "IT GAVE BACK MORE THAN IT TOOK",
+		toolMade = "THE OBELISK MADE YOU SOMETHING",
+		chestLabel = "OPEN",
+		chestOpened = "SOMETHING WAS LEFT HERE",
+		worldChanged = "THE GROUND IS NOT WHERE IT WAS",
 		challengeTitle = "TRIALS",
 		challengeDone = "TRIAL PASSED",
 		dayLabel = "Day",

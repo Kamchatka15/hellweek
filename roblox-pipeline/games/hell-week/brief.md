@@ -311,3 +311,25 @@ The English **is** the voice now. It is the biggest thing on the screen, blood r
 Measured on screen: narration 25px pale, voice 41px at `rgb(176,6,6)`, echo 13px at `rgb(104,74,74)`.
 
 **One correction, flagged rather than made silently.** The line was written "You must of fell asleep in class" and ships as **"You must've fallen asleep in class..."** — in narration a stranger reads in their first three seconds, the original reads as a typo rather than as a voice. One line in `shared/theme.luau` to revert if the rougher voice was the intent.
+
+### 2026-09-12 — Chests, held things, a table you can see, and the 360 swap (Justin, in chat)
+
+**CONFIRMED: the biome changes 360 degrees around the player when a world is mastered.** That is what the architecture was already shaped for, and it is now wired. The world is two layers: **fixtures** (the obelisk, its stone, the pentagram, the four points, the offering table, the camp's light) which never change, and **biomes** (scenery, ground, day rig, night rig, fog) which are swapped whole. Clearing a world's seven trials opens the next and the ground becomes it: the sand repaints, 1,400 parts of desert are torn down and 2,100 parts of dead forest go up, the fog re-rings and the light becomes that world's. Nobody is teleported and nothing is reloaded — it is the same ground rewritten around the same monument.
+
+All four worlds are generated (`tools/gen_biome.py`): Ashen Waste 1,462 parts, Still Wood 2,158, Drowned Quarter 1,175, The Kiln 1,024.
+
+**Teepees with chests.** Every world has 6–9 teepees — a cone of leaning poles with a hide skin, open on the side facing the obelisk. A chest sits in each mouth. Opening one gives several things at once, and it is the only place the crafted tiers (water, emberwood, heartwood) turn up without being made. Anything that will not fit in a full sack spills on the ground beside you rather than being eaten.
+
+**The offering table is a table.** Waist-high (3.4 studs) on four stone legs, triangular top, gold lip, a hollow sunk into it. The flat inlay was not being noticed.
+
+**Held things, and why none of them are weapons.** The brief settled that the Tempter is unkillable and there is no combat, and that is not squeamishness — in this genre the threat being unkillable *is* the game, and a weapon that ends it ends the loop with it. So "defend yourself" here means holding something off:
+
+| Held | Made from | What it does |
+|---|---|---|
+| **Bone Knife** | 1 Stone + 1 Ashwood | cactus gives two instead of one |
+| **Brand** | 1 Emberwood + 1 Ashwood | a pool of light you carry; holds the Tempter 9 studs off |
+| **Sigil** | 1 Heartwood + 1 Wardstone | **the artifact of faith.** Not a cross: the obelisk's own glyph language cut into bone and gold. A 19-stud ward — the widest in the game, and the only thing that makes the dark somewhere you can choose to be |
+
+A ward is a second pane of glass that travels with the player. It does not kill, it does not stop the night, it buys the distance to walk home. **If you want something that actually kills the Tempter, say so — it is a different game and I would want to rebuild the night around it rather than bolt a sword on.**
+
+**Collecting** is unchanged and needs no button: walk into a thing and it goes in the sack. Six slots, typed, and the HUD shows what is in it.

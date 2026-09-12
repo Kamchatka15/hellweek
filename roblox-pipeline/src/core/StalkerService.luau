@@ -26,6 +26,7 @@ export type Config = {
 	sway: number?, -- degrees of idle sway
 	onTouch: (Player) -> (), -- the setback; the loop decides what it costs
 	touchCooldown: number?, -- seconds a player is untouchable after a touch
+	wardRadius: ((Player) -> number)?, -- how far a held thing holds it off this player
 }
 
 local config: Config? = nil
@@ -127,6 +128,18 @@ local function step(delta: number)
 	if flat.Magnitude < minRadius then
 		nextPos = Vector3.new(origin.X, nextPos.Y, origin.Z) + flat.Unit * minRadius
 	end
+
+	-- A ward is a second pane of glass, and it travels with the player. It does not
+	-- kill anything and it does not stop the night; it buys the distance to walk home.
+	local ward = if c.wardRadius then c.wardRadius(target) else 0
+	if ward > 0 then
+		local fromTarget = Vector3.new(nextPos.X - targetPosition.X, 0, nextPos.Z - targetPosition.Z)
+		if fromTarget.Magnitude < ward then
+			local push = if fromTarget.Magnitude > 0.01 then fromTarget.Unit else Vector3.zAxis
+			nextPos = Vector3.new(targetPosition.X, nextPos.Y, targetPosition.Z) + push * ward
+		end
+	end
+
 	place(nextPos, targetPosition)
 
 	local now = os.clock()

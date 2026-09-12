@@ -18,6 +18,7 @@ export type Recipe = {
 	label: string,
 	inputs: { [string]: number },
 	outputs: { [string]: number }?,
+	tool: string?, -- a held thing the loop grants rather than an item on the ground
 	effect: string?, -- a named consequence the loop applies (e.g. lift a penalty)
 	limit: number?, -- most times this may fire in one resolve
 }
@@ -46,6 +47,7 @@ export type Result = {
 	leftovers: { [string]: number },
 	applied: { { recipe: Recipe, count: number } },
 	effects: { [string]: number },
+	tools: { string },
 }
 
 --- Resolve a bag. The bag is not modified; a copy is worked.
@@ -110,7 +112,14 @@ function RecipeService.resolve(bag: { [string]: number }): Result
 		end
 	end
 
-	return { products = products, leftovers = leftovers, applied = applied, effects = effects }
+	local tools = {}
+	for _, entry in applied do
+		if entry.recipe.tool then
+			table.insert(tools, entry.recipe.tool)
+		end
+	end
+
+	return { products = products, leftovers = leftovers, applied = applied, effects = effects, tools = tools }
 end
 
 return RecipeService

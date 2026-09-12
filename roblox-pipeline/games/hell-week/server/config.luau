@@ -96,6 +96,36 @@ return {
 	-- fuel tier. Leftovers come back as themselves plus a bonus on the ladder, so an
 	-- offering is never a waste — only less clever than it could have been.
 	recipes = {
+		-- THE HELD THINGS COME FIRST. With a greedy resolver whatever is listed first
+		-- eats the inputs, and with these at the bottom a generous offering made
+		-- emberwood out of every stick and never a tool — the stingy offering got the
+		-- knife and the rich one did not, which is backwards. `limit = 1` because a
+		-- second knife is not a sharper knife, and the loop drops a tool recipe once
+		-- everyone holds it so it stops quietly eating a stone every dawn.
+		-- The held things. `limit = 1` because a second knife is not a sharper knife,
+		-- and without it a rich offering would hand back a pile of identical tools.
+		{
+			id = "cut_knife",
+			label = "Bone Knife",
+			inputs = { stone = 1, ashwood = 1 },
+			tool = "Knife",
+			limit = 1,
+		},
+		{
+			id = "light_brand",
+			label = "Brand",
+			inputs = { emberwood = 1, ashwood = 1 },
+			tool = "Brand",
+			limit = 1,
+		},
+		{
+			id = "cut_sigil",
+			label = "Sigil",
+			inputs = { heartwood = 1, wardstone = 1 },
+			tool = "Sigil",
+			limit = 1,
+		},
+
 		{
 			id = "press_water",
 			label = "Cactus, pressed",
@@ -162,6 +192,139 @@ return {
 		{ day = 85, night = 65, burn = 10, stalker = "hunt" },
 		{ day = 80, night = 70, burn = 12, stalker = "hunt" },
 		{ day = 75, night = 75, burn = 14, stalker = "hunt" },
+	},
+
+	-- ---------------------------------------------------------------- held things
+	-- Crafted at the obelisk like everything else, and NONE of them kill. In a
+	-- survive-the-night game the threat being unkillable is the game; a weapon that
+	-- ends it ends the loop with it. So defence here is holding something off.
+	--
+	--   Knife    a tool: cactus gives two instead of one
+	--   Brand    a burning torch: you carry a pool of light, and it holds the Tempter
+	--            a short way off — enough to walk home, not enough to camp outside
+	--   Sigil    the artifact of faith. Not a cross: the obelisk's own glyph language
+	--            cut into bone and gold. The widest ward in the game, and the only
+	--            thing that makes the dark somewhere you can choose to be.
+	tools = {
+		{
+			id = "Knife",
+			label = "Bone Knife — cactus gives two",
+			effect = "harvest",
+			kind = "cactus",
+			bonus = 1,
+			parts = {
+				{
+					size = Vector3.new(0.36, 0.34, 1.5),
+					color = Color3.fromRGB(96, 80, 62),
+					material = Enum.Material.Wood,
+				},
+				{
+					size = Vector3.new(0.16, 0.5, 2.2),
+					offset = Vector3.new(0, 0.08, -1.7),
+					color = Color3.fromRGB(224, 216, 198),
+					material = Enum.Material.SmoothPlastic,
+				},
+			},
+		},
+		{
+			id = "Brand",
+			label = "Brand — light you can carry",
+			effect = "ward",
+			radius = 9,
+			parts = {
+				{
+					size = Vector3.new(0.4, 0.4, 3),
+					color = Color3.fromRGB(74, 58, 44),
+					material = Enum.Material.Wood,
+				},
+				{
+					shape = Enum.PartType.Ball,
+					size = Vector3.new(1.1, 1.3, 1.1),
+					offset = Vector3.new(0, 0.1, -1.7),
+					color = Color3.fromRGB(255, 168, 52),
+					material = Enum.Material.Neon,
+					light = { color = Color3.fromRGB(255, 150, 60), brightness = 2.4, range = 26 },
+				},
+			},
+		},
+		{
+			id = "Sigil",
+			label = "Sigil — it will not come near",
+			effect = "ward",
+			radius = 19,
+			parts = {
+				{
+					shape = Enum.PartType.Cylinder,
+					size = Vector3.new(0.28, 2.3, 2.3),
+					color = Color3.fromRGB(228, 220, 202),
+					material = Enum.Material.SmoothPlastic,
+				},
+				{
+					shape = Enum.PartType.Cylinder,
+					size = Vector3.new(0.34, 1.6, 1.6),
+					offset = Vector3.new(0.06, 0, 0),
+					color = Color3.fromRGB(255, 196, 64),
+					material = Enum.Material.Neon,
+					light = { color = Color3.fromRGB(255, 210, 120), brightness = 1.4, range = 16 },
+				},
+				{
+					size = Vector3.new(0.4, 0.26, 1.5),
+					offset = Vector3.new(0.1, 0, 0),
+					color = Color3.fromRGB(255, 196, 64),
+					material = Enum.Material.Neon,
+				},
+				{
+					size = Vector3.new(0.4, 1.5, 0.26),
+					offset = Vector3.new(0.1, 0, 0),
+					color = Color3.fromRGB(255, 196, 64),
+					material = Enum.Material.Neon,
+				},
+			},
+		},
+	},
+
+	-- ---------------------------------------------------------------- the chest
+	-- One in the mouth of every teepee. A chest is the reason to walk out to a
+	-- silhouette instead of past it: several things at once, and the only place the
+	-- crafted tiers turn up without being made.
+	chest = {
+		standOff = 5.5, -- studs out from the teepee centre, on the side facing the obelisk
+		loot = {
+			{ kind = "ashwood", count = 2, chance = 1 },
+			{ kind = "cactus", count = 1, chance = 0.8 },
+			{ kind = "stone", count = 1, chance = 0.7 },
+			{ kind = "water", count = 1, chance = 0.35 },
+			{ kind = "emberwood", count = 1, chance = 0.18 },
+			{ kind = "heartwood", count = 1, chance = 0.05 },
+		},
+		parts = {
+			{
+				size = Vector3.new(3.4, 1.9, 2.3),
+				offset = Vector3.new(0, 0.95, 0),
+				color = Color3.fromRGB(92, 68, 46),
+				material = Enum.Material.Wood,
+			},
+			{
+				shape = Enum.PartType.Cylinder,
+				size = Vector3.new(3.4, 2.3, 2.3),
+				offset = Vector3.new(0, 1.9, 0),
+				rotation = Vector3.new(0, 0, 0),
+				color = Color3.fromRGB(78, 58, 40),
+				material = Enum.Material.Wood,
+			},
+			{
+				size = Vector3.new(3.6, 0.34, 0.34),
+				offset = Vector3.new(0, 1.9, -1.05),
+				color = Color3.fromRGB(168, 132, 60),
+				material = Enum.Material.Metal,
+			},
+			{
+				size = Vector3.new(0.5, 0.7, 0.5),
+				offset = Vector3.new(0, 1.35, -1.2),
+				color = Color3.fromRGB(212, 172, 76),
+				material = Enum.Material.Metal,
+			},
+		},
 	},
 
 	-- ---------------------------------------------------------------- harvesting
