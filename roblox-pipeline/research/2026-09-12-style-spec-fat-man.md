@@ -34,3 +34,33 @@
 ## Generate in this style (when G4 opens)
 - Cube 3D / Assistant prompt seed: *"low-poly, single flat colour, chunky, cheerful, no texture detail, cartoon proportions"*.
 - Ideogram thumbnail prompt seed: *"one round cheerful cartoon man knee-deep in a cascade of oversized gold coins, low-poly, bright, three words of chunky text"* — no likeness of anyone.
+
+---
+
+## Shelf expansion — 2026-09-12 (dress the slice now, for metrics)
+
+All free, Creator Store, found via `search_asset`. Insert through `world.luau` (models) and `theme.luau` (audio ids), never by hand into the live place. **Blocked until the place is published unlisted with API access** — `InsertService:LoadAsset` behaves like DataStores.
+
+### Environment (make the plaza read as a place, not a grey box)
+| Need | Asset | ID |
+|---|---|---|
+| Fountain landmark (map centre) | ⛲ Low Poly Fountain RP Decor Park Plaza | `111780507079923` |
+| Fountain (alt) | Water Fountain Park Garden Plaza Low Poly | `106734587943012` |
+| Tree pack | Low Poly Tree - Cartoon Pack Forest Nature | `106015195336756` |
+| Tree pack (alt) | 🌳 Low Poly Cartoon Tree Bush Forest Pack | `102586503302985` |
+| Bench + lamp (edge dressing) | Lamp & Bench | `18907927816` |
+| Shop stall (the UPGRADES zone) | Market Stand (WoodReviewer) | `388036950` |
+
+### Audio (see skills/audio-sourcing.md)
+| Need | Asset | ID |
+|---|---|---|
+| Coin chime | Coin Collecting Sound / Coin Collect SFX | `116120982042508` / `105872195812251` |
+| Bank cha-ching | cash-register-sound-fx / Cha Ching HD | `120891770644830` / `101396758527961` |
+| Theme / shop loop | Shop Theme / Main Theme / Retro Radiance | `80923297953231` / `125536723574585` / `100333487341753` |
+
+### Verify-before-use (names hint at other IP — audition, keep only if generic)
+- `5437842453` "multiple coin collect ... mm2" — references Murder Mystery 2. Skip unless clearly original.
+- Any "Hangout Spawn" model with a tag-wall naming Grow a Garden / Steal a Brainrot / Brookhaven — those are tag-spam re-uploads; skip.
+
+### Skipped (named after other games' assets — the flaggable kind)
+`106323564379687` M64 Red Coin · `105416725635496` Jetpack Joyride powerup.
