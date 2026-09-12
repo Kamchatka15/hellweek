@@ -34,4 +34,20 @@ Standing order: **propose freely, switch rarely.** Any genuinely good game idea 
 
 ## Entries
 
-_(none yet — first entry goes here, newest at top)_
+### 2026-09-11 — Peter Gets Rich — `Active`
+
+Promoted to Active by Justin on 2026-09-11. Brief: `games/peter-gets-rich/brief.md`.
+
+- **Hook (1 sentence):** One action sends hundreds of coins cascading and you sweep them up — the payout is physical, not a number in a corner.
+- **Why now:** Collect/sweep loops read instantly in a 2-second clip and survive the 2026 discovery re-weighting toward return rather than click, because the loop is repeatable rather than novelty-dependent.
+- **First-session moment:** The first flood, inside 60 seconds.
+- **Reason to open it tomorrow:** Offline earnings, collected on login. Capped, never punished.
+- **Closest comps:** to fill from the research lane before Gate A.
+- **Why it is not a clone:** shape only — sweep-and-bank; no comp's assets, names, characters or thumbnails.
+- **Why it would look better than the comps:** the flood is the visual bet — coin count, physics, light and audio tuned so it reads at 200px.
+- **Cheapest test:** grey-box flood + bank + one upgrade, playtested in Studio.
+- **Confidence:** medium — hook is strong and cheap to prototype; economy and the first purchase are unproven.
+
+### 2026-09-11 — Layer Mine — `Parked`
+
+Parked when Peter Gets Rich was promoted. Not killed and not a Gate decision — a title swap by Justin. Research (`research/2026-09-11-mining-genre-winners.md`) and the `LM_Station_SurfaceKiosk_01` mesh kit stay in the repo and are still valid if it comes back.
