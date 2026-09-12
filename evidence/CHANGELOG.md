@@ -92,3 +92,22 @@ Justin: *"put this all into the game factory including all the scraping and copy
 | FACTORY_PLAN v1.2: §1.1 thesis in Justin's words; §2.10 Copy aggressively (Fig. 17); teardowns + worked cut list; shelf + board + sound; §5.2 the initial testing model in six moves (Fig. 18); risk row for copying; status refreshed | Document | As asked — everything from tonight in one place |
 
 **The coupling recorded everywhere it matters:** InsertService (dressing) and DataStores (saves) are both blocked until the unlisted publish with API access. One click unblocks dressing, persistence, and the comprehension test on a real build.
+
+---
+
+## 2026-09-12 (late) · The outside read, and two clocks
+
+Justin gave FACTORY_PLAN v1.2 to Grok cold and asked for honest suggestions on how it would actually design games. Result: a six-page operating manual. Then he corrected a wrong assumption of ours about his time.
+
+| Change | Kind | Reason |
+|---|---|---|
+| `docs/OPERATING_MANUAL.md` v1.0 | New runbook | 44 pages is the wrong length for a file loaded every session. The manual is what runs; FACTORY_PLAN is the constitution behind it |
+| **Two clocks** — attended ~4h/day, unattended everything else; every wave tagged [A]/[U] | **Justin's correction** | "I can sit near a computer up to 4 hours per day… when I'm not at the computer I want Claude to continue to work." PIPELINE's "~12-minute weekday review window" was simply wrong and is corrected |
+| `docs/runs/QUEUE.md` | New | The unattended backlog. Reversible work only; every unattended session rewrites the next attended move in STATE.md |
+| Adopted from the outside read | Process | Command vocabulary · Grok-never-blocks · Pass 1/Pass 2 · file contracts with stop conditions · the look bar and its seven-row checklist · three teardowns not ten · the three settled answers |
+| Corrected in it | Process | 9.5-hour clock rejected (unmeasured; first real run gets timed) · look-bar proportions and Cube caps are defaults with an expiry · "locked" → Claude does not re-litigate, Justin always can · manual does not replace FACTORY_PLAN · "test it" returns the run log AND Hunter's Gate A script · dropped subagent caps for machinery that does not exist |
+| `templates/CUT_LIST.md`, `MCP_RUN_LOG.md`, `CLOSEOUT.md` | New | Forms, not essays. CLOSEOUT closes a known Layer-3 gap |
+| CLAUDE.md factory-mode block · session_start surfaces runbook + next attended move + queue depth · START-HERE routing | Wiring | The session cannot forget the flow |
+| FACTORY_PLAN v1.3 (45 pp) | Document | Two clocks in §1.2, the manual named in Part 0, new §4.5 recording the outside read verdict by verdict |
+
+**Both documents now carry the same rule, from two authors:** no further process work until Fat Man Gets Rich has been through Gate A with three fresh kids.

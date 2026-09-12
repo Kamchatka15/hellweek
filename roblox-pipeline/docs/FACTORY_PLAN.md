@@ -2,11 +2,13 @@
 
 > **Governed by `docs/ROBLOX_SUCCESS_LOGIC.md` (standing orders).** If this file fights that file, that file wins.
 >
-> **Three forms, one source.** `FACTORY_PLAN.html` (beside this file, with `FACTORY_PLAN.assets/`) is the authored source. `The-Game-Factory.pdf` at the folder root is its print rendering — the one to *read*, with all eighteen figures. This `.md` is the generated text view for sessions that cannot open a PDF. **Edit the .html; regenerate the other two.** Never edit the PDF or this file by hand.
+> **This is the constitution. The runbook is `docs/OPERATING_MANUAL.md`** — six pages, loaded at the start of every session. When the two disagree on *process*, the manual wins because it is the one being run; on safety, children, money and publishing the doctrine outranks both.
 >
-> Written 2026-09-12 · v1.2 (same night: copy-aggressively doctrine, teardowns, shelf, the six-move testing model) · Re-verify platform facts by 2026-11-12.
+> **Three forms, one source.** `FACTORY_PLAN.html` (beside this file, with `FACTORY_PLAN.assets/`) is the authored source. `The-Game-Factory.pdf` at the folder root is its print rendering — the one to *read*, with all eighteen figures. This `.md` is the generated text view. **Edit the .html; regenerate the other two.** Never edit the PDF or this file by hand.
+>
+> Written 2026-09-12 · v1.3 (two clocks, the operating manual, Grok's fresh-eyes pass adopted with corrections) · Re-verify platform facts by 2026-11-12.
 
-Roblox Business · Justin & Hunter · v1.2
+Roblox Business · Justin & Hunter · v1.3
 
 # The Game Factory
 
@@ -15,7 +17,7 @@ Business plan and technical architecture for a system that builds many Roblox ga
 A game is disposable. The factory is not. Every title that ships or dies must hand something back — a rule that hardened, a bar that rose, a piece of engine, a finding with its context attached — so the fourth game starts smarter than the third. This document says what that factory is, how its parts connect, where it could hurt a good game, and what is still missing.
 
 Written  
-12 September 2026 · v1.2 same night: copy-aggressively doctrine, the top-three teardowns, the style spec and Creator Store shelf, audio sourcing, and the six-move path to an initial testing model
+12 September 2026 · v1.3 same night: two clocks (4h attended + unattended), the operating manual, and Grok's fresh-eyes pass adopted with corrections
 
 For  
 Justin (owner) · Hunter (design, playtest operations) · every future Claude and Grok session
@@ -24,7 +26,7 @@ Governed by
 docs/ROBLOX_SUCCESS_LOGIC.md — if this document fights that file, that file wins
 
 Canonical  
-roblox-pipeline/docs/FACTORY_PLAN.md · this PDF is a rendering
+roblox-pipeline/docs/FACTORY_PLAN.html → this PDF. **The runbook a session actually runs is docs/OPERATING_MANUAL.md** — this document is the constitution behind it
 
 Compiled from  
 the doctrine, PIPELINE, SYSTEM-MAP, GAME_FACTORY, SYSTEM_ARCHITECTURE, run log 01, the idea log, the evidence ledger, and today's session
@@ -51,6 +53,10 @@ Your fear all day has been consistent and correct: that the system becomes the t
 - **Part 5** is status and the build order — what exists, what is missing, what happens next, and the few decisions that are genuinely yours.
 - **The glossary** at the back defines every technical word used here in one line. Nothing in this document requires reading code.
 
+##### This document is the constitution. The runbook is six pages.
+
+Forty-four pages is the wrong length for something a session loads at the start of every build. `docs/OPERATING_MANUAL.md` is the short version a session actually executes — six waves, file contracts, the look bar, the four-beat test, and the six things Justin can say out loud. It was built from this plan plus a fresh-eyes pass Grok did on it (§4.5). When the two disagree on *process*, the manual wins because it is the one being run; on safety, children, money and publishing the doctrine outranks both.
+
 ##### The one-paragraph answer
 
 Yes, the system will improve games and learn from your work — *if* it is now used to build one. Everything built today is scaffolding around a build loop that does not yet exist and a game that has not yet met a stranger. The scaffolding is sound, and Part 4 shows where it could bite. But the single largest risk to this project as of tonight is not any rule in it. It is that the system becomes the project. The test of the factory is a game, and the next session should build one through it.
@@ -73,10 +79,16 @@ Three parties, with a division of labour that was clarified today and now govern
 
 | Who    | Brings                                                                                                                                                                                                        | Does not bring, and is not asked to                                                                              |
 |--------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| Justin | Product ownership. The five gate decisions. **The cut** — removing what confuses. Every decision that spends money or ships to players. About twelve minutes a weekday.                                       | Code. Generative taste — inventing a mechanic from nothing.                                                      |
+| Justin | Product ownership. The five gate decisions. **The cut** — removing what confuses. Every decision that spends money or ships to players. Up to ~4 hours a day at the keyboard.                                 | Code. Generative taste — inventing a mechanic from nothing.                                                      |
 | Hunter | Design input. **Operating the comprehension test** — recruiting kids who have never seen the game and running the script. Playtesting titles he did not help design.                                          | Being the test subject for a game he helped make — he already knows the answers.                                 |
 | Claude | The only writer of code and the only hand in Studio. Research, design, economy, Luau, documentation, orchestration. Proposing every applicable idea. Filing evidence. Operating within the autonomy contract. | Publishing. Creating paid products. Killing or switching a title. Spending money. Any of those is a human click. |
 | Grok   | A coworker, not a competitor: research, art sheets, clip hooks, a second pass on design and economy, critique. Live X/Twitter discourse if Justin already has access.                                         | Writing to the repo or the live Studio DataModel while Claude is. No new paid tier is assumed.                   |
+
+##### Two clocks — the constraint everything else is shaped around
+
+**Attended: up to about four hours a day**, more at the start. Justin near the computer — gates, the cut line, playtests with a human watching, the publish clicks. **Unattended: everything else** — Claude works alone from a queue while he is away: research, teardowns, economy sims, the asset shelf, specs, docs, preparation. Reversible work only; never Studio, never publishing, never spending.
+
+Every wave in the manual is tagged for one clock or the other. A session that opens while he is out runs the unattended work and leaves the attended work *prepared*, so it takes minutes when he sits down. **This supersedes the "~12-minute weekday review window" this plan inherited from PIPELINE.md** — that was the wrong constraint, and four hours is a different project.
 
 ##### The operating model, in one line
 
@@ -895,7 +907,27 @@ Run 01's own "blunt list of what was missing" is the most useful document in the
 | 4   | **No unattended path from disk into Studio.** The Rojo plugin needs a human click in the editor that MCP cannot make. `studio_sync.py` is a workaround, not documented in the skill.                                                                                                                                                                                                                             | Every automated playtest depends on it. Run 01 called it the single highest-leverage fix in the repo.                                               | <span class="chip built">Documented</span> in `skills/studio-mcp.md`, with the two other run-01 rules. A cleaner path through the built-in MCP is still worth a look                                                                                                           |
 | 5   | **No art seed, no sound.** The brief says TBD; the flood's readability at 200px rests on "neon yellow on a dark floor."                                                                                                                                                                                                                                                                                          | Blocks G4. Not urgent before Gate A, and the doctrine says grey-box first — but the thumbnail is the \#1 click lever and has no owner yet.          | Justin: one reference image or three adjectives, when Gate A passes                                                                                                                                                                                                            |
 
-### 4.5 Untested premises, stated plainly
+### 4.5 The outside read — what a second model found
+
+Justin gave this plan to Grok cold and asked how it would actually design games from it. The result was a six-page operating manual. Most of it was better than this document *as a thing a session runs*, and it has been adopted. Recording it here because an outside read that changes the design is exactly the kind of evidence this system exists to keep.
+
+| What the outside read added                                                                                                                                                    | Verdict                                                                                                                                                                                                   |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| A command vocabulary — six things Justin can say out loud, each mapped to waves and a definition of done                                                                       | <span class="chip built">Adopted</span> · the single best addition. This plan never gave him a way to drive it in one sentence                                                                            |
+| "Grok never blocks Claude" — every Grok job is a parallel bonus; if the tab is dark, self-pass in ten minutes and continue                                                     | <span class="chip built">Adopted</span> · fixes a dependency v1.2 created by putting Grok's confusion pass before every cut. Grok removing itself from the critical path                                  |
+| Pass 1 / Pass 2 — trace the loop on generic Store stand-ins, snap identity on after it is green                                                                                | <span class="chip built">Adopted</span> · better sequencing than ours, and Pass 2 prepares in parallel                                                                                                    |
+| File contracts with stop conditions, per wave                                                                                                                                  | <span class="chip built">Adopted</span> · executable where prose sections are not                                                                                                                         |
+| The look bar — ~80% Store volume + lighting rig, 15% hero objects, 5% icon and thumbnail, a seven-row checklist, and "default lighting is why generated places look generated" | <span class="chip built">Adopted</span> as *defaults with an expiry* — the proportions are asserted, not measured                                                                                         |
+| Three filled teardowns, not ten. "Ten is stalling."                                                                                                                            | <span class="chip built">Adopted</span> · corrects both of us                                                                                                                                             |
+| A 9.5-hour single-run clock                                                                                                                                                    | <span class="chip missing">Rejected</span> · invented, and it assumed one uninterrupted day. Replaced by the two clocks. The first real run gets *timed*, and the measured number replaces every estimate |
+| "Locked so a future session cannot reopen them"                                                                                                                                | <span class="chip partial">Corrected</span> · Claude does not re-litigate; **Justin always can**. He reopened the IP ban tonight and was right to. Things get settled by evidence, not by declaration     |
+| Replace FACTORY_PLAN with the manual; cap live subagents at six                                                                                                                | <span class="chip missing">Rejected</span> · the manual is a separate file, and the second writes rules for swarm machinery that does not exist                                                           |
+
+##### Its last line indicts both documents
+
+*"Do not add agents that produce more documents about the factory."* Two models have now written fifty pages of process for a game no stranger has played. Grok flagged it, §4.2 of this plan flagged it, and both kept typing. The rule in §4.2 stands and now has a second author: **no further process work until Fat Man Gets Rich has been through Gate A with three fresh kids.**
+
+### 4.6 Untested premises, stated plainly
 
 - **That prose rules drift and hooks do not** (E-0005, n=0). The enforcement layer rests on it. If no guard fires across three titles, simplify the layer.
 - **That the complexity caps are near the right values.** They are guesses. The first comprehension test is the first evidence.
@@ -920,6 +952,8 @@ Part 5 · Status and build order
 
 **Evidence ledger + matcher**schema · 5 records · match.py · conflicts · matrix · open questions
 
+**Operating manual + two clocks**six waves tagged attended/unattended · command vocabulary · look bar · four-beat · QUEUE.md
+
 **Budget + comprehension test**BUDGET.md (defaults with expiry) · playtest-comprehension.md
 
 **Gate A**bars defined today · never run with fresh testers
@@ -930,7 +964,7 @@ Part 5 · Status and build order
 
 **The build loop — gap 0**paragraphs → brief · expansion · budget as code · ranked cut list
 
-**Closeout · session-close hook · hypotheses**the feeders of the learning loop
+**Closeout · hypotheses · session-close**CLOSEOUT, CUT_LIST and MCP_RUN_LOG templates written · hypotheses in the brief · session-close hook still missing
 
 **Onboarding agent**required by every game · no engine module
 
@@ -946,7 +980,7 @@ Part 5 · Status and build order
 
 The owner's stated near-term goal, in his words: *"I just need the game to look better in Phase 1 initially, to keep the kids' interest, to get real metrics to see if I want to expend more energy on a project."* That is the definition of an initial testing model: a dressed, playable slice that survives fifteen minutes and a stranger, instrumented well enough to say whether to continue. Six moves, in order, three of them one afternoon's work.
 
-**1 · Publish unlisted, API access on — Justin, three clicks.***Unblocks InsertService (the shelf renders), DataStores (saves persist), and the comprehension test on a real build. docs/runs/PERSISTENCE_TEST.md.*
+**1 · Publish unlisted, API access on — Justin, three clicks.***Unblocks InsertService (the shelf renders), DataStores (saves persist), and the comprehension test on a real build. Move 2 is prepared unattended beforehand, so this costs minutes of his time, not an evening. docs/runs/PERSISTENCE_TEST.md.*
 
 ↓
 
