@@ -134,3 +134,11 @@ Justin dropped `inbound/HellWeek-ClaudePack.zip` (a brief worked out with Grok),
 | E-0007, E-0008, E-0009 | Evidence | The second title's findings |
 
 **Still behind Justin's clicks:** unlisted publish + API access (persist beat, InsertService dressing), `Lighting.Technology = Future`.
+
+## 2026-09-12 — E-0011 filed, teardown rows disputed
+Watched a live ~20-minute session of 99 Nights in the Forest via background window capture. Filed
+`evidence/ledger/E-0011.md`. Annotated `roblox-pipeline/research/patterns/hell-week-99nights.md`
+with a disputed-rows banner: the 3:00/1:30 day-night cadence was not observed, the HUD-density row
+buries its own lesson, and night is navy rather than black. Added
+`roblox-pipeline/games/hell-week/99nights-watch-findings.md` (ranked add-list) and
+`roblox-pipeline/research/patterns/watch/99nights-live-log.md` (frame log).

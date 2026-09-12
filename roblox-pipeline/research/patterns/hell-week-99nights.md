@@ -2,6 +2,15 @@
 
 > Public sources only: Roblox storefront (read logged-out in the browser pane, 2026-09-12), Rolimon's game page, rblxdb live chart, DevForum Creator Spotlight (2025-10-31), and public guides (Pocket Tactics 2026-09-06, RBLXGuide 2026-06-04, ffbooyah 2026-04-07, BlueStacks 2025-08-20, TechWiser 2025-11-02, Eldorado blog 2026-08-10, Kinzoo 2026-04-16, Backyard Drunkard 2025-09-27, 99nightsinforest.com, 99nightsintheforest.wiki). Fandom and RoMonitor were unreachable from this session (402 / client-rendered) — anything sourced only from a search snippet of those is marked *snippet*. Doctrine §3.1: copy the shape. This is the machine Hell Week traces; the brief (§2) shapes are adopted here and its numbers verified or corrected.
 
+> **DISPUTED ROWS — corrected by live observation 2026-09-12.** A ~20-minute watched session
+> (log: `research/patterns/watch/99nights-live-log.md`, findings:
+> `games/hell-week/99nights-watch-findings.md`) contradicts three rows below. The **3:00 day /
+> 1:30 night** cadence was NOT observed: Day 1 ran past fifteen minutes of wall clock including a
+> full night. The **HUD density** row understates how sparse the playing HUD is and buries the real
+> lesson, which is that fuel state lives at the fire, not on screen. **Night is navy, not black**,
+> and fully navigable with no light source. Do not tune Hell Week against the disputed numbers.
+
+
 | Field | Value |
 |---|---|
 | Category | **survive** (gather by day → feed fire → hide by night → day counter goes up). Sub-shape: co-op base-survival with a permadeath run and a persistent lobby meta |

@@ -31,3 +31,36 @@ Only after all three may Hunter explain anything.
 
 ## File afterwards
 One evidence record per run in `evidence/ledger/` (even the boring ones), plus the two budget questions from `docs/BUDGET.md`: did a cap block something the slice needed? did testers get confused inside the caps?
+
+## Capture — how the pictures get taken
+
+**Claude cannot take them.** The Studio MCP `screen_capture` tool returns a black frame in Play mode;
+it only works at edit time. Every image of the game actually being played has to come off a human
+screen recording.
+
+What to record:
+
+| Setting | Value |
+|---|---|
+| Tool | Studio, F5 Play, macOS Shift-Cmd-5 recording the Studio window |
+| Length | 3 minutes, unbroken, no pause |
+| Audio | on, so the think-aloud is on the tape |
+| Camera | leave it where the tester puts it, never fix it for them |
+
+Three minutes is not arbitrary. One day is 100 seconds and one night is 45. Three minutes covers the
+whole of Day 1, the whole of Night 1, and the first 35 seconds of Day 2. That is exactly the span
+where a stranger either understands the game or does not.
+
+The operator stays silent for the first 60 seconds of it. That silence is the instrument.
+
+Hand the file back as a `.mov` or as stills at these five moments:
+
+1. Spawn, before they move
+2. First pickup, or the 60-second mark if there was none
+3. First feed at the obelisk
+4. The moment the night lighting lands
+5. First sight of the stalker on the light line
+
+**Who counts as a subject:** anyone who has never seen this game and had no hand in designing it. A
+son who has been watching the build over someone's shoulder is contaminated the same way Justin is,
+and his run is a useful smoke test but not a Gate A result. Gate A needs three clean strangers.
