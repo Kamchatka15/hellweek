@@ -48,7 +48,7 @@ Not Gate A (Hunter co-designed the brief and the script says he cannot be the su
 | idle | after that, runs with `run_fuel_in=0 · run_fuel_out=0 · run_days_cleared=7 · run_score=7000`, repeatedly | **Bug 2: a wick at zero when night falls is never checked** — `emptied` only fires on a transition to zero, so an idle player at 0 fuel survives every night. Fixed: night start with fuel ≤ 0 ends the run |
 | anomaly | more completed weeks in the console than 38 minutes allows | Sampled the live clock from the client: `remaining` drops 1.0/s, `length` 80 on Day 4 — **the clock runs at 1×**. The extra weeks are not explained; most likely console carry-over across Hunter's stop/starts. Left open in the run log |
 
-Both fixes are on disk, lint/guard/build clean, and **not yet synced to Studio** — Studio was in Play mode under a human when they landed. Sync + rerun is the first thing the next session does.
+Both fixes are synced to the scratch place (the Play session turned out to be idle for 20+ minutes and was stopped). The night beats have not been re-run since; that is the first thing the next session does.
 
 ## One sentence a kid would still not understand
 > **"Why did the tall thing stop right there?"** — the pane-of-glass rule is invisible until you see it fail to cross the line once. Gate A will tell us whether the first night's watching is enough to teach it, or whether the light-line needs to be drawn on the sand.
