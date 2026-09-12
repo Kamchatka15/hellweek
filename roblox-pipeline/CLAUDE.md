@@ -15,6 +15,20 @@ The non-negotiables below are enforced by `.claude/hooks/` and a git pre-commit 
 A deliberate exception is `-- @rbx-allow: <RULE_ID> <reason>` and is logged to `docs/runs/hook-allow.log`. Never work around a block silently.
 The system these sit inside — four control layers, what compounds across many titles — is `docs/SYSTEM_ARCHITECTURE.md`.
 
+## Factory mode — how a session runs
+Read `docs/OPERATING_MANUAL.md` at the start of every build session. It is the runbook; `docs/FACTORY_PLAN.md` is the constitution behind it.
+
+1. Four paragraphs in → draft `brief.md`, query the ledger, start Wave 1. Never ask Justin to fill a form.
+2. Five comps by CCU; **three** filled teardowns; blend three sources. Never a one-source clone, never rip a place.
+3. Auto-cut to the budget. Draw the line. Name Pass 1 vs Pass 2. Park the rest. Justin gets two minutes.
+4. **Only Claude writes `src/` and the live Studio DataModel.** Grok jobs are optional disk files; if Grok is dark, self-pass in ten minutes and continue. Grok never blocks a wave.
+5. Pass 1 = the traced loop on our engine with Store stand-ins. Pass 2 snaps identity on after the loop is green.
+6. Look = style spec + Store volume + lighting rig + one hero + an image-tool thumbnail. **Default lighting is a fail.**
+7. Not done when it compiles. Done when the look bar passes and the MCP four-beat + persist are green. "Test it" returns the run log **and** Hunter's Gate A script.
+8. Silence proceeds on reversible work. Silence never proceeds on listing, paid products, ads, title-kills, or lowering a rule.
+9. One active title. New ideas go to `docs/IDEA_LOG.md`. Closeout before the next slug.
+10. **Attended time is ~4h/day and scarce; unattended time is not.** Spend Justin's hours only on what needs him; run `docs/runs/QUEUE.md` the rest of the time.
+
 ## Source of truth
 - **The `Roblox Business` folder on Justin's Mac is the project.** `../START-HERE.md` is its map and routing rule: what every folder is for and where a new file goes. Read it when unsure where something belongs; update it when you add a folder. Anything produced for this project gets written into that folder — never chat-only, never a second copy at a second path.
 - The claude.ai "RB - Business" project holds a read-only mirror of the doctrine and key skills for sessions with no access to the Mac. Folder wins on any disagreement; refresh the mirror rather than editing it.

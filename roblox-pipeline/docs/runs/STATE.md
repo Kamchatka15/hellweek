@@ -2,6 +2,12 @@
 
 > Loaded into every Claude Code session by `.claude/hooks/session_start.py`. **One file. Keep it current.** Stale is worse than missing.
 
+## How a session runs
+
+**Runbook: `docs/OPERATING_MANUAL.md`.** Six waves, file contracts, Pass 1 / Pass 2, the look bar, the MCP four-beat, the command vocabulary.
+
+**Two clocks.** Attended ≈ **4 hours a day** (gates, the cut line, playtests, the G5 clicks) — scarce, spend it only on what needs Justin. Unattended = everything else: work `docs/runs/QUEUE.md` top-first, reversible only, and rewrite the next attended move here before stopping.
+
 ## Standing rule until further notice (2026-09-12)
 
 **No further system work — no new hooks, agents, or restructuring — until Fat Man Gets Rich has been through Gate A with three fresh testers.** Only work that directly unblocks that test is allowed. The test of the factory is a game. (`docs/FACTORY_PLAN.md` Part 4.)
@@ -18,6 +24,7 @@
 | Engine | 11 modules. `ReceiptService` deliberately absent until a product is approved at G5. R7 keeps the engine generic | 2026-09-12 |
 | Paid products | **None.** No `MarketplaceService` call in the repo. `sku.luau` is a draft ladder | 2026-09-12 |
 | Art + sound | Grey-box. **Style spec, Creator Store shelf (models + audio) and the ten-comp reference board ready.** Dressing moved BEFORE Gate A by Justin's call (a grey box cannot hold a kid long enough for metrics). Wiring into the pack is next; rendering is blocked on the unlisted publish (InsertService) | 2026-09-12 |
+| Working hours | **~4h/day attended** (corrected — the old "12-minute review window" was wrong). Unattended queue at `docs/runs/QUEUE.md` | 2026-09-12 |
 | Enforcement | R1–R7 + loop cap + SessionStart + git backstop (now also rojo build / selene / stylua on the Mac) | 2026-09-12 |
 | Evidence | 6 records (5 process, 1 economy). 0 player evidence — Gate B has not happened. 0 open contradictions | 2026-09-12 |
 

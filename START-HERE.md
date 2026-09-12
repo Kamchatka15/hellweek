@@ -11,10 +11,11 @@ The pipeline it runs: research → build → test → launch → live-ops, drive
 | # | File | What it is |
 |---|---|---|
 | 1 | **`roblox-pipeline/docs/ROBLOX_SUCCESS_LOGIC.md`** | **Standing orders.** Read before anything else. Product × process × luck, the gates that come before any spend, marketing order, what counts as effort. Everything else here defers to it — if a plan fights the doctrine, the doctrine wins and the plan gets corrected. |
-| 2 | **`The-Game-Factory.pdf`** | **The whole system in one document** — business plan, every layer and loop with a figure, the full agent roster, and the re-examination of where the system could hurt a good game. Read this to understand the project without having been in the room. Canonical text: `roblox-pipeline/docs/FACTORY_PLAN.md`. |
-| 3 | **`system-map.html`** | The pipeline drawn as diagrams — loops, flows, charts. Double-click; opens in your browser, renders offline. Best place to *see* the system. |
-| 4 | **`roblox-pipeline/PIPELINE.md`** | The operating plan in words. What happens when you say "create a ___ game," the human gates, monetization stance, launch and live-ops. |
-| 5 | **`roblox-pipeline/docs/IDEA_LOG.md`** | Every game idea, logged. Claude pitches any good idea on the spot and writes it here without pausing the active game. Only Justin promotes one to Active. |
+| 2 | **`roblox-pipeline/docs/OPERATING_MANUAL.md`** | **The runbook a session actually runs.** Six waves, who does what, the file contracts, Pass 1 / Pass 2, the look bar, the MCP four-beat, and the six things Justin can say out loud. Short on purpose. Loaded at the start of every session. |
+| 3 | **`The-Game-Factory.pdf`** | **The whole system in one document** — business plan, every layer and loop with a figure, the full agent roster, and the re-examination of where the system could hurt a good game. Read this to understand the project without having been in the room. Canonical text: `roblox-pipeline/docs/FACTORY_PLAN.md`. |
+| 4 | **`system-map.html`** | The pipeline drawn as diagrams — loops, flows, charts. Double-click; opens in your browser, renders offline. Best place to *see* the system. |
+| 5 | **`roblox-pipeline/PIPELINE.md`** | The operating plan in words. What happens when you say "create a ___ game," the human gates, monetization stance, launch and live-ops. |
+| 6 | **`roblox-pipeline/docs/IDEA_LOG.md`** | Every game idea, logged. Claude pitches any good idea on the spot and writes it here without pausing the active game. Only Justin promotes one to Active. |
 
 ---
 
@@ -58,6 +59,7 @@ Roblox Business/
    │  ├─ ROBLOX_SUCCESS_LOGIC.md   the standing orders (outranks every other file)
    │  ├─ GAME_FACTORY.md           engine + content-pack split; how "create a ___ game" becomes 2 hours
    │  ├─ SYSTEM_ARCHITECTURE.md    the factory across MANY titles — layers, build loop, compounding, portability
+   │  ├─ OPERATING_MANUAL.md      ← THE RUNBOOK. Six waves, look bar, four-beat, command vocabulary
    │  ├─ FACTORY_PLAN.html         business plan + technical architecture — THE SOURCE (edit this one)
    │  ├─ FACTORY_PLAN.md           generated text view of it, for sessions that cannot open a PDF
    │  ├─ FACTORY_PLAN.assets/      fonts + render.py that turn the .html into The-Game-Factory.pdf
@@ -83,6 +85,7 @@ Roblox Business/
    │  ├─ 2026-09-11-mining-genre-winners.md   dated genre drop
    │  └─ patterns/                 reusable mechanics teardowns (leaderboards, live-events)
    │
+   ├─ templates/              ← forms filled per title: CUT_LIST, MCP_RUN_LOG, CLOSEOUT
    ├─ specs/                  ← module spec format + dated slice specs, written before the code
    │
    ├─ games/                  ← CONTENT PACKS. One folder per title; the only per-game work.
@@ -124,6 +127,9 @@ Roblox Business/
 | What happened in a build session | `roblox-pipeline/docs/runs/` | `YYYY-MM-DD-run-NN.md`. What was read, refused, stalled on, and written from scratch. |
 | A finding about what worked or did not | `evidence/ledger/E-####.md` | Same fields every time (see `evidence/SCHEMA.md`). n=1 is never a law |
 | A change Claude made to the factory on its own | `evidence/CHANGELOG.md` | Append-only, with the evidence that caused it |
+| How a session runs | `roblox-pipeline/docs/OPERATING_MANUAL.md` | The runbook. Edit here when the process changes; the plan is the constitution behind it |
+| Unattended work | `roblox-pipeline/docs/runs/QUEUE.md` | What Claude does when Justin is away. Top-first, reversible only |
+| A form filled per title | `roblox-pipeline/templates/` | CUT_LIST · MCP_RUN_LOG · CLOSEOUT |
 | The whole-system plan | `roblox-pipeline/docs/FACTORY_PLAN.html` → `.md` + `The-Game-Factory.pdf` | Edit the .html; regenerate the other two. Never edit the PDF or the .md by hand |
 | A weekly market digest | `roblox-pipeline/research/YYYY-MM-DD-market-digest.md` + one line in `research/DIGEST_LOG.md` | Written by the scheduled task every Monday; SessionStart surfaces the latest line |
 | Top-level system architecture | `roblox-pipeline/docs/SYSTEM_ARCHITECTURE.md` | The factory across MANY titles: 4 control layers, what compounds, the gap list |

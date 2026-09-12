@@ -42,6 +42,13 @@ def main():
                "A file that exists only in a chat window does not exist.")
     out.append("5. G5 (publish / any paid product) is a human click. Silence is NOT approval.")
     out.append("")
+    out.append("=== HOW A SESSION RUNS ===")
+    out.append("Runbook: docs/OPERATING_MANUAL.md — six waves, file contracts, Pass 1/Pass 2, "
+               "the look bar, the MCP four-beat, and what Justin can say. Read it before build work.")
+    out.append("TWO CLOCKS: attended ~4h/day (gates, cut line, playtests, G5 clicks) vs unattended "
+               "(everything else). If Justin is not here, work docs/runs/QUEUE.md top-first — reversible "
+               "work only, never Studio/publish/spend — and rewrite the next attended move in STATE.md.")
+    out.append("")
     out.append("=== HOOKS ARE LIVE — these will refuse a write, not just warn ===")
     out.append("R1 client-authoritative economy | R2 raw remote (use RemoteGuard) | "
                "R3 ProcessReceipt without a PurchaseId ledger | R4 DataStore outside "
@@ -64,6 +71,19 @@ def main():
     if n:
         out.append(f"Idea log: {n} entr{'y' if n == 1 else 'ies'}. "
                    "Re-read the top 3 at any Gate B or kill decision.")
+
+    q = read(os.path.join(PIPE, "docs", "runs", "QUEUE.md"))
+    if q.strip():
+        nxt = ""
+        for i, line in enumerate(q.splitlines()):
+            if line.startswith("## Next attended move"):
+                nxt = " ".join(l.strip() for l in q.splitlines()[i + 1:i + 3] if l.strip())
+                break
+        open_items = sum(1 for l in q.splitlines() if l.strip().startswith("- [ ]"))
+        if nxt:
+            out.append(f"NEXT ATTENDED MOVE: {nxt[:300]}")
+        out.append(f"Unattended queue: {open_items} open item(s) in docs/runs/QUEUE.md")
+        out.append("")
 
     digest_log = os.path.join(PIPE, "research", "DIGEST_LOG.md")
     dl = [l for l in read(digest_log).splitlines()
