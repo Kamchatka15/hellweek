@@ -20,6 +20,7 @@ local Lighting = game:GetService("Lighting")
 local Core = script.Parent
 local AnalyticsService = require(Core.AnalyticsService)
 local BeaconService = require(Core.BeaconService)
+local ChallengeService = require(Core.ChallengeService)
 local ClockService = require(Core.ClockService)
 local ContentLoader = require(Core.ContentLoader)
 local DataService = require(Core.DataService)
@@ -53,6 +54,7 @@ local run = {
 	fuelIn = 0,
 	fuelOut = 0,
 	stalkerSeen = false,
+	downs = 0,
 	startedAt = 0,
 }
 
@@ -95,6 +97,23 @@ end
 
 local function fx(player: Player, kind: string, payload: any?)
 	RemoteGuard.fire(player, Net.S2C_Fx, kind, payload)
+end
+
+--- Award a challenge to everyone present and say so once. Challenges are per-player
+--- and idempotent, so a returning player is never re-awarded and a new one is not
+--- handed the room's history.
+local function award(challengeId: string)
+	if not config.worldId then
+		return
+	end
+	for _, player in Players:GetPlayers() do
+		if ChallengeService.complete(player, config.worldId, challengeId) then
+			local done, total = ChallengeService.doneCount(player, config.worldId)
+			toast(player, "chal_" .. challengeId, `{theme.copy.challengeDone}  {done}/{total}`, "good", 0)
+			AnalyticsService.track(player, `challenge_{challengeId}`, done)
+		end
+	end
+	StateSync.requestAll()
 end
 
 local function dayTuning(day: number): any
@@ -473,6 +492,7 @@ local function onTouch(player: Player)
 	local lost = BeaconService.drain(BeaconService.fuel() * c.fuelPenalty)
 	run.fuelOut += lost
 	run.weight += c.weight
+	run.downs += 1
 	fx(player, "downed")
 	toast(player, "downed", theme.copy.downed, "warn", 0)
 	AnalyticsService.track(player, "downed_by_stalker", run.day)
@@ -556,6 +576,19 @@ local function onPhase(name: string, cycle: number, length: number)
 			StalkerService.setMode("watch")
 		end
 		recordBestDay()
+		-- Reaching a day means the night before it was held.
+		if cycle >= 2 then
+			award("first_night")
+		end
+		if cycle >= 3 then
+			award("third_day")
+			if run.lures == 0 then
+				award("refuse")
+			end
+			if run.downs == 0 then
+				award("untouched")
+			end
+		end
 		for _, player in Players:GetPlayers() do
 			AnalyticsService.track(player, "day_reached", cycle)
 			if cycle > 1 then
@@ -602,6 +635,7 @@ startRun = function()
 	run.fuelIn = 0
 	run.fuelOut = 0
 	run.stalkerSeen = false
+	run.downs = 0
 	run.startedAt = os.clock()
 	StalkerService.setMode("hidden")
 	setFogRadius(fogRadiusForLevel(0))
@@ -634,6 +668,7 @@ local function feed(player: Player)
 	end
 	AnalyticsService.step(player, "first_feed")
 	AnalyticsService.track(player, "fuel_fed", accepted)
+	award("first_light")
 	fxAll("feed", { amount = accepted, fuel = BeaconService.fuel() })
 	if not run.stalkerSeen then
 		revealStalker()
@@ -707,6 +742,7 @@ local function onProfileLoaded(player: Player, profile: any)
 	profile.carry = 0 -- fuel is per run, never carried between sessions
 	profile.bestDay = profile.bestDay or 0
 	profile.tutorialComplete = profile.tutorialComplete == true
+	ChallengeService.ensureDefaults(profile)
 
 	if not run.active then
 		startRun()
@@ -749,6 +785,7 @@ local function packet(player: Player, profile: any): any
 		level = BeaconService.level(),
 		bestDay = profile.bestDay or 0,
 		stalker = run.stalkerSeen,
+		challenges = if config.worldId then ChallengeService.packetFor(player, config.worldId) else nil,
 	}
 end
 
@@ -780,6 +817,18 @@ function SurviveLoop.validate(cfg: any, world: any, thm: any)
 	expect(typeof(cfg.night) == "table", "config.night is required")
 	expect(typeof(cfg.onboarding) == "table", "config.onboarding is required")
 	expect(typeof(cfg.runEndPause) == "number", "config.runEndPause is required")
+	if cfg.worlds then
+		expect(typeof(cfg.worldId) == "string", "config.worldId must name which of config.worlds is this pack")
+		local found = false
+		for _, world in cfg.worlds do
+			expect(
+				typeof(world.id) == "string" and typeof(world.challenges) == "table",
+				"every world needs an id and challenges"
+			)
+			found = found or world.id == cfg.worldId
+		end
+		expect(found, `config.worldId '{cfg.worldId}' is not one of config.worlds`)
+	end
 
 	local kinds = {}
 	for _, zone in world.zones do
@@ -817,6 +866,9 @@ function SurviveLoop.start(loaded: any)
 	SurviveLoop.validate(config, pack.world, theme)
 
 	AnalyticsService.configure({ "first_pickup", "first_feed", "first_night", "day_3", "run_end" })
+	if config.worlds then
+		ChallengeService.configure(config.worlds)
+	end
 
 	local flame, light = buildBeacon()
 	stalkerModel = buildStalker()
@@ -881,6 +933,7 @@ function SurviveLoop.start(loaded: any)
 
 	ClockService.phaseStarted:connect(onPhase)
 	ClockService.completed:connect(function()
+		award("the_week")
 		endRun(true, "week")
 	end)
 	ClockService.tick:connect(function()
@@ -901,6 +954,9 @@ function SurviveLoop.start(loaded: any)
 	BeaconService.levelChanged:connect(function(level, old)
 		setFogRadius(fogRadiusForLevel(level))
 		if level > old then
+			if level >= 1 then
+				award("open_shore")
+			end
 			spawnOpenRings(level)
 			if theme.copy.fogPeels then
 				toastAll("peel", theme.copy.fogPeels, "good")

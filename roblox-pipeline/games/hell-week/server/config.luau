@@ -13,6 +13,11 @@
 return {
 	loop = "survive",
 
+	-- The five worlds, one per pentagram point (`biomes.luau`). This pack builds the
+	-- first; the rest are the roadmap the stone draws.
+	worlds = require(script.Parent.biomes),
+	worldId = "quiet-shore",
+
 	-- The floor top. Everything that sits on the sand is placed from this.
 	groundY = 0,
 

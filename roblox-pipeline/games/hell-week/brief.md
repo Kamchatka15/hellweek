@@ -241,3 +241,18 @@ Obelisk scale ×2 (≈18 studs) so the cap flame sits in frame from spawn with m
 The star now has a 24-stud outer radius on a 30-stud stone, so the obelisk stands **inside** the pentagram rather than covering its centre. Spawn moved back to 48 studs and Ring A's inner edge to 32 so the stone is a walk, not a step, and no Ashwood lands on it.
 
 **Lighting, as a rule rather than a number:** dim is the register, black is a bug. The sun is weak (1.1, ClockTime 21.2) and ambient is low so distance falls off honestly; the obelisk is what a player reads by. A light *inside* a solid prop lights nothing, so four pale-warm anchors ring the shaft and wash its faces and five sit at the star tips and pour onto the sand. The beacon's own light keeps a high brightness floor (0.7 of full at zero fuel) because fuel is supposed to change how **far** the light reaches, not whether there is any. The stone stays charcoal (38,38,45) and the wash is pale, not orange — warm light on grey stone reads as sand and kills the gold.
+
+### 2026-09-12 — Five worlds, one per pentagram point (Justin, in chat)
+The pentagram has five points, so the game has five worlds. Picked for three things: each has to read differently at 200px, each has to be a different **kind** of fear rather than the same night repainted, and each has to run on the engine that already exists. The order is the curve — cover is taken away, then the ground, then the horizon, then the fire itself turns on you.
+
+| # | World | What it takes away |
+|---|---|---|
+| 1 | **The Quiet Shore** | nothing — it is the teach. Grey sand, black water, a fog ring. |
+| 2 | **The Still Wood** | **sightlines.** Dead standing trees break the light-line, so the thing on it is only ever half visible. |
+| 3 | **The Drowned Quarter** | **the ground.** Flooded ruins; fuel floats and drifts, and light does not cross water the way it crosses sand. |
+| 4 | **The Long Salt** | **distance.** White flats under a black sky, the palette inverted and the only bright world. You watch it come for a full minute across open ground. |
+| 5 | **The Kiln** | **the fire.** The one warm world: fuel is everywhere and burns four times as fast, and ember light on every surface makes the safe circle almost unreadable. |
+
+Point 1 faces spawn; the rest run clockwise. A point's triangle is **dark** while its world is locked, **red** once opened, **green** once mastered. Mastering means clearing that world's **seven trials**, listed in a pull-down at the upper right with the finished ones struck through. Clearing all seven opens the next world.
+
+**Pass 1 reality:** only The Quiet Shore exists, and only its seven trials are wired to real signals (first feed, hold night one, push the fog back, reach day three, reach day three having taken no Gift, reach day three untouched, last the week). The other four worlds are data so the stone has something true to draw. Building any of them is its own wave. Progress is per player and persisted, so in co-op everyone reads their own stone.

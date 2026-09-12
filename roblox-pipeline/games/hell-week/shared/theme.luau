@@ -93,6 +93,8 @@ return {
 		lightOut = "THE LIGHT WENT OUT",
 		weekDone = "YOU LASTED THE WEEK",
 		fogPeels = "THE SHORE OPENS",
+		challengeTitle = "TRIALS",
+		challengeDone = "TRIAL PASSED",
 		dayLabel = "Day",
 		scoreLabel = "Score",
 	},

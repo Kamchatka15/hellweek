@@ -37,6 +37,13 @@ local toastHolder: Frame
 local blackout: Frame
 local vignette: Frame
 local endPanel: Frame
+local trialsButton: TextButton
+local trialsPanel: Frame
+local trialsList: Frame
+local trialRows: { [string]: TextLabel } = {}
+local trialsOpen = false
+local refreshTrials: (any) -> ()
+local tipParts: { [number]: { BasePart } } = {}
 
 local latest: any = nil
 local receivedAt = 0
@@ -115,6 +122,85 @@ local function refreshWeight(state: any)
 	end
 end
 
+-- ---------------------------------------------------------------- trials
+
+local POINT_LOCKED = Color3.fromRGB(22, 20, 26)
+local POINT_OPEN = Color3.fromRGB(206, 34, 26)
+local POINT_MASTERED = Color3.fromRGB(64, 224, 96)
+
+-- The five pentagram points, coloured from THIS player's progress: dark while a world
+-- is locked, red once it is open, green once it is mastered. Done on the client on
+-- purpose — in co-op each player reads their own stone rather than the room's.
+local function paintPoints(worlds: { any }?)
+	if not worlds then
+		return
+	end
+	local world = workspace:FindFirstChild("World")
+	if not world then
+		return
+	end
+	for _, entry in worlds do
+		local parts = tipParts[entry.index]
+		if not parts then
+			parts = {}
+			for _, half in { "A", "B" } do
+				local part = world:FindFirstChild(`BiomePoint{entry.index}{half}`)
+				if part and part:IsA("BasePart") then
+					table.insert(parts, part)
+				end
+			end
+			if #parts == 0 then
+				continue -- the stone has not replicated yet; try again next packet
+			end
+			tipParts[entry.index] = parts
+		end
+		local color = POINT_LOCKED
+		if entry.state == "open" then
+			color = POINT_OPEN
+		elseif entry.state == "mastered" then
+			color = POINT_MASTERED
+		end
+		for _, part in parts do
+			part.Color = color
+		end
+	end
+end
+
+local function trialRow(entry: any, index: number): TextLabel
+	local row = text({
+		Name = entry.id,
+		Size = UDim2.new(1, -20, 0, 26),
+		Font = Enum.Font.GothamMedium,
+		RichText = true,
+		TextScaled = false,
+		TextSize = 15,
+		LayoutOrder = index,
+		Text = entry.label,
+		Parent = trialsList,
+	})
+	return row
+end
+
+function refreshTrials(packet: any)
+	if not packet then
+		return
+	end
+	paintPoints(packet.worlds)
+	trialsButton.Text = `{theme.copy.challengeTitle}  {packet.done}/{packet.total}`
+	for index, entry in packet.list do
+		local row = trialRows[entry.id]
+		if not row then
+			row = trialRow(entry, index)
+			trialRows[entry.id] = row
+		end
+		-- A struck-through line is the whole point of the list: you can see what is
+		-- left without reading, and what you did without a second panel.
+		row.Text = if entry.done then `<s>{entry.label}</s>` else entry.label
+		row.TextColor3 = if entry.done then theme.uiMuted else theme.uiText
+	end
+	trialsPanel.Size = UDim2.fromOffset(280, 38 + #packet.list * 28)
+end
+
 function SurviveHud.setState(state: any)
 	latest = state
 	receivedAt = os.clock()
@@ -126,6 +212,8 @@ function SurviveHud.setState(state: any)
 	fuelFill.Size = UDim2.fromScale(fuelRatio, 1)
 	fuelFill.BackgroundColor3 = if fuelRatio < 0.2 then theme.uiWarn else theme.accent
 	fuelText.Text = `{string.upper(theme.names.beacon)}  {string.format("%.0f", state.fuel)}`
+
+	refreshTrials(state.challenges)
 
 	local sackRatio = if state.carryCap > 0 then math.clamp(state.carry / state.carryCap, 0, 1) else 0
 	sackFill.Size = UDim2.fromScale(sackRatio, 1)
@@ -372,6 +460,45 @@ function SurviveHud.init(): ScreenGui
 		Parent = sackFrame,
 	})
 	sackFill = bar(sackFrame, 40, theme.colors.fuel)
+
+	-- trials (upper right, under the sack) -----------------------------------
+	trialsButton = UIKit.create("TextButton", {
+		Name = "Trials",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -16, 0, 86),
+		Size = UDim2.fromOffset(200, 40),
+		BackgroundColor3 = theme.uiPanel,
+		BackgroundTransparency = 0.15,
+		BorderSizePixel = 0,
+		Font = Enum.Font.GothamBold,
+		TextScaled = true,
+		TextColor3 = theme.uiText,
+		Text = `{theme.copy.challengeTitle}  0/0`,
+		AutoButtonColor = true,
+		Parent = gui,
+	}, { UIKit.padding(10) })
+	UIKit.corner(10).Parent = trialsButton
+
+	trialsPanel = panel({
+		Name = "TrialsPanel",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -16, 0, 130),
+		Size = UDim2.fromOffset(280, 234),
+		Visible = false,
+		ZIndex = 4,
+		Parent = gui,
+	})
+	trialsList = UIKit.create("Frame", {
+		Position = UDim2.fromOffset(14, 12),
+		Size = UDim2.new(1, -20, 1, -20),
+		BackgroundTransparency = 1,
+		ZIndex = 4,
+		Parent = trialsPanel,
+	}, { UIKit.list(2) })
+	trialsButton.Activated:Connect(function()
+		trialsOpen = not trialsOpen
+		trialsPanel.Visible = trialsOpen
+	end)
 
 	-- toasts ----------------------------------------------------------------
 	toastHolder = UIKit.create("Frame", {

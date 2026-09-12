@@ -198,6 +198,42 @@ for k = 1, 5 do
 		castShadow = false,
 	})
 end
+-- The five point triangles — one per world (`server/biomes.luau`). Dark while a world
+-- is locked, red once it is open, green once it is mastered. Each is two right-angled
+-- wedges laid flat back to back, so the pair reads from above as the filled triangle
+-- between the star's tip and the two inner vertices beside it. The client recolours
+-- them from its own progress, so in co-op every player reads their own stone.
+local TIP_THICK = 0.16
+local INNER_R = PENT_R * 0.38197 -- a five-pointed star's inner pentagon
+for k = 1, 5 do
+	local a = math.rad(90 + 72 * (k - 1))
+	local apex = Vector3.new(math.cos(a) * PENT_R, PENT_Y, math.sin(a) * PENT_R)
+	local b1 = Vector3.new(math.cos(a - math.rad(36)) * INNER_R, PENT_Y, math.sin(a - math.rad(36)) * INNER_R)
+	local b2 = Vector3.new(math.cos(a + math.rad(36)) * INNER_R, PENT_Y, math.sin(a + math.rad(36)) * INNER_R)
+	local mid = (b1 + b2) / 2
+	local forward = apex - mid
+	local height = forward.Magnitude
+	local forwardUnit = forward.Unit
+	for half, corner in { A = b1, B = b2 } do
+		local side = corner - mid
+		local halfBase = side.Magnitude
+		local sideUnit = side.Unit
+		local vz = forwardUnit
+		local vx = sideUnit:Cross(vz)
+		table.insert(props, {
+			name = `BiomePoint{k}{half}`,
+			shape = Enum.PartType.Wedge,
+			size = Vector3.new(TIP_THICK, halfBase, height),
+			position = mid,
+			cframe = CFrame.fromMatrix(mid + sideUnit * (halfBase / 2) + forwardUnit * (height / 2), vx, sideUnit, vz),
+			color = Color3.fromRGB(22, 20, 26), -- locked: the client lights it
+			material = Enum.Material.Neon,
+			canCollide = false,
+			castShadow = false,
+		})
+	end
+end
+
 local RING_SEGMENTS = 56
 local RING_R = 26.5
 for i = 1, RING_SEGMENTS do

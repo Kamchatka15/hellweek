@@ -24,6 +24,24 @@
 - Persist: bestDay + tutorialComplete
 - Instrumentation: day reached, death reason, gifts taken, fuel in/out
 
+## IN, added by Justin after the line was drawn (2026-09-12)
+
+- **Five worlds, one per pentagram point** (`server/biomes.luau`): The Quiet Shore · The Still Wood · The Drowned Quarter · The Long Salt · The Kiln. Each point's triangle is dark (locked), red (open), green (mastered).
+- **Seven trials per world**, listed in a pull-down at the upper right, completed ones struck through. The Quiet Shore's seven are wired to real signals; the other four worlds are data only.
+
+**Budget: this puts the slice over, and the caps are how Gate A is read, so it is written down rather than absorbed.**
+
+| Slot | Cap | Now |
+|---|---|---|
+| Core verb | 1 | 1 |
+| Return hook | 1 | 1 |
+| Clip hook | ≤1 | 1 (the Gift) |
+| Player-facing systems | ≤4 | **5** — beacon+fuel, clock, Tempter, Sack, **Trials** |
+| On-screen numbers | ≤3 | **4** — Day, Obelisk, Sack, **Trials n/7** |
+| Onboarding artifact | 1 | 1 (the obelisk + two toasts) |
+
+The trials menu is collapsed by default, so what a new player actually sees is one extra button, not a fourth meter. That is an argument, not evidence. **Gate A answers it:** if a tester never opens the menu, or opens it and stops playing, the cap was right and the menu moves to a between-runs screen. `docs/BUDGET.md` says a cap moved by evidence is the system working.
+
 ## PARKED
 
 - Zones named Gehenna, Tartarus, Abyss, Lake of Fire, Outer Darkness, Hades
