@@ -1,0 +1,8 @@
+newmtl magma_golem
+Kd 1.00 1.00 1.00
+Ka 0.08 0.08 0.08
+Ks 0.04 0.04 0.04
+d 1.0
+illum 2
+map_Kd magma_golem_albedo.png
+map_Ke magma_golem_emissive.png

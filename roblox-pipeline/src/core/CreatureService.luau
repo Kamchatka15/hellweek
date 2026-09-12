@@ -34,12 +34,29 @@ export type CreatureDef = {
 	id: string,
 	label: string,
 	parts: { any }, -- body part specs, positions RELATIVE to the creature's origin
+	-- Optional: the name of a Model or MeshPart sitting in the templates folder. When
+	-- one is found it REPLACES `parts` as the body, and the eyes are still built on
+	-- top so the night signature works either way.
+	--
+	-- This is how an imported mesh lands with no code change. `MeshPart.MeshId` is not
+	-- settable at runtime, so the durable path is always: import once, keep the
+	-- instance in the tree, clone it. `parts` stays as the blockout that behaviour was
+	-- tuned against, and as the fallback if the template is ever missing.
+	template: string?,
+	templateScale: number?,
+	templateYOffset: number?,
 	eyes: { -- the readable-at-distance signature
 		offsets: { Vector3 },
 		color: Color3,
 		size: number?,
 		brightness: number?,
 		range: number?,
+		-- Night is a different creature. When these are set the eyes change colour
+		-- and burn harder after dark, so the thing you walked past in daylight is
+		-- the thing you can see coming from the far side of the map at night.
+		nightColor: Color3?,
+		nightBrightness: number?,
+		nightRange: number?,
 	}?,
 	health: number, -- hits from a tool, not a damage number; kids count swings
 	speed: number, -- studs/second while closing
@@ -63,6 +80,8 @@ export type Record = {
 	nextBite: number,
 	drift: Vector3,
 	nextDrift: number,
+	eyeParts: { BasePart },
+	litForNight: boolean,
 }
 
 local defs: { [string]: CreatureDef } = {}
@@ -70,6 +89,7 @@ local records: { Record } = {}
 local root: Instance? = nil
 local blockFn: ((any, Instance) -> BasePart)? = nil
 local isNight: (() -> boolean)? = nil
+local templates: Instance? = nil
 local safeAt: ((Vector3) -> boolean)? = nil
 local connection: RBXScriptConnection? = nil
 
@@ -100,6 +120,7 @@ function CreatureService.configure(
 	blockFn = options.block
 	isNight = options.isNight
 	safeAt = options.safeAt
+	templates = options.templates
 	if not connection then
 		connection = RunService.Heartbeat:Connect(function(delta)
 			local ok, err = pcall(CreatureService.tick, delta)
@@ -122,10 +143,11 @@ function CreatureService.count(): number
 	return #records
 end
 
-local function buildEyes(def: CreatureDef, model: Model, origin: Vector3)
+local function buildEyes(def: CreatureDef, model: Model, origin: Vector3): { BasePart }
+	local made: { BasePart } = {}
 	local eyes = def.eyes
 	if not eyes then
-		return
+		return made
 	end
 	for index, offset in eyes.offsets do
 		local eye = Instance.new("Part")
@@ -149,6 +171,29 @@ local function buildEyes(def: CreatureDef, model: Model, origin: Vector3)
 		glow.Shadows = false
 		glow.Parent = eye
 		eye.Parent = model
+		table.insert(made, eye)
+	end
+	return made
+end
+
+--- Repaint a creature's eyes for the current half of the day.
+local function paintEyes(record: Record, night: boolean)
+	local eyes = record.def.eyes
+	if not eyes or record.litForNight == night then
+		return
+	end
+	record.litForNight = night
+	local colour = if night and eyes.nightColor then eyes.nightColor else eyes.color
+	local bright = if night then (eyes.nightBrightness or eyes.brightness or 2.2) else (eyes.brightness or 2.2)
+	local range = if night then (eyes.nightRange or eyes.range or 11) else (eyes.range or 11)
+	for _, eye in record.eyeParts do
+		eye.Color = colour
+		local glow = eye:FindFirstChild("EyeGlow")
+		if glow and glow:IsA("PointLight") then
+			glow.Color = colour
+			glow.Brightness = bright
+			glow.Range = range
+		end
 	end
 end
 
@@ -162,13 +207,51 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 
 	local model = Instance.new("Model")
 	model.Name = `Creature_{def.id}_{#records + 1}`
-	for _, spec in def.parts do
-		local copy = table.clone(spec)
-		copy.position = position + (spec.position or Vector3.zero)
-		copy.canCollide = false
-		build(copy, model)
+
+	local body: Instance? = nil
+	if def.template and templates then
+		local source = templates:FindFirstChild(def.template)
+		if source then
+			body = source:Clone()
+		end
 	end
-	buildEyes(def, model, position)
+
+	if body then
+		-- An imported body. Anchor everything, drop collision, and stand it on the spot.
+		for _, d in body:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.Anchored = true
+				d.CanCollide = false
+				d.CanTouch = false
+			end
+		end
+		if body:IsA("BasePart") then
+			body.Anchored = true
+			body.CanCollide = false
+			body.CanTouch = false
+		end
+		body.Parent = model
+		local lift = def.templateYOffset or 0
+		if body:IsA("Model") then
+			if not body.PrimaryPart then
+				body.PrimaryPart = body:FindFirstChildWhichIsA("BasePart")
+			end
+			if body.PrimaryPart then
+				body:PivotTo(CFrame.new(position + Vector3.new(0, lift, 0)))
+			end
+		elseif body:IsA("BasePart") then
+			body.Position = position + Vector3.new(0, lift, 0)
+		end
+	else
+		for _, spec in def.parts do
+			local copy = table.clone(spec)
+			copy.position = position + (spec.position or Vector3.zero)
+			copy.canCollide = false
+			build(copy, model)
+		end
+	end
+
+	local eyeParts = buildEyes(def, model, position)
 	local primary = model:FindFirstChildWhichIsA("BasePart")
 	if primary then
 		model.PrimaryPart = primary
@@ -185,8 +268,11 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 		nextBite = 0,
 		drift = Vector3.zero,
 		nextDrift = 0,
+		eyeParts = eyeParts,
+		litForNight = false,
 	}
 	table.insert(records, record)
+	paintEyes(record, if isNight then isNight() else false)
 	return record
 end
 
@@ -299,6 +385,7 @@ function CreatureService.tick(delta: number)
 
 	for _, record in records do
 		local def = record.def
+		paintEyes(record, night)
 		local notice = if night then (def.nightNoticeRadius or def.noticeRadius) else def.noticeRadius
 		local speed = if night then (def.nightSpeed or def.speed) else def.speed
 

@@ -326,6 +326,195 @@ local creatures = {
 			},
 		},
 	},
+
+	{
+		-- THE MAGMA GOLEM — behaviour test rig for the HW art drop.
+		--
+		-- This is a parts BLOCKOUT standing in for magma_golem.glb, matched to the
+		-- mesh's real footprint (6.1 wide x 9.8 tall x 4.5 deep) so the behaviour
+		-- being tuned here is the behaviour the mesh will have. Swapping the mesh in
+		-- changes how it looks and nothing about how it moves.
+		--
+		-- Tuned to the brief: as fast as a player, comes for you when you get close,
+		-- and its eyes burn red after dark.
+		id = "golem",
+		label = "Magma Golem",
+
+		-- Drop the imported mesh into ServerStorage/CreatureBodies named exactly this
+		-- and it becomes the body, with no code change. Until then the blockout below
+		-- stands in, matched to the mesh's real 6.1 x 9.8 x 4.5 footprint.
+		template = "MagmaGolem",
+		templateYOffset = 0,
+
+		-- Roblox's default player WalkSpeed is 16, and this game never changes it. So
+		-- 16 means exactly matched: it will never gain on you down a straight line,
+		-- and every corner you turn, it takes back. That is a far better chase than
+		-- something faster, which is just a death sentence with extra steps.
+		speed = 16,
+		nightSpeed = 16,
+
+		-- Get near it and it comes. Generous at night because that is when you are
+		-- meant to see the eyes coming from a long way off.
+		noticeRadius = 46,
+		nightNoticeRadius = 80,
+
+		biteRadius = 6.5,
+		biteCooldown = 2.6,
+		wander = 26,
+		health = 10,
+		drops = { stone = 3, emberwood = 2 },
+
+		eyes = {
+			-- Sunk deep in the brow so they read as sockets, not headlights.
+			offsets = { Vector3.new(-1.05, 8.5, -1.5), Vector3.new(1.05, 8.5, -1.5) },
+			-- Day: a dull ember you can barely see against the sand.
+			color = Color3.fromRGB(196, 88, 30),
+			brightness = 0.9,
+			range = 10,
+			size = 0.78,
+			-- Night: red, and burning hard enough to find from across the waste.
+			nightColor = Color3.fromRGB(255, 42, 28),
+			nightBrightness = 4.2,
+			nightRange = 34,
+		},
+
+		-- Two of them, 180 degrees apart at the edge of the biome. Fixed spots, so
+		-- they are landmarks you learn rather than weather that happens to you.
+		fixed = {
+			Vector3.new(215, 0, 0),
+			Vector3.new(-215, 0, 0),
+		},
+
+		parts = {
+			-- legs
+			{
+				name = "FootL",
+				size = Vector3.new(1.9, 1.2, 2.6),
+				position = Vector3.new(-1.5, 0.6, 0.2),
+				color = COLORS.stoneDark,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "FootR",
+				size = Vector3.new(1.9, 1.2, 2.6),
+				position = Vector3.new(1.5, 0.6, 0.2),
+				color = COLORS.stoneDark,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "LegL",
+				size = Vector3.new(1.7, 2.4, 1.8),
+				position = Vector3.new(-1.5, 2.3, 0),
+				color = COLORS.stone,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "LegR",
+				size = Vector3.new(1.7, 2.4, 1.8),
+				position = Vector3.new(1.5, 2.3, 0),
+				color = COLORS.stone,
+				material = Enum.Material.Basalt,
+			},
+			-- torso, wide and heavy
+			{
+				name = "Torso",
+				size = Vector3.new(5.2, 4.2, 3.6),
+				position = Vector3.new(0, 5.6, 0),
+				color = COLORS.stone,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "Shoulders",
+				size = Vector3.new(6.1, 1.7, 3.8),
+				position = Vector3.new(0, 7.5, 0),
+				color = COLORS.stoneDark,
+				material = Enum.Material.Basalt,
+			},
+			-- the belly: the mesh's signature. Molten, and it lights the ground it stands on
+			{
+				name = "Belly",
+				shape = Enum.PartType.Ball,
+				size = Vector3.new(3.6, 3.2, 2.6),
+				position = Vector3.new(0, 5.2, -1.4),
+				color = Color3.fromRGB(255, 126, 30),
+				material = Enum.Material.Neon,
+				transparency = 0.12,
+				castShadow = false,
+				light = { color = Color3.fromRGB(255, 120, 36), brightness = 2.1, range = 22 },
+			},
+			-- long arms, knuckles near the ground
+			{
+				name = "ArmL",
+				size = Vector3.new(1.7, 4.6, 1.9),
+				position = Vector3.new(-3.5, 5.2, 0),
+				color = COLORS.stone,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "ArmR",
+				size = Vector3.new(1.7, 4.6, 1.9),
+				position = Vector3.new(3.5, 5.2, 0),
+				color = COLORS.stone,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "FistL",
+				size = Vector3.new(2.2, 2, 2.3),
+				position = Vector3.new(-3.5, 2.2, 0),
+				color = COLORS.stoneDark,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "FistR",
+				size = Vector3.new(2.2, 2, 2.3),
+				position = Vector3.new(3.5, 2.2, 0),
+				color = COLORS.stoneDark,
+				material = Enum.Material.Basalt,
+			},
+			-- head, sunk between the shoulders
+			{
+				name = "Head",
+				size = Vector3.new(2.9, 2.3, 2.7),
+				position = Vector3.new(0, 8.7, -0.3),
+				color = COLORS.stone,
+				material = Enum.Material.Basalt,
+			},
+			{
+				name = "Brow",
+				size = Vector3.new(3.1, 0.7, 0.9),
+				position = Vector3.new(0, 9.3, -1.3),
+				color = COLORS.stoneDark,
+				material = Enum.Material.Basalt,
+			},
+			-- the mouth: a crack of molten light under the brow
+			{
+				name = "Mouth",
+				size = Vector3.new(1.9, 0.45, 0.5),
+				position = Vector3.new(0, 7.9, -1.45),
+				color = Color3.fromRGB(255, 108, 24),
+				material = Enum.Material.Neon,
+				castShadow = false,
+				light = { color = Color3.fromRGB(255, 100, 30), brightness = 1.2, range = 12 },
+			},
+			-- cracks down the back, so it reads as magma from behind too
+			{
+				name = "VentL",
+				size = Vector3.new(0.5, 2.6, 0.4),
+				position = Vector3.new(-1.4, 5.8, 1.8),
+				color = Color3.fromRGB(255, 96, 24),
+				material = Enum.Material.Neon,
+				castShadow = false,
+			},
+			{
+				name = "VentR",
+				size = Vector3.new(0.5, 2.6, 0.4),
+				position = Vector3.new(1.4, 5.8, 1.8),
+				color = Color3.fromRGB(255, 96, 24),
+				material = Enum.Material.Neon,
+				castShadow = false,
+			},
+		},
+	},
 }
 
 return {

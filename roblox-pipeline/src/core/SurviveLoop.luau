@@ -57,6 +57,7 @@ local run = {
 	fuelIn = 0,
 	fuelOut = 0,
 	stalkerSeen = false,
+	clearedSpots = {},
 	downs = 0,
 	bowl = {} :: { [string]: number },
 	startedAt = 0,
@@ -741,24 +742,55 @@ local function endRun(won: boolean, reason: string)
 	end)
 end
 
---- Put creatures in the waste, more of them as the week wears on.
+--- Put creatures in the waste.
 ---
---- The desert had nothing alive in it, which is the real gap behind the question
---- "what are the weapons". The answer is that the weapon is the harvesting tool, and
---- what it harvests sometimes looks back at you. This is prey, not the threat: the
---- stalker stays unkillable, because a night you can put down is not a night.
+--- Two kinds of placement, because two kinds of creature:
+---
+---   SCATTERED  a population that grows through the week, anywhere in a ring. Prey
+---   FIXED      named spots that always hold exactly one. Something you can go FIND
+---
+--- The difference matters. A scattered thing is weather. A thing that is always in
+--- the same place is a landmark you learn, walk toward on purpose, and eventually
+--- stop being afraid of. Only the second kind can anchor a map.
 local function stockCreatures(day: number)
 	if not config.creatures or #config.creatures == 0 then
 		return
 	end
-	local want =
-		math.min((config.creatureBase or 4) + (day - 1) * (config.creaturePerDay or 2), config.creatureCap or 14)
-	local def = config.creatures[1]
-	local inner = (config.creatureRing and config.creatureRing.inner) or 70
-	local outer = (config.creatureRing and config.creatureRing.outer) or 240
-	while CreatureService.count() < want do
-		local spot = randomInRing(inner, outer)
-		CreatureService.spawn(def.id, spot)
+	local alive: { [string]: number } = {}
+	for _, record in CreatureService.all() do
+		alive[record.def.id] = (alive[record.def.id] or 0) + 1
+	end
+
+	for _, def in config.creatures do
+		if def.fixed then
+			-- One per named spot. Nothing respawns mid-run: if you clear a spot, it
+			-- stays clear, and that is the reward for clearing it.
+			for _, spot in def.fixed do
+				local taken = false
+				for _, record in CreatureService.all() do
+					if record.def.id == def.id and (record.home - spot).Magnitude < 4 then
+						taken = true
+						break
+					end
+				end
+				if not taken and not run.clearedSpots[`{def.id}@{spot.X},{spot.Z}`] then
+					CreatureService.spawn(def.id, spot)
+				end
+			end
+			continue
+		end
+
+		local want = math.min(
+			(def.base or config.creatureBase or 4) + (day - 1) * (def.perDay or config.creaturePerDay or 2),
+			def.cap or config.creatureCap or 14
+		)
+		local inner = (def.ring and def.ring.inner) or (config.creatureRing and config.creatureRing.inner) or 70
+		local outer = (def.ring and def.ring.outer) or (config.creatureRing and config.creatureRing.outer) or 240
+		local have = alive[def.id] or 0
+		while have < want do
+			CreatureService.spawn(def.id, randomInRing(inner, outer))
+			have += 1
+		end
 	end
 end
 
@@ -885,6 +917,7 @@ startRun = function()
 	run.fuelIn = 0
 	run.fuelOut = 0
 	run.stalkerSeen = false
+	run.clearedSpots = {}
 	run.downs = 0
 	run.startedAt = os.clock()
 	StalkerService.setMode("hidden")
@@ -1294,6 +1327,11 @@ local function strike(player: Player, record: any)
 		return
 	end
 	local where = record.position
+	-- A fixed-spot creature stays dead for the rest of the run. Clearing a landmark
+	-- has to mean something, or it is just a respawning chore.
+	if record.def.fixed then
+		run.clearedSpots[`{record.def.id}@{record.home.X},{record.home.Z}`] = true
+	end
 	for kind, count in record.def.drops do
 		for index = 1, count do
 			local theta = math.random() * math.pi * 2
@@ -1604,6 +1642,9 @@ function SurviveLoop.start(loaded: any)
 				local flat = Vector3.new(position.X - centre.X, 0, position.Z - centre.Z).Magnitude
 				return flat <= BeaconService.radius() or BuildService.litAt(position)
 			end,
+			-- Imported bodies live here. Absent is fine: every creature keeps its
+			-- parts blockout as the fallback, and behaviour is identical either way.
+			templates = game:GetService("ServerStorage"):FindFirstChild("CreatureBodies"),
 		})
 		CreatureService.start()
 	end
