@@ -233,38 +233,45 @@ return {
 	},
 
 	-- The rig from games/hell-week/lighting.md. Applied by ContentLoader at boot.
-	-- The WHOLE world is lit (Justin, 2026-09-12), not a pool with a void around it: a
-	-- player anywhere on the 700-stud disk can see the sand, the dunes and the mesas on
-	-- the horizon. Contrast is kept by the obelisk being the only warm light and the only
-	-- thing that gets BRIGHTER, not by taking light away from everything else. Night
-	-- lowers the sky; it never blinds the player.
+	-- THE DAY RIG. The Ashen Waste is a BRIGHT world (Justin, 2026-09-12) — brighter
+	-- than the camp at its centre. The waste is exposed and bleached; the obelisk stands
+	-- on dark slate in its own shadow with its warm lights turned almost out, so by day
+	-- it is a cold monument on a hot plain. Night is a different rig entirely
+	-- (`config.night.rig`), not this one dimmed — that is where the obelisk becomes the
+	-- only warm thing left, which is the whole point of the game.
 	-- LightingStyle / Technology are plugin-only and set once in Studio.
 	lighting = {
-		ClockTime = 21.2,
-		Brightness = 3,
-		Ambient = Color3.fromRGB(86, 82, 88),
-		OutdoorAmbient = Color3.fromRGB(132, 126, 130),
-		ColorShift_Top = Color3.fromRGB(150, 140, 130),
+		ClockTime = 7.1, -- low, hard light: long shadows and no midday postcard blue
+		Brightness = 3.4,
+		Ambient = Color3.fromRGB(116, 110, 102),
+		OutdoorAmbient = Color3.fromRGB(176, 168, 154),
+		ColorShift_Top = Color3.fromRGB(255, 238, 208),
+		ColorShift_Bottom = Color3.fromRGB(132, 120, 102),
 		GlobalShadows = true,
-		EnvironmentDiffuseScale = 0.25,
-		EnvironmentSpecularScale = 0.15,
+		EnvironmentDiffuseScale = 0.6,
+		EnvironmentSpecularScale = 0.3,
+		FogEnd = 1400,
 		atmosphere = {
-			Density = 0.2,
-			Offset = 0.15,
-			Haze = 1.5,
-			Color = Color3.fromRGB(122, 114, 110),
-			Decay = Color3.fromRGB(66, 62, 66),
-			Glare = 0,
+			-- Heavy haze with a sand colour is what kills the blue: the sky bleaches
+			-- toward the ground instead of reading as a nice day at the beach. Bright
+			-- and WRONG is the target, not bright and pleasant.
+			Density = 0.3,
+			Offset = 0.1,
+			Haze = 5,
+			Color = Color3.fromRGB(228, 216, 194),
+			Decay = Color3.fromRGB(198, 182, 158),
+			Glare = 1,
 		},
 		colorCorrection = {
-			Contrast = 0.12,
-			Saturation = -0.08,
-			TintColor = Color3.fromRGB(228, 226, 226),
+			Contrast = 0.11,
+			Saturation = -0.36, -- bleached, never a picture-postcard desert
+			Brightness = 0.02,
+			TintColor = Color3.fromRGB(255, 250, 240),
 		},
 		bloom = {
-			Intensity = 0.7,
-			Size = 28,
-			Threshold = 1.1, -- the gold glyphs, the pentagram and the cap fire bloom; nothing else
+			Intensity = 0.35,
+			Size = 24,
+			Threshold = 1.6, -- in daylight only the flame is allowed to bloom
 		},
 	},
 }

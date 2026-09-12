@@ -15,7 +15,6 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local Lighting = game:GetService("Lighting")
 
 local Core = script.Parent
 local AnalyticsService = require(Core.AnalyticsService)
@@ -491,19 +490,33 @@ end
 
 -- ---------------------------------------------------------------- lighting moods
 
+--- Day and night are two complete rigs, not one rig with the lamp turned down.
+---
+--- The desert DAY is the bright one — brighter than the camp (Justin, 2026-09-12): the
+--- waste is exposed and bleached, and the obelisk's ground is dark slate in its own
+--- shadow. The camp's warm lights are dimmed almost out by daylight, so by day the
+--- obelisk is a cold monument on a bright plain, and at night it is the only warm thing
+--- left. Same object, opposite job, and the player learns the difference by watching it.
 local function setMood(night: boolean)
 	local c = config.night
 	local seconds = c.transition
+	ContentLoader.tweenLighting(if night then c.rig else pack.world.lighting, seconds)
+
+	local scale = if night then 1 else (c.campGlowByDay or 0.15)
 	local info = TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-	local rig = pack.world.lighting or {}
-	TweenService:Create(Lighting, info, {
-		Brightness = if night then c.brightness else (rig.Brightness or 1.8),
-	}):Play()
-	local atmosphere = Lighting:FindFirstChild("Atmosphere")
-	if atmosphere then
-		TweenService:Create(atmosphere, info, {
-			Density = if night then c.atmosphereDensity else ((rig.atmosphere and rig.atmosphere.Density) or 0.4),
-		}):Play()
+	for _, part in pack.folder:GetChildren() do
+		local name = part.Name
+		if string.sub(name, 1, 12) == "ObeliskGlow" or string.sub(name, 1, 8) == "StarGlow" then
+			local light = part:FindFirstChildOfClass("PointLight")
+			if light then
+				local full = light:GetAttribute("FullBrightness")
+				if full == nil then
+					full = light.Brightness
+					light:SetAttribute("FullBrightness", full)
+				end
+				TweenService:Create(light, info, { Brightness = (full :: number) * scale }):Play()
+			end
+		end
 	end
 end
 
@@ -1035,6 +1048,10 @@ function SurviveLoop.validate(cfg: any, world: any, thm: any)
 	)
 	expect(typeof(cfg.score) == "table", "config.score is required")
 	expect(typeof(cfg.night) == "table", "config.night is required")
+	expect(
+		typeof(cfg.night.rig) == "table",
+		"config.night.rig is required (night is its own rig, not the day rig dimmed)"
+	)
 	expect(typeof(cfg.onboarding) == "table", "config.onboarding is required")
 	expect(typeof(cfg.runEndPause) == "number", "config.runEndPause is required")
 	expect(typeof(cfg.offering) == "table", "config.offering is required")

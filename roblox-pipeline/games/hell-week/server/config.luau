@@ -329,11 +329,44 @@ return {
 		transparency = 0.35,
 	},
 
+	-- NIGHT is its own complete rig, not the day rig dimmed. The sky goes out, the haze
+	-- thickens and cools, and the camp's warm lights come back to full — so the same
+	-- monument that read cold and exposed at noon is the only warm thing on the waste
+	-- after dark.
 	night = {
-		brightness = 0.35,
-		atmosphereDensity = 0.32,
-		transition = 4,
+		transition = 5,
 		graceSeconds = 2,
+		campGlowByDay = 0.12, -- how much of the camp's warm light survives daylight
+		rig = {
+			ClockTime = 22.1,
+			Brightness = 0.9,
+			Ambient = Color3.fromRGB(30, 31, 40),
+			OutdoorAmbient = Color3.fromRGB(52, 54, 70),
+			ColorShift_Top = Color3.fromRGB(96, 104, 138),
+			ColorShift_Bottom = Color3.fromRGB(26, 28, 38),
+			EnvironmentDiffuseScale = 0.2,
+			EnvironmentSpecularScale = 0.12,
+			FogEnd = 700,
+			atmosphere = {
+				Density = 0.42,
+				Offset = 0.15,
+				Haze = 2.6,
+				Color = Color3.fromRGB(70, 76, 96),
+				Decay = Color3.fromRGB(34, 38, 50),
+				Glare = 0,
+			},
+			colorCorrection = {
+				Contrast = 0.16,
+				Saturation = -0.05,
+				Brightness = -0.02,
+				TintColor = Color3.fromRGB(206, 216, 240),
+			},
+			bloom = {
+				Intensity = 0.8,
+				Size = 30,
+				Threshold = 1, -- after dark the gold and the fire are allowed to burn
+			},
+		},
 	},
 
 	onboarding = {

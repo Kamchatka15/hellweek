@@ -14,6 +14,7 @@
 -- the loader must not know what a flood cooldown or a burn schedule is.
 
 local Lighting = game:GetService("Lighting")
+local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
@@ -208,6 +209,40 @@ function ContentLoader.fire(part: BasePart, spec: any)
 	light.Range = spec.range or 12
 	light.Shadows = false
 	light.Parent = part
+end
+
+--- Move the lighting toward `spec` over `seconds`. Same shape as the boot rig, so a
+--- pack can describe day and night as two complete rigs rather than as a base plus a
+--- couple of overrides — which is the only way a world gets to look like a DIFFERENT
+--- place at night rather than the same place with the lamp turned down.
+function ContentLoader.tweenLighting(spec: any, seconds: number)
+	if typeof(spec) ~= "table" then
+		return
+	end
+	local info = TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+	local goal: { [string]: any } = {}
+	for key, value in spec do
+		if typeof(value) ~= "table" then
+			goal[key] = value
+		end
+	end
+	pcall(function()
+		TweenService:Create(Lighting, info, goal):Play()
+	end)
+	for name, props in
+		{
+			Atmosphere = spec.atmosphere,
+			ColorCorrection = spec.colorCorrection,
+			Bloom = spec.bloom,
+		}
+	do
+		local instance = Lighting:FindFirstChild(name)
+		if instance and typeof(props) == "table" then
+			pcall(function()
+				TweenService:Create(instance, info, props):Play()
+			end)
+		end
+	end
 end
 
 ContentLoader.block = block

@@ -291,3 +291,14 @@ The sack now holds **typed items, six slots**, and the HUD shows what is in it r
 **The whole world is lit.** Not a pool with a void around it: from anywhere on the 700-stud disk you can see the sand, the dunes and the mesas on the horizon. Contrast is kept by the obelisk being the only warm light and the only thing that gets brighter, rather than by taking light away from everything else.
 
 **The obelisk was visibly low-resolution and is rebuilt** (`tools/gen_obelisk.py`, superseding the Blender translation): 52 thin shaft slices so the taper is smooth instead of a staircase, a real 22-slice pyramid cap, five fine base steps, and four faces of gold glyph marks recessed into dark channels that follow the taper. **Skulls removed** — at this scale under a shaft wash they read as smudges, and if they return they need to be lit from their own side.
+
+### 2026-09-12 — The desert is the bright world (Justin, in chat)
+"Make the 1st biome the desert biome brighter than the initial area."
+
+Day and night are now **two complete rigs**, not one rig with the lamp turned down (`world.lighting` and `config.night.rig`, tweened by `ContentLoader.tweenLighting`). That is what lets a world look like a different place after dark rather than the same place dimmed.
+
+**Day: The Ashen Waste is bright and exposed** — brighter than the camp at its centre. Heavy sand haze (Haze 5 on a bone-coloured Atmosphere) bleaches the sky to white-hot instead of the postcard blue Roblox gives by default, saturation is down a third, and the sun sits low at 7.1 for long hard shadows. The camp reads *darker* than the waste because the pentagram slab is dark slate, the obelisk is charcoal, and its warm lights are turned down to 12% by daylight. So by day the obelisk is a cold monument on a hot plain.
+
+**Night is its own world.** The sky goes out, the haze thickens and cools to blue-grey, the bloom threshold drops so gold and fire are allowed to burn, and the camp's warm lights come back to full. The same monument that read cold and exposed at noon is the only warm thing on the waste — which is the whole point of the game, and it is now something the player watches happen rather than something the design asserts.
+
+Brightness is per-world data, so the later biomes are free to be dark ones.
