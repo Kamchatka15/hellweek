@@ -804,6 +804,13 @@ local function stockCreatures(day: number)
 	end
 
 	for _, def in config.creatures do
+		-- A boss is never ambient population. It arrives because the siege sends it,
+		-- one at a time. Without this guard the Herald fell through to the generic
+		-- stocking branch and was spawned like prey: four of them on night one, which
+		-- is exactly what turned up on screen.
+		if def.boss then
+			continue
+		end
 		if def.fixed then
 			-- One per named spot. Nothing respawns mid-run: if you clear a spot, it
 			-- stays clear, and that is the reward for clearing it.

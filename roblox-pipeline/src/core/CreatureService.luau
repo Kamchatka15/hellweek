@@ -47,6 +47,12 @@ export type CreatureDef = {
 	template: string?,
 	templateScale: number?,
 	templateYOffset: number?,
+	-- Degrees to spin an imported body about its own vertical axis.
+	--
+	-- Roblox's front is -Z, and CFrame.lookAt points -Z at the target. A body authored
+	-- facing +Z therefore walks backwards: the root is oriented correctly, the geometry
+	-- inside it is not. 180 turns such a body round. Nothing else needs to change.
+	templateYaw: number?,
 	eyes: { -- the readable-at-distance signature
 		offsets: { Vector3 },
 		color: Color3,
@@ -121,6 +127,10 @@ export type Record = {
 	joints: { [string]: Motor6D },
 	baseC0: { [string]: CFrame },
 	gaitClock: number,
+	-- How far the root part sits above the body's lowest point. place() moves the root
+	-- and everything else hangs off it, so without this an 18-stud creature spawned at
+	-- ground level stands with its feet nine studs under the sand.
+	rootLift: number,
 	bob: number,
 	retreatUntil: number,
 	driving: boolean, -- true while walking a goal rather than hunting a player
@@ -282,9 +292,10 @@ local function animate(record: Record, delta: number, moving: boolean)
 		motor.C0 = base * rot
 	end
 
-	-- The body rises and falls on the stride. Two strides per cycle, because you go up
-	-- on each foot, not once per pair.
-	record.bob = (gait.bob or 0) * scale * math.sin(turn * math.pi * 4)
+	-- The body rises on the stride. Always UP, never down: a signed sine pushed the
+	-- feet below the sand on every other step. abs() also happens to be how a real
+	-- walk bob works — you rise on each foot, twice per stride.
+	record.bob = (gait.bob or 0) * scale * math.abs(math.sin(turn * math.pi * 2))
 end
 
 local function buildEyes(def: CreatureDef, model: Model, origin: Vector3): { BasePart }
@@ -403,7 +414,7 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 				body:PivotTo(CFrame.new(position + Vector3.new(0, lift, 0)))
 			end
 		elseif body:IsA("BasePart") then
-			body.Position = position + Vector3.new(0, lift, 0)
+			body.Position = position + Vector3.new(0, lift + body.Size.Y / 2, 0)
 		end
 	else
 		for _, spec in def.parts do
@@ -416,6 +427,20 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 
 	local eyeParts = buildEyes(def, model, position)
 	local rootPart, joints, baseC0 = buildRig(def, model)
+
+	-- Measure the root's height above the feet BEFORE anything starts moving it.
+	local rootLift = 0
+	if rootPart then
+		local lowest = math.huge
+		for _, d in model:GetDescendants() do
+			if d:IsA("BasePart") and string.sub(d.Name, 1, 3) ~= "Eye" then
+				lowest = math.min(lowest, d.Position.Y - d.Size.Y / 2)
+			end
+		end
+		if lowest < math.huge then
+			rootLift = rootPart.Position.Y - lowest
+		end
+	end
 	local primary = rootPart or model:FindFirstChildWhichIsA("BasePart")
 	if primary then
 		model.PrimaryPart = primary
@@ -438,6 +463,7 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 		joints = joints,
 		baseC0 = baseC0,
 		gaitClock = math.random() * 4,
+		rootLift = rootLift,
 		bob = 0,
 		retreatUntil = 0,
 		driving = false,
@@ -453,9 +479,17 @@ local function place(record: Record, position: Vector3, facing: Vector3?)
 	if not model or not model.PrimaryPart then
 		return
 	end
-	local lifted = position + Vector3.new(0, record.bob, 0)
+	local lifted = position + Vector3.new(0, record.rootLift + record.bob, 0)
 	local look = facing and Vector3.new(facing.X, lifted.Y, facing.Z) or nil
 	local cf = if look and (look - lifted).Magnitude > 0.01 then CFrame.lookAt(lifted, look) else CFrame.new(lifted)
+	-- Roblox's front is -Z and lookAt points -Z at the target, so a body authored
+	-- facing +Z walks backwards with its root pointed correctly. Correct it HERE,
+	-- where orientation is actually decided. Spinning the body once at spawn is a
+	-- no-op: this line overwrites the root every frame and the rig follows it.
+	local yaw = record.def.templateYaw
+	if yaw and yaw ~= 0 then
+		cf = cf * CFrame.Angles(0, math.rad(yaw), 0)
+	end
 	if record.rootPart then
 		-- Rigged: move ONLY the anchored root. Every other part is unanchored and is
 		-- carried by its Motor6D, which is what lets the limbs animate at all.

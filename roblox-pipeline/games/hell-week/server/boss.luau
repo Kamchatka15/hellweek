@@ -101,6 +101,10 @@ return {
 		-- top, so the night signature survives either way.
 		template = "DryHerald",
 		templateYOffset = 0,
+		-- The generated body is authored facing +Z; Roblox's front is -Z. Without this
+		-- it walks backwards while its root is pointed correctly, which looks exactly
+		-- like a bug and is exactly one.
+		templateYaw = 180,
 
 		-- Twelve swings bare-handed, six with a harvest tool. On night three you
 		-- should look at this thing and know you are not ready.
