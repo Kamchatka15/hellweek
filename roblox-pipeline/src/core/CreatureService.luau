@@ -29,6 +29,8 @@ local CreatureService = {}
 
 CreatureService.killed = Signal.new() -- (record, player, drops)
 CreatureService.bit = Signal.new() -- (record, player)
+CreatureService.arrived = Signal.new() -- (record) — a besieger reached what it wanted
+CreatureService.drivenOff = Signal.new() -- (record, player)
 
 export type CreatureDef = {
 	id: string,
@@ -57,6 +59,11 @@ export type CreatureDef = {
 		nightColor: Color3?,
 		nightBrightness: number?,
 		nightRange: number?,
+		-- Which part the eyes belong to. Offsets are read in THAT part's local space,
+		-- so the same numbers work for an imported mesh and for the blockout. Without
+		-- this the eyes stay anchored where the creature spawned and the body walks
+		-- out from under them.
+		attach: string?,
 	}?,
 	health: number, -- hits from a tool, not a damage number; kids count swings
 	speed: number, -- studs/second while closing
@@ -68,6 +75,34 @@ export type CreatureDef = {
 	wander: number?, -- studs it drifts around its home point when idle
 	drops: { [string]: number },
 	shy: boolean?, -- true: flees when struck instead of closing (the A4 escape hatch)
+
+	-- A RIG. Parts joined by Motor6D instead of welded solid, so limbs can rotate
+	-- relative to each other. Without this nothing can ever animate, and a creature
+	-- that slides across the ground reads as a prop no matter how well it is modelled.
+	-- Only the root is anchored; everything else hangs off joints.
+	rig: {
+		root: string, -- part name that the service moves
+		joints: { { part: string, to: string } },
+	}?,
+
+	-- A GAIT. Procedural animation, driven from code, needing no uploaded Animation
+	-- asset and therefore no human upload click. Each limb is a sine wave on one axis
+	-- with its own phase, which is all a walk cycle actually is.
+	gait: {
+		period: number, -- seconds per full stride
+		limbs: { { part: string, axis: string?, amplitude: number, phase: number } },
+		bob: number?, -- studs the body rises and falls
+		sway: number?, -- degrees of roll
+		idle: number?, -- fraction of amplitude used while standing still
+	}?,
+
+	-- A creature that wants something OTHER than the player. The loop supplies the
+	-- point; the creature walks to it and never deviates. This is what makes a siege
+	-- different from a chase: it is not coming for you, it is coming for your fire,
+	-- and ignoring it is the one thing you cannot do.
+	goalRadius: number?, -- how close counts as arrived
+	boss: boolean?, -- struck to zero it RETREATS rather than dying
+	retreatFor: number?, -- seconds it stays away after being driven off
 }
 
 export type Record = {
@@ -82,6 +117,13 @@ export type Record = {
 	nextDrift: number,
 	eyeParts: { BasePart },
 	litForNight: boolean,
+	rootPart: BasePart?,
+	joints: { [string]: Motor6D },
+	baseC0: { [string]: CFrame },
+	gaitClock: number,
+	bob: number,
+	retreatUntil: number,
+	driving: boolean, -- true while walking a goal rather than hunting a player
 }
 
 local defs: { [string]: CreatureDef } = {}
@@ -91,6 +133,7 @@ local blockFn: ((any, Instance) -> BasePart)? = nil
 local isNight: (() -> boolean)? = nil
 local templates: Instance? = nil
 local safeAt: ((Vector3) -> boolean)? = nil
+local goalFor: ((any) -> Vector3?)? = nil
 local connection: RBXScriptConnection? = nil
 
 local function flat(a: Vector3, b: Vector3): number
@@ -120,6 +163,7 @@ function CreatureService.configure(
 	blockFn = options.block
 	isNight = options.isNight
 	safeAt = options.safeAt
+	goalFor = options.goalFor
 	templates = options.templates
 	if not connection then
 		connection = RunService.Heartbeat:Connect(function(delta)
@@ -143,12 +187,115 @@ function CreatureService.count(): number
 	return #records
 end
 
+--- Find a part by a loose name. Generated and imported bodies name their pieces in
+--- whatever style the exporter felt like, so "left arm" has to match "LeftArm",
+--- "Left Arm" and "left_arm" without the pack having to care.
+local function findPart(model: Instance, name: string): BasePart?
+	local wanted = string.lower(string.gsub(name, "[%s_%-]", ""))
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			local got = string.lower(string.gsub(d.Name, "[%s_%-]", ""))
+			if got == wanted then
+				return d
+			end
+		end
+	end
+	-- second pass: substring, so "LeftArm_1" still matches
+	for _, d in model:GetDescendants() do
+		if d:IsA("BasePart") then
+			local got = string.lower(string.gsub(d.Name, "[%s_%-]", ""))
+			if string.find(got, wanted, 1, true) then
+				return d
+			end
+		end
+	end
+	return nil
+end
+
+--- Join the body with Motor6D so it can move. Only the root stays anchored; every
+--- other part is released and held in place by its joint, which is the whole reason
+--- a rig animates and a weld does not.
+local function buildRig(def: CreatureDef, model: Model): (BasePart?, { [string]: Motor6D }, { [string]: CFrame })
+	local joints: { [string]: Motor6D } = {}
+	local baseC0: { [string]: CFrame } = {}
+	local spec = def.rig
+	if not spec then
+		return nil, joints, baseC0
+	end
+	local rootPart = findPart(model, spec.root)
+	if not rootPart then
+		warn(`[CreatureService] rig root '{spec.root}' not found on {def.id}; staying welded`)
+		return nil, joints, baseC0
+	end
+
+	rootPart.Anchored = true
+	for _, joint in spec.joints do
+		local child = findPart(model, joint.part)
+		local parent = findPart(model, joint.to)
+		if not child or not parent then
+			warn(`[CreatureService] joint {joint.part} -> {joint.to} missing on {def.id}`)
+			continue
+		end
+		child.Anchored = false
+		child.CanCollide = false
+		child.Massless = true
+		local motor = Instance.new("Motor6D")
+		motor.Name = joint.part
+		motor.Part0 = parent
+		motor.Part1 = child
+		-- C0/C1 are set from where the parts already sit, so the rig adopts the pose
+		-- the body was authored in rather than snapping to an origin.
+		motor.C0 = parent.CFrame:ToObjectSpace(child.CFrame)
+		motor.C1 = CFrame.new()
+		motor.Parent = parent
+		joints[joint.part] = motor
+		baseC0[joint.part] = motor.C0
+	end
+	return rootPart, joints, baseC0
+end
+
+--- Drive the rig. A walk cycle is a set of sine waves with different phases, and that
+--- is all this does. No uploaded Animation asset, so no human upload click.
+local function animate(record: Record, delta: number, moving: boolean)
+	local gait = record.def.gait
+	if not gait or not next(record.joints) then
+		return
+	end
+	local scale = if moving then 1 else (gait.idle or 0.18)
+	record.gaitClock += delta * (if moving then 1 else 0.45)
+	local period = math.max(gait.period, 0.05)
+	local turn = (record.gaitClock / period) % 1
+
+	for _, limb in gait.limbs do
+		local motor = record.joints[limb.part]
+		local base = record.baseC0[limb.part]
+		if not motor or not base then
+			continue
+		end
+		local theta = (turn + limb.phase) % 1 * math.pi * 2
+		local angle = math.rad(limb.amplitude * scale) * math.sin(theta)
+		local axis = limb.axis or "X"
+		local rot = if axis == "Y"
+			then CFrame.Angles(0, angle, 0)
+			elseif axis == "Z" then CFrame.Angles(0, 0, angle)
+			else CFrame.Angles(angle, 0, 0)
+		motor.C0 = base * rot
+	end
+
+	-- The body rises and falls on the stride. Two strides per cycle, because you go up
+	-- on each foot, not once per pair.
+	record.bob = (gait.bob or 0) * scale * math.sin(turn * math.pi * 4)
+end
+
 local function buildEyes(def: CreatureDef, model: Model, origin: Vector3): { BasePart }
 	local made: { BasePart } = {}
 	local eyes = def.eyes
 	if not eyes then
 		return made
 	end
+	-- Anchor the eyes to a body part when one is named, reading the offsets in that
+	-- part's local space. Falls back to world space off the spawn point.
+	local host: BasePart? = if eyes.attach then findPart(model, eyes.attach) else nil
 	for index, offset in eyes.offsets do
 		local eye = Instance.new("Part")
 		eye.Name = `Eye{index}`
@@ -158,7 +305,11 @@ local function buildEyes(def: CreatureDef, model: Model, origin: Vector3): { Bas
 		eye.CastShadow = false
 		eye.Shape = Enum.PartType.Ball
 		eye.Size = Vector3.one * (eyes.size or 0.45)
-		eye.Position = origin + offset
+		if host then
+			eye.CFrame = host.CFrame * CFrame.new(offset)
+		else
+			eye.Position = origin + offset
+		end
 		eye.Color = eyes.color
 		eye.Material = Enum.Material.Neon
 		-- The glow is what carries at distance. A neon ball alone reads as a dot in
@@ -171,6 +322,18 @@ local function buildEyes(def: CreatureDef, model: Model, origin: Vector3): { Bas
 		glow.Shadows = false
 		glow.Parent = eye
 		eye.Parent = model
+		-- Only a RIGGED creature needs this. A rigged body is moved by its anchored
+		-- root alone, so an anchored eye would be left standing where the thing
+		-- spawned while the body walks out from under it. An unrigged body is moved
+		-- whole by PivotTo and its eyes are already carried along.
+		if host and def.rig then
+			eye.Anchored = false
+			eye.Massless = true
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = host
+			weld.Part1 = eye
+			weld.Parent = eye
+		end
 		table.insert(made, eye)
 	end
 	return made
@@ -252,7 +415,8 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 	end
 
 	local eyeParts = buildEyes(def, model, position)
-	local primary = model:FindFirstChildWhichIsA("BasePart")
+	local rootPart, joints, baseC0 = buildRig(def, model)
+	local primary = rootPart or model:FindFirstChildWhichIsA("BasePart")
 	if primary then
 		model.PrimaryPart = primary
 	end
@@ -270,6 +434,13 @@ function CreatureService.spawn(id: string, position: Vector3): Record?
 		nextDrift = 0,
 		eyeParts = eyeParts,
 		litForNight = false,
+		rootPart = rootPart,
+		joints = joints,
+		baseC0 = baseC0,
+		gaitClock = math.random() * 4,
+		bob = 0,
+		retreatUntil = 0,
+		driving = false,
 	}
 	table.insert(records, record)
 	paintEyes(record, if isNight then isNight() else false)
@@ -282,11 +453,16 @@ local function place(record: Record, position: Vector3, facing: Vector3?)
 	if not model or not model.PrimaryPart then
 		return
 	end
-	local look = facing and Vector3.new(facing.X, position.Y, facing.Z) or nil
-	local cf = if look and (look - position).Magnitude > 0.01
-		then CFrame.lookAt(position, look)
-		else CFrame.new(position)
-	model:PivotTo(cf)
+	local lifted = position + Vector3.new(0, record.bob, 0)
+	local look = facing and Vector3.new(facing.X, lifted.Y, facing.Z) or nil
+	local cf = if look and (look - lifted).Magnitude > 0.01 then CFrame.lookAt(lifted, look) else CFrame.new(lifted)
+	if record.rootPart then
+		-- Rigged: move ONLY the anchored root. Every other part is unanchored and is
+		-- carried by its Motor6D, which is what lets the limbs animate at all.
+		record.rootPart.CFrame = cf
+	else
+		model:PivotTo(cf)
+	end
 	record.position = position
 end
 
@@ -308,6 +484,11 @@ end
 --- Hit it. `power` is swings, not damage: a kid counts swings, not hit points.
 --- Returns true if this blow killed it.
 function CreatureService.strike(record: Record, player: Player, power: number?): boolean
+	-- Already walking away. Hitting it again should not reset the clock or fire a
+	-- second driven-off line; it is leaving, and the player has won this round.
+	if record.retreatUntil > os.clock() then
+		return false
+	end
 	record.health -= (power or 1)
 	if record.def.shy then
 		-- A shy creature turns and runs rather than closing. This is the escape hatch
@@ -323,6 +504,19 @@ function CreatureService.strike(record: Record, player: Player, power: number?):
 	if record.health > 0 then
 		return false
 	end
+
+	-- A boss is not killed, it is DRIVEN OFF. It walks away, waits, and comes back,
+	-- which is a better threat than a corpse: the run never gets safe, it only gets
+	-- quiet. It also means the fight can be lost without the run being over.
+	if record.def.boss then
+		record.health = record.def.health
+		record.retreatUntil = os.clock() + (record.def.retreatFor or 45)
+		record.target = nil
+		record.driving = false
+		CreatureService.drivenOff:fire(record, player)
+		return true
+	end
+
 	local drops = record.def.drops
 	CreatureService.killed:fire(record, player, drops)
 	CreatureService.despawn(record)
@@ -389,6 +583,42 @@ function CreatureService.tick(delta: number)
 		local notice = if night then (def.nightNoticeRadius or def.noticeRadius) else def.noticeRadius
 		local speed = if night then (def.nightSpeed or def.speed) else def.speed
 
+		-- Driven off. It withdraws to its home and waits, which is worse than dying,
+		-- because you know it is coming back and you know roughly when.
+		if record.retreatUntil > now then
+			record.driving = false
+			local away = Vector3.new(record.home.X - record.position.X, 0, record.home.Z - record.position.Z)
+			local walking = away.Magnitude > 2
+			if walking then
+				place(record, record.position + away.Unit * speed * delta, record.home)
+			end
+			animate(record, delta, walking)
+			continue
+		end
+
+		-- A siege. It is not coming for you, it is coming for your fire, and that is
+		-- the whole difference: you cannot solve it by standing still or running away.
+		local goalPoint = if goalFor then goalFor(record) else nil
+		if goalPoint then
+			record.driving = true
+			record.target = nil
+			local toGoal = Vector3.new(goalPoint.X - record.position.X, 0, goalPoint.Z - record.position.Z)
+			local reach = def.goalRadius or 8
+			if toGoal.Magnitude > reach then
+				place(record, record.position + toGoal.Unit * speed * delta, goalPoint)
+				animate(record, delta, true)
+			else
+				place(record, record.position, goalPoint)
+				animate(record, delta, false)
+				if now >= record.nextBite then
+					record.nextBite = now + (def.biteCooldown or 2)
+					CreatureService.arrived:fire(record)
+				end
+			end
+			continue
+		end
+		record.driving = false
+
 		local target, targetPosition = nearestPlayerTo(record, notice)
 		record.target = target
 
@@ -398,8 +628,10 @@ function CreatureService.tick(delta: number)
 			if distance > def.biteRadius then
 				local step = if distance > 0.01 then toTarget.Unit * speed * delta else Vector3.zero
 				place(record, record.position + step, targetPosition)
+				animate(record, delta, true)
 			else
 				place(record, record.position, targetPosition)
+				animate(record, delta, false)
 				if now >= record.nextBite then
 					record.nextBite = now + (def.biteCooldown or 2)
 					CreatureService.bit:fire(record, target)
@@ -418,10 +650,12 @@ function CreatureService.tick(delta: number)
 			record.drift = goal
 		end
 		local toDrift = Vector3.new(record.drift.X - record.position.X, 0, record.drift.Z - record.position.Z)
-		if toDrift.Magnitude > 0.6 then
+		local wandering = toDrift.Magnitude > 0.6
+		if wandering then
 			local step = toDrift.Unit * (speed * 0.4) * delta
 			place(record, record.position + step, record.drift)
 		end
+		animate(record, delta, wandering)
 	end
 end
 

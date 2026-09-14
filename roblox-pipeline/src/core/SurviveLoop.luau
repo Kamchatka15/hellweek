@@ -46,6 +46,7 @@ local OPENING_PUSHES = { 0, 0.5, 1.5, 3 }
 local pack: any = nil
 local config: any = nil
 local safeRing: Folder? = nil
+local siegeOn = false
 local theme: any = nil
 
 local run = {
@@ -752,6 +753,47 @@ end
 --- The difference matters. A scattered thing is weather. A thing that is always in
 --- the same place is a landmark you learn, walk toward on purpose, and eventually
 --- stop being afraid of. Only the second kind can anchor a map.
+--- The siege begins. The Herald walks in from the dark edge of the waste and heads
+--- for the obelisk. It does not hunt anyone; it wants the fire.
+---
+--- This is the beat the game was missing. The stalker keeps you IN; the Herald comes
+--- for what you built, and that is the difference between hiding and defending.
+local function beginSiege(day: number)
+	local siege = config.siege
+	if not siege or day < siege.firstNight then
+		return
+	end
+	siegeOn = true
+	if CreatureService.definition(siege.creature) == nil then
+		return
+	end
+	-- Only ever one on the field.
+	for _, record in CreatureService.all() do
+		if record.def.id == siege.creature then
+			return
+		end
+	end
+	local ring = siege.spawnRing or { inner = 200, outer = 250 }
+	local spot = randomInRing(ring.inner, ring.outer)
+	CreatureService.spawn(siege.creature, spot)
+	toastAll("herald", theme.copy.heraldComes or "Something is walking toward the light.", "warn")
+end
+
+--- Dawn. It withdraws rather than dying, because a thing that leaves on its own is
+--- worse than a thing you beat.
+local function endSiege()
+	siegeOn = false
+	local siege = config.siege
+	if not siege then
+		return
+	end
+	for _, record in CreatureService.all() do
+		if record.def.id == siege.creature then
+			CreatureService.despawn(record)
+		end
+	end
+end
+
 local function stockCreatures(day: number)
 	if not config.creatures or #config.creatures == 0 then
 		return
@@ -802,6 +844,7 @@ local function onPhase(name: string, cycle: number, length: number)
 	if name == "day" then
 		BeaconService.setBurn(0, 0)
 		setMood(false)
+		endSiege()
 		spawnOpenRings(nil)
 		stockCreatures(cycle)
 		-- Telegraph the night.
@@ -861,6 +904,7 @@ local function onPhase(name: string, cycle: number, length: number)
 		local burn = tuning.burn * (config.lure.burnMultiplier ^ run.weight)
 		BeaconService.setBurn(burn, length)
 		setMood(true)
+		beginSiege(cycle)
 		-- The stalker is out every night, even if nobody has fed yet.
 		revealStalker()
 		StalkerService.setMode(if tuning.stalker == "hunt" then "hunt" else "watch")
@@ -1326,6 +1370,13 @@ local function strike(player: Player, record: any)
 		toast(player, "hit", theme.copy.creatureHit or "It turns on you.", "warn", 1)
 		return
 	end
+	-- A boss is driven off, not killed. CreatureService.strike returns true for both
+	-- because both mean "that blow finished it", but only one of them is a death:
+	-- the boss keeps its body, drops nothing here, and says its own line through the
+	-- drivenOff signal. Without this it announced "it stops moving" while walking away.
+	if record.def.boss then
+		return
+	end
 	local where = record.position
 	-- A fixed-spot creature stays dead for the rest of the run. Clearing a landmark
 	-- has to mean something, or it is just a respawning chore.
@@ -1645,8 +1696,55 @@ function SurviveLoop.start(loaded: any)
 			-- Imported bodies live here. Absent is fine: every creature keeps its
 			-- parts blockout as the fallback, and behaviour is identical either way.
 			templates = game:GetService("ServerStorage"):FindFirstChild("CreatureBodies"),
+			-- A besieger walks to the obelisk and never deviates. Returning nil means
+			-- "behave normally", so only the boss ever sieges, and only while the
+			-- siege is actually on.
+			goalFor = function(record)
+				if not siegeOn or not config.siege then
+					return nil
+				end
+				if record.def.id ~= config.siege.creature then
+					return nil
+				end
+				return config.beacon.position
+			end,
 		})
 		CreatureService.start()
+
+		-- It reached the fire and drank. This is the cost of ignoring it, and it is
+		-- deliberately the one thing running away does not solve.
+		CreatureService.arrived:connect(function(record)
+			if not run.active then
+				return
+			end
+			local drain = (config.siege and config.siege.drainPerHit) or 1
+			local taken = BeaconService.drain(drain)
+			run.fuelOut += taken
+			-- Deliberately NOT toastAll: that uses a half-second cooldown and this
+			-- fires on every drink, which stacked four identical lines on screen the
+			-- first time it ran. Say it once, then let the falling fuel do the talking.
+			for _, player in Players:GetPlayers() do
+				toast(
+					player,
+					"drink",
+					theme.copy.heraldDrinks or `{record.def.label} is drinking the light.`,
+					"warn",
+					14
+				)
+			end
+			fxAll("drink", { by = record.def.id })
+			StateSync.requestAll()
+		end)
+
+		-- Driven off, never killed. It walks away and it comes back, so the run never
+		-- becomes safe, only quiet.
+		CreatureService.drivenOff:connect(function(record, player)
+			toastAll("drove", theme.copy.heraldDriven or `{record.def.label} draws back.`, "good")
+			if player then
+				AnalyticsService.step(player, "first_boss")
+				AnalyticsService.track(player, "herald_driven", 1)
+			end
+		end)
 	end
 
 	local flame, light = buildBeacon()

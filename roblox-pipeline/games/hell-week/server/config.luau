@@ -21,7 +21,27 @@ return {
 	-- The camp and the things that live in the waste. `camp.luau` explains why every
 	-- piece is justified by RANGE rather than by being nice to have.
 	pieces = require(script.Parent.camp).pieces,
-	creatures = require(script.Parent.camp).creatures,
+	-- The camp creatures plus the boss. Concatenated here rather than in camp.luau so
+	-- the boss can be pulled out of a run without touching anything else.
+	creatures = (function()
+		local list = {}
+		for _, c in require(script.Parent.camp).creatures do
+			table.insert(list, c)
+		end
+		for _, c in require(script.Parent.boss) do
+			table.insert(list, c)
+		end
+		return list
+	end)(),
+
+	-- The siege. The Herald walks in on this night and every night after, heads for
+	-- the obelisk, and drinks the light until it is driven off.
+	siege = {
+		firstNight = 3,
+		drainPerHit = 1, -- fuel taken each time it reaches the obelisk and feeds
+		spawnRing = { inner = 210, outer = 260 },
+		creature = "dry_herald",
+	},
 
 	-- How much is alive out there, and where it starts. Never inside the first ring:
 	-- a scorpion at the obelisk on the first morning is a different, worse game.

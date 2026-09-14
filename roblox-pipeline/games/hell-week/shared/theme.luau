@@ -103,6 +103,9 @@ return {
 		-- danger lines are written the way a friend would say them, not the way a
 		-- system would log them.
 		nightComing = "night is coming",
+		heraldComes = "something is walking toward the light",
+		heraldDrinks = "it is drinking the light",
+		heraldDriven = "it draws back into the dark",
 		creatureHit = "it turns on you",
 		creatureKilled = "it stops moving",
 		nothingFits = "it has no use for that",

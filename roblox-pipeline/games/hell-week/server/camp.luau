@@ -259,7 +259,8 @@ local creatures = {
 		wander = 22,
 		drops = { chitin = 2, venom = 1 },
 		eyes = {
-			offsets = { Vector3.new(-0.42, 1.05, -1.5), Vector3.new(0.42, 1.05, -1.5) },
+			attach = "Head",
+			offsets = { Vector3.new(-0.42, 0.1, -0.55), Vector3.new(0.42, 0.1, -0.55) },
 			color = Color3.fromRGB(255, 222, 64),
 			size = 0.5,
 			brightness = 3.2,
