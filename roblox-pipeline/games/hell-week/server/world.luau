@@ -530,8 +530,11 @@ return {
 			material = Enum.Material.Neon,
 			transparency = 0.88,
 			canCollide = false,
-			label = "OFFER",
-			sublabel = "OR FEED IT TO THE FIRE",
+			-- No standing sign. It was two lines of shouting over the table for the
+			-- whole run. Point at the table and press I: there is room there to say
+			-- what it does AND what is currently in it.
+			label = nil,
+			sublabel = nil,
 		},
 		{
 			id = "obelisk",

@@ -168,24 +168,9 @@ local function flatDistance(a: Vector3, b: Vector3): number
 	return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
 end
 
-local function smallLabel(part: BasePart, text: string)
-	local billboard = Instance.new("BillboardGui")
-	billboard.Name = "Label"
-	billboard.Size = UDim2.fromOffset(160, 36)
-	billboard.StudsOffset = Vector3.new(0, 2.6, 0)
-	billboard.AlwaysOnTop = true
-	billboard.MaxDistance = 70
-	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 1
-	label.Size = UDim2.fromScale(1, 1)
-	label.Font = Enum.Font.GothamBold
-	label.TextScaled = true
-	label.Text = text
-	label.TextColor3 = theme.uiText
-	label.TextStrokeTransparency = 0.3
-	label.Parent = billboard
-	billboard.Parent = part
-end
+-- smallLabel used to hang a name over every node and chest. It is gone: inspection
+-- replaced it, and the screen is the better for it. ContentLoader.label remains for
+-- any pack that still wants a permanent sign on something.
 
 -- ---------------------------------------------------------------- world pieces
 
@@ -237,7 +222,8 @@ local function buildBeacon(): (BasePart, PointLight)
 		-- Needs Lighting.Technology past Voxel, which is a plugin-only click in Studio.
 		light.Shadows = true
 		light.Parent = anchor
-		ContentLoader.label(flame :: BasePart, string.upper(theme.names.beacon), nil, theme)
+		-- No permanent billboard. It said one word, all run, over the thing you were
+		-- already looking at. Point at it and press I instead.
 		return flame :: BasePart, light
 	end
 
@@ -278,7 +264,6 @@ local function buildBeacon(): (BasePart, PointLight)
 	light.Range = c.radiusBase
 	light.Shadows = false
 	light.Parent = flame
-	ContentLoader.label(flame, string.upper(theme.names.beacon), nil, theme)
 	return flame, light
 end
 
@@ -462,7 +447,8 @@ local function placeNode(resource: any, position: Vector3, labelText: string?)
 				piece.Parent = part
 			end
 			if labelText then
-				smallLabel(part, labelText)
+				-- Nodes no longer wear their name. Point and press I.
+				local _ = labelText
 			end
 		end,
 	})
@@ -542,7 +528,7 @@ local function spawnChests()
 						* CFrame.Angles(math.rad(rot.X), math.rad(rot.Y), math.rad(rot.Z))
 					piece.Parent = part
 				end
-				smallLabel(part, theme.copy.chestLabel)
+				-- Chests no longer wear their name either.
 			end,
 		})
 	end
@@ -1485,6 +1471,112 @@ local function usePiece(player: Player, record: any)
 	StateSync.requestAll()
 end
 
+--- Describe whatever the player is pointing at: what it is, what it does, and what
+--- it currently holds.
+---
+--- This replaced the permanent floating labels. Those cost screen space every second
+--- of the run to say one word, and there was nowhere to put the two sentences that
+--- actually help. On demand there is room to say everything, and the rest of the time
+--- the screen belongs to the game.
+---
+--- The client names the instance because only the client knows what is under the
+--- cursor. The server still checks the range and only ever returns public text, so
+--- the worst a forged request can do is read a description slightly early.
+local function describe(player: Player, target: Instance?): any
+	local root = rootOf(player)
+	if not root or not target or not target:IsA("BasePart") then
+		return { title = "", body = theme.copy.inspectNothing or "Nothing here to look at." }
+	end
+	if (target.Position - root.Position).Magnitude > 60 then
+		return { title = "", body = theme.copy.inspectTooFar or "Too far away to make out." }
+	end
+
+	local name = target.Name
+
+	-- The obelisk: the beacon flame, its stone, or any of its generated pieces.
+	if name == config.beacon.flameName or string.sub(name, 1, 7) == "Beacon_" then
+		local fuel, cap = BeaconService.fuel(), BeaconService.fuelCap()
+		return {
+			title = theme.names.beacon,
+			body = theme.copy.inspectObeliskDoes,
+			state = `Fuel {fuel} of {cap}.  Level {BeaconService.level()}.  Safe to {math.floor(BeaconService.radius())} studs.`,
+		}
+	end
+
+	-- The offering table.
+	if string.sub(name, 1, 8) == "Offering" then
+		local held = {}
+		for kind, count in run.bowl do
+			local item = config.items[kind]
+			table.insert(held, `{count} {(item and item.label) or kind}`)
+		end
+		table.sort(held)
+		local state = if #held == 0
+			then "Empty."
+			else `Holding {table.concat(held, ", ")}.  ` .. (if bowlState == "ready"
+				then "Enough to make something."
+				else "Not enough to make anything yet.")
+		return { title = theme.names.offering, body = theme.copy.inspectOfferingDoes, state = state }
+	end
+
+	-- A camp piece: say what it buys you and what is inside it right now.
+	for _, record in BuildService.all() do
+		if record.model and target:IsDescendantOf(record.model) then
+			local def = record.def
+			local state
+			if def.effect == "store" then
+				local bits = {}
+				for kind, count in record.held do
+					local item = config.items[kind]
+					table.insert(bits, `{count} {(item and item.label) or kind}`)
+				end
+				table.sort(bits)
+				state = if #bits == 0 then "Empty." else `Holding {table.concat(bits, ", ")}.`
+			elseif def.effect == "convert" then
+				local ready = BuildService.readyCount(record)
+				local working = BuildService.heldCount(record)
+				state = `{ready} ready to take.  {working} still working.`
+			elseif def.radius then
+				state = `Reaches {def.radius} studs.`
+			end
+			return { title = def.label, body = def.blurb or "", state = state }
+		end
+	end
+
+	-- Something alive.
+	local creature = CreatureService.nearest(target.Position, 14)
+	if creature and creature.model and target:IsDescendantOf(creature.model) then
+		local def = creature.def
+		local verb = if def.boss then "drive it off" else "put it down"
+		return {
+			title = def.label,
+			body = if def.boss
+				then "It is not coming for you. It is coming for the fire."
+				else "It bites. It is also worth something.",
+			state = `About {creature.health} more hits to {verb}.`,
+		}
+	end
+
+	-- A pickup or a chest: PickupService knows what it is.
+	local meta = PickupService.metaOf(target)
+	local kind = meta and meta.kind
+	if kind then
+		local item = config.items[kind]
+		if item then
+			return {
+				title = item.label,
+				body = item.note or "",
+				state = if item.fuel and item.fuel > 0 then `Burns for {item.fuel}.` else "Does not burn.",
+			}
+		end
+	end
+	if string.sub(name, 1, 5) == "Chest" then
+		return { title = theme.copy.inspectChest, body = theme.copy.inspectChestDoes }
+	end
+
+	return { title = "", body = theme.copy.inspectNothing or "Nothing here to look at." }
+end
+
 --- The one context action available where the player is standing, or nil.
 local function contextFor(player: Player): (string?, BasePart?)
 	local root = rootOf(player)
@@ -1816,17 +1908,28 @@ function SurviveLoop.start(loaded: any)
 	RemoteGuard.bind(Net.C2S_Act, {
 		limit = 12,
 		window = 4,
-		validate = function(verb)
+		validate = function(verb, target)
 			if verb == "pickup" or verb == "action" then
 				return true
+			end
+			-- ("inspect", Instance). The client names what is under its cursor,
+			-- because only the client knows that. The server checks the range and
+			-- returns public text only, so a forged ask reads a description early
+			-- and nothing else.
+			if verb == "inspect" then
+				return target == nil or typeof(target) == "Instance"
 			end
 			-- "build:<id>". The client names WHICH piece and nothing else; the server
 			-- still decides where it goes, whether the spot is legal, and whether it
 			-- is paid for.
 			return typeof(verb) == "string" and string.sub(verb, 1, 6) == "build:" and #verb <= 40
 		end,
-	}, function(player, verb)
+	}, function(player, verb, target)
 		if not run.active then
+			return
+		end
+		if verb == "inspect" then
+			fx(player, "inspect", describe(player, target))
 			return
 		end
 		if string.sub(verb, 1, 6) == "build:" then

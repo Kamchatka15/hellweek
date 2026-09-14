@@ -66,6 +66,7 @@ return {
 	items = {
 		ashwood = {
 			label = "Ashwood",
+			note = "Dead wood from the waste. Burns. One fuel.",
 			fuel = 1,
 			size = Vector3.new(1.1, 1.1, 3.4),
 			color = Color3.fromRGB(196, 176, 142),
@@ -73,6 +74,7 @@ return {
 		},
 		cactus = {
 			label = "Cactus",
+			note = "Wet inside. Will not burn. Two of them press into water.",
 			fuel = 0,
 			size = Vector3.new(1.5, 2.6, 1.5),
 			color = Color3.fromRGB(92, 122, 82),
@@ -80,6 +82,7 @@ return {
 		},
 		stone = {
 			label = "Stone",
+			note = "Building material. Will not burn.",
 			fuel = 0,
 			shape = Enum.PartType.Ball,
 			size = Vector3.new(1.9, 1.5, 1.7),
@@ -88,6 +91,7 @@ return {
 		},
 		water = {
 			label = "Water",
+			note = "Pressed from cactus. Tempers wood and wets stone.",
 			fuel = 0,
 			size = Vector3.new(1.3, 1.9, 1.3),
 			color = Color3.fromRGB(92, 178, 198),
@@ -96,6 +100,7 @@ return {
 		},
 		emberwood = {
 			label = "Emberwood",
+			note = "Wood the obelisk has tempered. Burns three times as long.",
 			fuel = 3,
 			size = Vector3.new(1.3, 1.3, 3.6),
 			color = Color3.fromRGB(196, 118, 52),
@@ -104,6 +109,7 @@ return {
 		},
 		heartwood = {
 			label = "Heartwood",
+			note = "The deepest burn there is. Slow to make, worth the wait.",
 			fuel = 8,
 			size = Vector3.new(1.6, 1.6, 4),
 			color = Color3.fromRGB(255, 196, 64),
@@ -112,6 +118,7 @@ return {
 		},
 		chitin = {
 			label = "Chitin",
+			note = "Scorpion shell. Hard, light, good for building.",
 			fuel = 0,
 			size = Vector3.new(1.6, 0.5, 1.9),
 			color = Color3.fromRGB(56, 44, 52),
@@ -119,6 +126,7 @@ return {
 		},
 		venom = {
 			label = "Venom",
+			note = "Drawn from a sting. The obelisk wants it.",
 			fuel = 0,
 			size = Vector3.new(1, 1.5, 1),
 			color = Color3.fromRGB(176, 220, 96),
@@ -127,6 +135,7 @@ return {
 		},
 		wardstone = {
 			label = "Wardstone",
+			note = "Wet stone the obelisk has marked. The dark will not cross it.",
 			fuel = 0,
 			onFeed = "liftWeight", -- fed to the fire, it takes one Weight off you
 			shape = Enum.PartType.Ball,

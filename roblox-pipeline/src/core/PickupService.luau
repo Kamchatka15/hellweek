@@ -346,6 +346,17 @@ function PickupService.nearest2(position: Vector3, radius: number, filter: ((any
 	return best, bestMeta
 end
 
+--- The loop's own tag for a given part, or nil if it is not a live pickup. Used by
+--- inspection, which needs to name what the player is pointing at without moving it.
+function PickupService.metaOf(part: BasePart): any?
+	for _, record in active do
+		if record.part == part then
+			return record.meta
+		end
+	end
+	return nil
+end
+
 --- Collect one named part on the player's behalf, if it is still live. Returns what the
 --- collect handler accepted. The CALLER proves range; this only does the taking.
 function PickupService.collectPart(player: Player, part: BasePart): number

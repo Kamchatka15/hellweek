@@ -103,6 +103,19 @@ return {
 		-- danger lines are written the way a friend would say them, not the way a
 		-- system would log them.
 		nightComing = "night is coming",
+
+		-- INSPECT. Point at a thing and press I. One line saying what it is, one
+		-- saying what it does; the live state is filled in by the server. These
+		-- replaced the permanent floating labels, which ate the screen to say less.
+		inspectHint = "[I]",
+		inspectObelisk = "The Obelisk",
+		inspectObeliskDoes = "Feed it what burns. Offer it what does not, and come back at dawn for what it made.",
+		inspectOffering = "The Offering Table",
+		inspectOfferingDoes = "Leave a sack here. The obelisk works on it overnight.",
+		inspectChest = "Chest",
+		inspectChestDoes = "Opens once. Whatever is inside goes straight into your sack.",
+		inspectNothing = "Nothing here to look at.",
+		inspectTooFar = "Too far away to make out.",
 		heraldComes = "something is walking toward the light",
 		heraldDrinks = "it is drinking the light",
 		heraldDriven = "it draws back into the dark",

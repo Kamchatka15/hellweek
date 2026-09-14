@@ -56,6 +56,18 @@ local latest: any = nil
 local receivedAt = 0
 local weightDots: { Frame } = {}
 
+-- INSPECT. Point at a thing, press I, read about it. This replaced the permanent
+-- floating labels over every rock, chest and monument: those cost screen space every
+-- second of the run to say one word, and had nowhere to put the two sentences that
+-- actually help. On demand there is room to say everything, and the rest of the time
+-- the screen belongs to the game.
+local inspectPanel: Frame? = nil
+local inspectTitle: TextLabel? = nil
+local inspectBody: TextLabel? = nil
+local inspectState: TextLabel? = nil
+local hoverHint: TextLabel? = nil
+local inspectToken = 0
+
 local function panel(props: { [string]: any }, children: { Instance }?): Frame
 	local defaults = {
 		BackgroundColor3 = theme.uiPanel,
@@ -409,6 +421,34 @@ local function showEnd(payload: any)
 end
 
 function SurviveHud.fx(kind: string, payload: any?)
+	if kind == "inspect" then
+		local p = inspectPanel
+		if not p or typeof(payload) ~= "table" then
+			return
+		end
+		if inspectTitle then
+			inspectTitle.Text = payload.title or ""
+			inspectTitle.Visible = (payload.title or "") ~= ""
+		end
+		if inspectBody then
+			inspectBody.Text = payload.body or ""
+		end
+		if inspectState then
+			inspectState.Text = payload.state or ""
+			inspectState.Visible = (payload.state or "") ~= ""
+		end
+		p.Visible = true
+		-- Stays up long enough to read, then gets out of the way on its own. The
+		-- token guards against an earlier inspect closing a later one.
+		inspectToken += 1
+		local mine = inspectToken
+		task.delay(9, function()
+			if inspectToken == mine and inspectPanel then
+				inspectPanel.Visible = false
+			end
+		end)
+		return
+	end
 	if kind == "fadeIn" then
 		if not openingActive then
 			fadeFromBlack(1.4)
@@ -588,9 +628,104 @@ function SurviveHud.init(): ScreenGui
 	actionButton = bigButton("Action", 2, theme.copy.actionFeed)
 	infoButton = bigButton("Info", 1, theme.copy.infoLabel)
 
-	local function act(verb: string)
-		Net.get(Net.C2S_Act):FireServer(verb)
+	local function act(verb: string, target: Instance?)
+		Net.get(Net.C2S_Act):FireServer(verb, target)
 	end
+
+	-- The inspect panel. Bottom-left, out of the way of the action buttons, hidden
+	-- until asked for.
+	inspectPanel = panel({
+		AnchorPoint = Vector2.new(0, 1),
+		Position = UDim2.new(0, 18, 1, -18),
+		Size = UDim2.fromOffset(380, 140),
+		BackgroundTransparency = 0.12,
+		Visible = false,
+		ZIndex = 6,
+		Parent = gui,
+	}, {
+		UIKit.create("UIPadding", {
+			PaddingTop = UDim.new(0, 12),
+			PaddingBottom = UDim.new(0, 12),
+			PaddingLeft = UDim.new(0, 14),
+			PaddingRight = UDim.new(0, 14),
+		}),
+	})
+	inspectTitle = text({
+		Position = UDim2.fromOffset(0, 0),
+		Size = UDim2.new(1, 0, 0, 26),
+		Font = Enum.Font.GothamBlack,
+		TextColor3 = theme.colors.flame or theme.uiText,
+		ZIndex = 7,
+		Parent = inspectPanel,
+	})
+	inspectBody = text({
+		Position = UDim2.fromOffset(0, 32),
+		Size = UDim2.new(1, 0, 0, 52),
+		TextScaled = false,
+		TextSize = 15,
+		TextWrapped = true,
+		TextYAlignment = Enum.TextYAlignment.Top,
+		ZIndex = 7,
+		Parent = inspectPanel,
+	})
+	inspectState = text({
+		Position = UDim2.new(0, 0, 1, -26),
+		Size = UDim2.new(1, 0, 0, 22),
+		TextScaled = false,
+		TextSize = 14,
+		TextColor3 = theme.uiMuted or theme.uiText,
+		ZIndex = 7,
+		Parent = inspectPanel,
+	})
+
+	-- The hint. One tiny mark that appears only while something worth reading is
+	-- under the cursor, and says nothing else.
+	hoverHint = text({
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.62),
+		Size = UDim2.fromOffset(60, 22),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextScaled = false,
+		TextSize = 16,
+		Font = Enum.Font.GothamBold,
+		TextTransparency = 0.25,
+		TextStrokeTransparency = 0.6,
+		Text = theme.copy.inspectHint or "[I]",
+		Visible = false,
+		ZIndex = 6,
+		Parent = gui,
+	})
+
+	-- What is the player pointing at? Mouse target on a desktop; on a touch screen
+	-- there is no hover, so fall back to whatever the camera is looking at.
+	local mouse = Players.LocalPlayer:GetMouse()
+	local function pointedAt(): BasePart?
+		local target = mouse.Target
+		if target and target:IsA("BasePart") then
+			return target
+		end
+		local camera = workspace.CurrentCamera
+		if not camera then
+			return nil
+		end
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = { Players.LocalPlayer.Character :: any }
+		local hit = workspace:Raycast(camera.CFrame.Position, camera.CFrame.LookVector * 70, params)
+		return hit and hit.Instance :: BasePart or nil
+	end
+
+	-- Only mark things worth reading. The ground and the fog wall are not.
+	local BORING = { Floor = true, Fog = true, Dash = true, Baseplate = true, Terrain = true }
+	task.spawn(function()
+		while true do
+			task.wait(0.12)
+			if hoverHint then
+				local t = pointedAt()
+				hoverHint.Visible = t ~= nil and not BORING[t.Name]
+			end
+		end
+	end)
 	pickupButton.Activated:Connect(function()
 		act("pickup")
 	end)
@@ -668,7 +803,15 @@ function SurviveHud.init(): ScreenGui
 	}, { UIKit.list(1) })
 
 	trialsButton = infoButton
+	-- INFO is context-sensitive. Pointing at something? Read it. Pointing at nothing?
+	-- Open the trials. One button, and it always does the thing you meant, which is
+	-- the whole reason there is not a second one.
 	local function toggleInfo()
+		local t = pointedAt()
+		if t and not BORING[t.Name] then
+			act("inspect", t)
+			return
+		end
 		trialsOpen = not trialsOpen
 		trialsPanel.Visible = trialsOpen
 	end
@@ -685,6 +828,8 @@ function SurviveHud.init(): ScreenGui
 			act("action")
 		elseif input.KeyCode == Enum.KeyCode.Tab then
 			toggleInfo()
+		elseif input.KeyCode == Enum.KeyCode.I then
+			act("inspect", pointedAt())
 		end
 	end)
 
