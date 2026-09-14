@@ -227,7 +227,7 @@ return {
 		radiusPerFuel = 8,
 		radiusCap = 90,
 		levelThresholds = { 8, 20 },
-		lightBrightness = 3.2,
+		lightBrightness = 1.25,
 		flameSize = Vector3.new(1.7, 1.7, 1.7),
 	},
 

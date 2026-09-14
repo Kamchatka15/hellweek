@@ -49,10 +49,16 @@ local function applyLook()
 	local radius = radiusFor(fuel)
 	if c.light then
 		c.light.Range = radius
-		-- The floor is high on purpose: an unfed beacon still has to be the brightest
-		-- thing a player can see, or the first minute is a dark screen. Fuel changes how
-		-- FAR the light reaches (the radius, which is the rule) more than how hard it burns.
-		c.light.Brightness = (c.lightBrightness or 2) * math.clamp(0.7 + fuel / math.max(1, c.fuelCap), 0.7, 1.35)
+		-- Brightness used to sit near 4 because the LIGHT had to communicate the safe
+		-- boundary: if it was dim you could not tell where safety ended. It no longer
+		-- has that job — the dashed ring painted on the ground says where the line is,
+		-- in daylight and in the dark — so the light is free to be tuned for looks.
+		--
+		-- At the old value a range-90 PointLight at brightness 4.3 floodlit everything
+		-- within 90 studs to flat white. An 18-stud boss standing at the fire read as a
+		-- featureless blob. Range still tracks the radius so the safe area is genuinely
+		-- lit; only the intensity came down.
+		c.light.Brightness = (c.lightBrightness or 2) * math.clamp(0.8 + fuel / math.max(1, c.fuelCap), 0.8, 1.15)
 	end
 	if c.flame and c.flameSize then
 		local scale = 0.7 + 0.6 * math.clamp(fuel / math.max(1, c.fuelCap), 0, 1)
