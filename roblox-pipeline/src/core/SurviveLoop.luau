@@ -724,10 +724,11 @@ local function revealStalker()
 	end
 	run.stalkerSeen = true
 	-- Put it where the player who just fed will actually see it: on the light-line
-	-- beyond the beacon, along the spawn -> beacon bearing.
+	-- beyond the beacon, a third of a turn off the spawn -> beacon bearing so the
+	-- beacon itself (a wide ziggurat in some packs) is not standing in front of it.
 	local from = pack.world.spawn.position
 	local to = config.beacon.position
-	local theta = math.atan2(to.Z - from.Z, to.X - from.X)
+	local theta = math.atan2(to.Z - from.Z, to.X - from.X) + math.rad(35)
 	StalkerService.setMode("watch")
 	StalkerService.standAt(theta)
 	for _, player in Players:GetPlayers() do
