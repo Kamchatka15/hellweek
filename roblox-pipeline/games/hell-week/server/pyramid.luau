@@ -39,7 +39,8 @@ local BONE = Color3.fromRGB(210, 200, 180)
 local GOLD = Color3.fromRGB(212, 168, 62)
 local FIRE = Color3.fromRGB(255, 138, 48)
 
-local SLATE, SAND, BRICK = Enum.Material.Slate, Enum.Material.Sand, Enum.Material.Brick
+-- Cut stone, not brickwork: Brick reads as a modern garden wall under torchlight.
+local SLATE, SAND, BRICK = Enum.Material.Slate, Enum.Material.Sand, Enum.Material.Sandstone
 local PLASTIC = Enum.Material.SmoothPlastic
 
 -- staged[i] = { spec, carve } — carveable pieces are the ones a doorway may be cut in
