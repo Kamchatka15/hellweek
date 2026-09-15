@@ -114,8 +114,10 @@ local function torch(cf: CFrame, lit: boolean)
 			tip = GOLD,
 			rate = 11,
 			sparkRate = 2,
-			range = if lit then 34 else 0.1,
-			brightness = if lit then 2.1 else 0,
+			-- Short and bright, not long and weak: the pool has to end somewhere or the
+			-- torch is just ambient with a model attached.
+			range = if lit then 22 else 0.1,
+			brightness = if lit then 2.6 else 0,
 		},
 	})
 end
@@ -188,7 +190,7 @@ local function hall(length: number, torchEvery: number?)
 	end
 	local at = cur * CFrame.new(0, 0, -length / 2)
 	shellBox(at, W, length, H)
-	local every = torchEvery or 24
+	local every = torchEvery or 20
 	local count = math.floor(length / every)
 	for i = 1, count do
 		local z = -length / 2 + i * every
@@ -204,6 +206,11 @@ end
 local function turn(dir: number)
 	cur = cur * CFrame.new(0, 0, -JUNC)
 	shellBox(cur, W, W, H)
+	-- A torch on the wall you are about to turn away from. Junctions had no light at
+	-- all: 101 unlit stretches in the tomb and every one of them exactly 11 studs long,
+	-- which is a corner. Wide lamp ranges used to paper over it by drowning the whole
+	-- place in an even wash, which is why nothing read as a light source.
+	torch(cur * CFrame.new(0, 6.2, -(W / 2 - 0.2)) * CFrame.Angles(0, math.pi, 0), true)
 	-- A junction has to open on every side, not just along the way in. shellBox only
 	-- registers air down its own axis, so two turns in a row left a wall standing
 	-- between them: the corner of the burial approach was sealed exactly this way.
@@ -470,8 +477,8 @@ local function brazier(cf: CFrame)
 			tip = GOLD,
 			rate = 16,
 			sparkRate = 4,
-			range = 54,
-			brightness = 2.4,
+			range = 32,
+			brightness = 3.2,
 		},
 	})
 end
@@ -523,6 +530,10 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 				depth - 6,
 				height * 0.6
 			)
+		end
+		-- The first room anybody sees had jackal statues, reliefs and no fire in it.
+		for _, side in { -1, 1 } do
+			brazier(at * CFrame.new(side * (hx - 4.5), 0, -hz + 8))
 		end
 		box(
 			"PortalLintel",
