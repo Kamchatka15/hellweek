@@ -889,7 +889,12 @@ local function onPhase(name: string, cycle: number, length: number)
 		-- Night falls on a dead beacon: that IS the light going out. Found by Hunter's
 		-- first playtest (2026-09-12): an idle player at zero fuel "survived" every
 		-- night because the burn only fires `emptied` on a transition to zero.
-		if BeaconService.fuel() <= 0 then
+		--
+		-- EXCEPT on a mercy night. The leader's first night does not kill you either:
+		-- the threat stands at the light line and watches. A child who spent their
+		-- first three minutes wandering should meet a night, not a defeat screen, or
+		-- they never learn what a night is.
+		if BeaconService.fuel() <= 0 and not tuning.mercy then
 			fxAll("phase", { name = name, day = cycle, length = length })
 			endRun(false, "light_out")
 			return
@@ -1284,6 +1289,18 @@ local function onProfileLoaded(player: Player, profile: any)
 	end
 
 	fx(player, "fadeIn")
+	-- The starting kit. Granted on the profile loading, and again whenever a fresh
+	-- character arrives, because a Backpack does not survive a respawn.
+	local function giveKit()
+		for _, id in config.startingTools or {} do
+			ToolService.grant(player, id)
+		end
+	end
+	giveKit()
+	player.CharacterAdded:Connect(function()
+		task.defer(giveKit)
+	end)
+
 	if not profile.tutorialComplete then
 		task.delay(config.onboarding.firstToastAt, function()
 			if player.Parent then
@@ -2027,6 +2044,12 @@ function SurviveLoop.start(loaded: any)
 		-- the run at 130.0s (Hunter, twice, 2026-09-12). A wick that gutters as dawn
 		-- breaks has held the night; only a dark stretch loses it.
 		if ClockService.state().remaining <= (config.night.graceSeconds or 2) then
+			return
+		end
+		-- A mercy night never ends the run. You lose the circle and the dark comes in
+		-- close, which is frightening and instructive and entirely survivable.
+		if dayTuning(run.day).mercy then
+			toastAll("guttered", theme.copy.beaconGuttered or "the light is out, but it holds", "warn")
 			return
 		end
 		endRun(false, "light_out")

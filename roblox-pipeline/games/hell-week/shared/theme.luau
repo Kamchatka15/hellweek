@@ -103,6 +103,7 @@ return {
 		-- danger lines are written the way a friend would say them, not the way a
 		-- system would log them.
 		nightComing = "night is coming",
+		beaconGuttered = "the light is out — but it holds, this once",
 
 		-- INSPECT. Point at a thing and press I. One line saying what it is, one
 		-- saying what it does; the live state is filled in by the server. These

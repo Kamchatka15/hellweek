@@ -27,7 +27,9 @@ ToolService.equipped = Signal.new() -- (player, toolId?)
 export type ToolDef = {
 	id: string,
 	label: string,
-	effect: string?, -- "harvest" | "ward" | "light" | "strike"
+	-- `effect` still drives ward and light. Harvest and strike are read off `kind` and
+	-- `power` instead, so one tool can do both.
+	effect: string?, -- "ward" | "light"
 	kind: string?, -- for harvest: which resource it helps with ("any" for all)
 	bonus: number?, -- for harvest: extra yield
 	radius: number?, -- for ward: how far it holds the threat off
@@ -77,11 +79,14 @@ function ToolService.strikePower(player: Player): number
 	if not def then
 		return 1
 	end
-	if def.effect == "strike" then
-		return def.power or 2
+	-- Read the FIELD, not the label. A dagger that also cuts cactus should still hit
+	-- like a dagger, and the leader's starter axe both chops trees and kills rabbits.
+	-- One tool doing two obvious jobs is most of why a child understands it at once.
+	if def.power then
+		return def.power
 	end
-	-- A harvesting tool is a blade or a heavy head; it works, just not as well.
-	if def.effect == "harvest" then
+	-- Anything with a working edge or a heavy head helps, just less.
+	if def.kind then
 		return 2
 	end
 	return 1
@@ -91,10 +96,11 @@ end
 function ToolService.harvestBonus(player: Player, kind: string): number
 	local id = held[player]
 	local def = id and defs[id]
-	if not def or def.effect ~= "harvest" then
+	-- Same idea: a tool harvests if it names a resource, whatever else it also does.
+	if not def or not def.kind then
 		return 0
 	end
-	if def.kind and def.kind ~= "any" and def.kind ~= kind then
+	if def.kind ~= "any" and def.kind ~= kind then
 		return 0
 	end
 	return def.bonus or 1

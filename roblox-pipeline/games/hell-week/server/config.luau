@@ -53,6 +53,16 @@ return {
 	-- Seconds of warning before night. Nothing bad here arrives unannounced.
 	nightWarning = 12,
 
+	-- WHAT YOU WAKE UP HOLDING.
+	--
+	-- The leader hands a child a starter axe in the first second, and that one object
+	-- teaches the whole game: swing it at a tree, carry what falls, feed the fire. A
+	-- player who must first EARN a tool cannot begin, and a ten-year-old will not wait.
+	--
+	-- Two, not one, because the desert has two things worth taking and a child should
+	-- discover that by having the answer to both already in hand.
+	startingTools = { "Pickaxe", "Dagger" },
+
 	-- The floor top. Everything that sits on the sand is placed from this.
 	groundY = 0,
 
@@ -165,7 +175,7 @@ return {
 		-- and without it a rich offering would hand back a pile of identical tools.
 		{
 			id = "cut_knife",
-			label = "Bone Knife",
+			label = "Bone Knife (all resources)",
 			inputs = { stone = 1, ashwood = 1 },
 			tool = "Knife",
 			limit = 1,
@@ -254,7 +264,13 @@ return {
 		-- at about 8.7 from the centre — a tighter zone is one they cannot reach.
 		feedRadius = 10,
 		lightOffset = Vector3.new(0, 3, 0),
-		startingFuel = 0,
+		-- LIT, dimly, from the first second.
+		--
+		-- It used to start dead, which meant a child who wandered for three minutes
+		-- lost the run to their first night having never seen what a night was. Two
+		-- fuel is a small circle, so the ring is drawn and the lesson is visible
+		-- immediately: this is safe, out there is not, feeding makes it bigger.
+		startingFuel = 2,
 		fuelCap = 15,
 		radiusBase = 25,
 		radiusPerFuel = 8,
@@ -276,10 +292,19 @@ return {
 	--
 	-- Day 1 is also when the camp gets built, which is the whole reason day 2 is
 	-- different from day 1 rather than the same lap against a bigger number.
+	-- THE TEN-MINUTE ARC.
+	--
+	-- Three days and three nights land at about eight and three quarter minutes, which
+	-- is the session we are aiming at: long enough to learn the loop and make a plan
+	-- together, short enough to finish in one sitting before anyone drifts off.
+	--
+	-- Day 1 is still the long tutorial day, just not half the session. 180 seconds is
+	-- nearly twice a normal day, with no pressure, which is room enough to be bad at
+	-- the game for a while.
 	days = {
-		{ day = 300, night = 45, burn = 2, stalker = "watch" },
-		{ day = 100, night = 50, burn = 4, stalker = "hunt" },
-		{ day = 95, night = 55, burn = 6, stalker = "hunt" },
+		{ day = 180, night = 40, burn = 2, stalker = "watch", mercy = true },
+		{ day = 110, night = 45, burn = 4, stalker = "hunt" },
+		{ day = 100, night = 50, burn = 6, stalker = "hunt" },
 		-- PARKED tuning below: escalation placeholders so the week has a shape
 		{ day = 90, night = 60, burn = 8, stalker = "hunt" },
 		{ day = 85, night = 65, burn = 10, stalker = "hunt" },
@@ -301,9 +326,8 @@ return {
 	tools = {
 		{
 			id = "Knife",
-			label = "Bone Knife — cactus gives two",
-			effect = "harvest",
-			kind = "cactus",
+			label = "Bone Knife — everything gives two",
+			kind = "any",
 			bonus = 1,
 			parts = {
 				{
@@ -341,9 +365,31 @@ return {
 			},
 		},
 		{
+			id = "Dagger",
+			label = "Dagger — cuts cactus, and cuts back",
+			-- No `effect`: it is not a ward and not a lamp. It strikes because it has
+			-- `power`, and it harvests because it names a `kind`. One tool, two jobs,
+			-- the way the leader's starter axe both chops and kills.
+			power = 2,
+			kind = "cactus",
+			bonus = 1,
+			parts = {
+				{
+					size = Vector3.new(0.36, 0.34, 1.3),
+					color = Color3.fromRGB(88, 74, 58),
+					material = Enum.Material.Wood,
+				},
+				{
+					size = Vector3.new(0.18, 0.46, 2),
+					offset = Vector3.new(0, 0.06, -1.5),
+					color = Color3.fromRGB(214, 208, 192),
+					material = Enum.Material.SmoothPlastic,
+				},
+			},
+		},
+		{
 			id = "Pickaxe",
 			label = "Pickaxe — stone gives two",
-			effect = "harvest",
 			kind = "stone",
 			bonus = 1,
 			parts = {
@@ -362,9 +408,8 @@ return {
 		},
 		{
 			id = "Club",
-			label = "Club — hits twice as hard",
-			effect = "strike",
-			power = 2,
+			label = "Club — heavier than the dagger",
+			power = 3,
 			parts = {
 				{
 					size = Vector3.new(0.38, 0.38, 2.6),
@@ -382,9 +427,8 @@ return {
 		},
 		{
 			id = "Spear",
-			label = "Spear — four hits become one",
-			effect = "strike",
-			power = 4,
+			label = "Spear — five hits become one",
+			power = 5,
 			parts = {
 				{
 					size = Vector3.new(0.3, 0.3, 5),
