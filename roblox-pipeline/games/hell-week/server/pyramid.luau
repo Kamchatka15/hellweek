@@ -544,8 +544,10 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 			brazier(at * CFrame.new(side * (hx - 4), 0, hz - 5))
 		end
 	elseif kind == "sarcophagi" then
-		for i = -1, 1 do
-			sarcophagus(at * CFrame.new(i * 11, 0, 0), i == 0)
+		for _, x in { -12, 12 } do
+			for _, z in { -9, 9 } do
+				sarcophagus(at * CFrame.new(x, 0, z), x < 0 and z < 0)
+			end
 		end
 		for _, side in { -1, 1 } do
 			brazier(at * CFrame.new(side * (hx - 4), 0, hz - 5))
@@ -634,10 +636,18 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 		sarcophagus(at * CFrame.new(hx - 6, 0, hz - 8) * CFrame.Angles(0, math.pi / 2, 0), true)
 		brazier(at * CFrame.new(-hx + 4, 0, hz - 5))
 	elseif kind == "granary" then
-		for i = -1, 1 do
+		-- Bins hug the walls. Nothing waist-high stands on the centre line of a room the
+		-- route runs straight through, or the way on is a squeeze past a grain store.
+		for _, i in { -1, 1 } do
 			for j = -1, 1, 2 do
-				box(`Bin{i}_{j}`, Vector3.new(6, 7, 6), at * CFrame.new(i * 9, 3.5, j * (hz - 6)), ASH, SAND)
-				box(`BinLip{i}_{j}`, Vector3.new(6.6, 0.6, 6.6), at * CFrame.new(i * 9, 7.2, j * (hz - 6)), DEEP, SLATE)
+				box(`Bin{i}_{j}`, Vector3.new(6, 7, 6), at * CFrame.new(i * 12, 3.5, j * (hz - 6)), ASH, SAND)
+				box(
+					`BinLip{i}_{j}`,
+					Vector3.new(6.6, 0.6, 6.6),
+					at * CFrame.new(i * 12, 7.2, j * (hz - 6)),
+					DEEP,
+					SLATE
+				)
 			end
 		end
 		for _ = 1, 5 do
