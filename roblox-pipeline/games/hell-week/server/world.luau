@@ -348,31 +348,32 @@ local biomes = {
 			bloom = { Intensity = 0.25, Size = 10, Threshold = 1.15 },
 		},
 		night = {
-			-- VISION night profile, lifted to moonlight after the brief's numbers rendered
-			-- the world past the disc as pure black and the Jackal could not be seen at
-			-- all. Still the night-void hue; now shapes exist in it. Bloom is kept from
-			-- before because the brief does not name one.
+			-- Night you can play in. The brief's numbers (Brightness 0.12, ambient 18,16,26,
+			-- fog density 0.52) rendered everything past the disc as pure black and a
+			-- ten-year-old could not find the Jackal, the trees, or the ground. This is
+			-- blue-grey moonlight in the night-void hue: dark, readable, and the fire is
+			-- still the warmest thing in frame. Bloom is kept from before.
 			ClockTime = 0.4,
-			Brightness = 0.35,
-			Ambient = Color3.fromRGB(50, 46, 70),
-			OutdoorAmbient = Color3.fromRGB(70, 64, 96),
-			ColorShift_Top = Color3.fromRGB(40, 36, 60),
-			ColorShift_Bottom = Color3.fromRGB(10, 8, 16),
-			EnvironmentDiffuseScale = 0.1,
-			EnvironmentSpecularScale = 0.08,
+			Brightness = 0.6,
+			Ambient = Color3.fromRGB(80, 76, 110),
+			OutdoorAmbient = Color3.fromRGB(110, 105, 140),
+			ColorShift_Top = Color3.fromRGB(90, 86, 120),
+			ColorShift_Bottom = Color3.fromRGB(40, 36, 60),
+			EnvironmentDiffuseScale = 0.4,
+			EnvironmentSpecularScale = 0.2,
 			FogEnd = 700,
 			atmosphere = {
-				Density = 0.3,
-				Offset = 0.15,
-				Haze = 2.4,
+				Density = 0.22,
+				Offset = 0.1,
+				Haze = 1.4,
 				Glare = 0,
-				Color = Color3.fromRGB(28, 26, 38),
-				Decay = Color3.fromRGB(16, 12, 20),
+				Color = Color3.fromRGB(60, 58, 90),
+				Decay = Color3.fromRGB(40, 36, 60),
 			},
 			colorCorrection = {
-				Saturation = -0.38,
-				Contrast = 0.2,
-				Brightness = -0.1,
+				Saturation = -0.2,
+				Contrast = 0.1,
+				Brightness = 0,
 				TintColor = Color3.fromRGB(220, 210, 255),
 			},
 			bloom = { Intensity = 0.8, Size = 30, Threshold = 1 },

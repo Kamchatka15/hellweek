@@ -300,7 +300,7 @@ return {
 			-- out: at most 24 kept, never past 72, haze never under 1.2.
 			bonusCap = 24,
 			rangeMax = 72,
-			hazeMin = 1.2,
+			hazeMin = 0.8,
 			hazeCutMax = 4,
 		},
 	},
