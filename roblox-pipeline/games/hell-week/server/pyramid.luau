@@ -47,6 +47,9 @@ local PLASTIC = Enum.Material.SmoothPlastic
 local staged: { { spec: any, carve: boolean } } = {}
 local air: { { cf: CFrame, size: Vector3 } } = {}
 local marks: { { name: string, at: Vector3 } } = {}
+-- The centre-line of the route, in the order a player walks it. It exists so the walk
+-- can be driven and timed by a machine instead of guessed at.
+local ways: { Vector3 } = {}
 local pathLength = 0
 
 local function put(spec: any, carve: boolean?)
@@ -56,6 +59,12 @@ end
 
 local function hollow(cf: CFrame, size: Vector3)
 	table.insert(air, { cf = cf, size = size })
+end
+
+local function way(at: Vector3)
+	if #ways == 0 or (ways[#ways] - at).Magnitude > 3 then
+		table.insert(ways, at)
+	end
 end
 
 local function mark(name: string, cf: CFrame)
@@ -180,14 +189,18 @@ local function hall(length: number, torchEvery: number?)
 		local side = if i % 2 == 0 then -1 else 1
 		torch(at * CFrame.new(side * (W / 2 - 0.2), 6.2, z) * CFrame.Angles(0, side * math.pi / 2, 0), true)
 	end
+	way(cur.Position)
 	cur = cur * CFrame.new(0, 0, -length)
+	way(cur.Position)
 	pathLength += length
 end
 
 local function turn(dir: number)
 	cur = cur * CFrame.new(0, 0, -JUNC)
 	shellBox(cur, W, W, H)
+	way(cur.Position)
 	cur = cur * CFrame.Angles(0, -dir * math.pi / 2, 0) * CFrame.new(0, 0, -JUNC)
+	way(cur.Position)
 	pathLength += W + 2 * T
 end
 
@@ -716,7 +729,9 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 		)
 	end
 
+	way(at.Position)
 	cur = cur * CFrame.new(0, 0, -depth)
+	way(cur.Position)
 	pathLength += depth
 end
 -- ---------------------------------------------------------------- the route
@@ -782,9 +797,22 @@ end
 local topLanding = cur
 cur = entry
 
+-- Walking the spine. The stair is built once but the route uses it four times, so the
+-- centre-line has to record the landings actually passed through rather than pretend
+-- the player teleported between levels.
+local landingAt = 9 -- the entry passage arrives at the ninth landing, y = +4
+local function useSpine(target: number)
+	local stepDir = if target > landingAt then 1 else -1
+	for i = landingAt, target, stepDir do
+		way(starts[i].Position)
+	end
+	pathLength += math.abs(target - landingAt) * FLIGHT_RUN
+	landingAt = target
+	cur = starts[target]
+end
+
 -- L1, the Bone Halls
-cur = starts[5]
-pathLength += 4 * FLIGHT_RUN
+useSpine(5)
 mark("deep1", cur)
 spurAndRing(70, {
 	{ "bones", 34, 20, 32 },
@@ -793,8 +821,7 @@ spurAndRing(70, {
 })
 
 -- L2, the Hall of Columns
-cur = starts[1]
-pathLength += 4 * FLIGHT_RUN
+useSpine(1)
 mark("deep2", cur)
 spurAndRing(70, {
 	{ "columns", 44, 26, 44 },
@@ -803,8 +830,7 @@ spurAndRing(70, {
 })
 
 -- L3, the upper halls
-cur = starts[11]
-pathLength += 10 * FLIGHT_RUN
+useSpine(11)
 mark("deep3", cur)
 spurAndRing(50, {
 	{ "treasury", 34, 22, 32 },
@@ -813,8 +839,9 @@ spurAndRing(50, {
 })
 
 -- L4, the heart
+useSpine(12)
+way(topLanding.Position)
 cur = topLanding
-pathLength += 2 * FLIGHT_RUN
 mark("summit", cur)
 faceOutward()
 turn(1)
@@ -920,6 +947,22 @@ for _, item in staged do
 	end
 end
 
+-- The centre-line, as invisible numbered parts. Nothing in the game reads these; they
+-- exist so the walkthrough can be driven and timed rather than estimated.
+for i, at in ways do
+	table.insert(parts, {
+		name = string.format("Way_%04d", i),
+		size = Vector3.new(1, 1, 1),
+		position = at + ORIGIN + Vector3.new(0, 3, 0),
+		color = BONE,
+		material = PLASTIC,
+		transparency = 1,
+		canCollide = false,
+		castShadow = false,
+		group = "PyramidPath",
+	})
+end
+
 -- Route markers: invisible, named in order, and the only thing the compass reads.
 local route: { any } = {}
 for i, m in marks do
@@ -951,5 +994,6 @@ return {
 		air = #air,
 		pathLength = math.floor(pathLength),
 		chambers = #marks,
+		waypoints = #ways,
 	},
 }
