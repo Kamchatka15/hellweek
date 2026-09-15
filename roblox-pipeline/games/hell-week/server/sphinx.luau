@@ -680,8 +680,17 @@ local function buildSphinx()
 	local function part(name: string, size: Vector3, at: Vector3, color: Color3, material: Enum.Material)
 		box(name, size, at, color, material)
 	end
-	part("Plinth", Vector3.new(86, 8, 250), Vector3.new(0, 4, -133), ASH, SAND)
-	part("PlinthLip", Vector3.new(92, 2, 256), Vector3.new(0, 8.5, -133), DEEP, SLATE)
+	-- The plinth is built in four pieces rather than one, because the way in runs down
+	-- through it: a solid slab here buries the top of the entry ramp, which is exactly
+	-- what it did the first time.
+	for _, side in { -1, 1 } do
+		part(`Plinth{side}`, Vector3.new(34, 8, 250), Vector3.new(side * 26, 4, -133), ASH, SAND)
+		part(`PlinthLip{side}`, Vector3.new(34, 2, 256), Vector3.new(side * 26, 8.5, -133), DEEP, SLATE)
+	end
+	part("PlinthFront", Vector3.new(18, 8, 24), Vector3.new(0, 4, -246), ASH, SAND)
+	part("PlinthFrontLip", Vector3.new(18, 2, 24), Vector3.new(0, 8.5, -246), DEEP, SLATE)
+	part("PlinthBack", Vector3.new(18, 8, 142), Vector3.new(0, 4, -79), ASH, SAND)
+	part("PlinthBackLip", Vector3.new(18, 2, 142), Vector3.new(0, 8.5, -79), DEEP, SLATE)
 	part("Haunch", Vector3.new(54, 38, 76), Vector3.new(0, 27, -58), ASH, SAND)
 	part("Body", Vector3.new(48, 32, 64), Vector3.new(0, 24, -124), ASH, SAND)
 	part("Chest", Vector3.new(54, 44, 44), Vector3.new(0, 30, -176), ASH, SAND)
@@ -737,7 +746,9 @@ end
 
 --- The descending passage: from between the paws down into the first level of tunnels.
 local function buildEntrance()
-	local a = Vector3.new(0, 7 - 1.5, -228)
+	-- starts flush with the front of the plinth, so the first step down is a step, not
+	-- a drop into a slot
+	local a = Vector3.new(0, 8 - 1.5, -234)
 	local c = Vector3.new(0, floorY(1) - 1.5, -150)
 	local span = (c - a).Magnitude
 	local cf = CFrame.lookAt((a + c) / 2, c)
