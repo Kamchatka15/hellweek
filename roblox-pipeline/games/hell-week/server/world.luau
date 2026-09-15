@@ -26,6 +26,7 @@ local PENT_Y = 0.56
 local fixtures = {}
 local vision = require(script.Parent.vision)
 local pyramid = require(script.Parent.pyramid)
+local sphinx = require(script.Parent.sphinx)
 
 -- Vision palette pass over generated scenery, by part-name prefix. The chunks on disk
 -- are already regenerated on the six colours; this makes an older chunk still in a
@@ -40,11 +41,13 @@ local function onPalette(data: any): any
 	local specs = data.scenery or data
 	-- Nothing of the old desert may stand where the pyramid does: a scrub or a rock
 	-- inside 220 studs of masonry pokes out through a wall.
-	local PO, PR = pyramid.origin, pyramid.half + 14
-	for i = #specs, 1, -1 do
-		local at = specs[i].position or (specs[i].cframe and specs[i].cframe.Position)
-		if at and math.abs(at.X - PO.X) < PR and math.abs(at.Z - PO.Z) < PR then
-			table.remove(specs, i)
+	for _, keep in { { pyramid.origin, pyramid.half + 14 }, { sphinx.origin, sphinx.half + 14 } } do
+		local PO, PR = keep[1], keep[2]
+		for i = #specs, 1, -1 do
+			local at = specs[i].position or (specs[i].cframe and specs[i].cframe.Position)
+			if at and math.abs(at.X - PO.X) < PR and math.abs(at.Z - PO.Z) < PR then
+				table.remove(specs, i)
+			end
 		end
 	end
 	local ASH = Color3.fromRGB(145, 125, 95)
@@ -623,6 +626,11 @@ return {
 		-- carved, so all this does is hand them over under their own folder.
 		for _, spec in pyramid.parts do
 			spec.group = spec.group or "Pyramid"
+			add(spec)
+		end
+
+		-- The Sphinx and the maze under it, across the obelisk from the pyramid.
+		for _, spec in sphinx.parts do
 			add(spec)
 		end
 

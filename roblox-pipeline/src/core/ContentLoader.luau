@@ -129,6 +129,7 @@ local function block(spec: any, parent: Instance): BasePart
 	part.TopSurface = Enum.SurfaceType.Smooth
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Transparency = spec.transparency or 0
+	part.Reflectance = spec.reflectance or 0
 	part.CanCollide = if spec.canCollide == nil then true else spec.canCollide
 	part.CastShadow = if spec.castShadow == nil then true else spec.castShadow
 	if spec.fire then
