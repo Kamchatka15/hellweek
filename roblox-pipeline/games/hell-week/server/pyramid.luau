@@ -99,8 +99,8 @@ local function torch(cf: CFrame, lit: boolean)
 			tip = GOLD,
 			rate = 11,
 			sparkRate = 2,
-			range = if lit then 26 else 0.1,
-			brightness = if lit then 1.5 else 0,
+			range = if lit then 34 else 0.1,
+			brightness = if lit then 2.1 else 0,
 		},
 	})
 end
@@ -173,12 +173,12 @@ local function hall(length: number, torchEvery: number?)
 	end
 	local at = cur * CFrame.new(0, 0, -length / 2)
 	shellBox(at, W, length, H)
-	local every = torchEvery or 30
+	local every = torchEvery or 24
 	local count = math.floor(length / every)
 	for i = 1, count do
 		local z = -length / 2 + i * every
 		local side = if i % 2 == 0 then -1 else 1
-		torch(at * CFrame.new(side * (W / 2 - 0.2), 6.2, z) * CFrame.Angles(0, side * math.pi / 2, 0), i % 2 == 1)
+		torch(at * CFrame.new(side * (W / 2 - 0.2), 6.2, z) * CFrame.Angles(0, side * math.pi / 2, 0), true)
 	end
 	cur = cur * CFrame.new(0, 0, -length)
 	pathLength += length
@@ -447,8 +447,8 @@ local function brazier(cf: CFrame)
 			tip = GOLD,
 			rate = 16,
 			sparkRate = 4,
-			range = 42,
-			brightness = 1.7,
+			range = 54,
+			brightness = 2.4,
 		},
 	})
 end
