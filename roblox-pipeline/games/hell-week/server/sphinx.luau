@@ -405,11 +405,13 @@ end
 -- Low corner of the 3x3 hall on each level, and of the 1x2 inclined shafts that drop
 -- from one level to the next. Chosen so no two of them share a cell.
 local HALLS = { { 4, 4 }, { 2, 3 }, { 4, 2 }, { 6, 2 }, { 5, 4 } }
+-- A shaft is entered at the north end of its top cell, so that cell may never sit on
+-- row 1: the edge of the grid is always rock, and the way down would be walled up.
 local SHAFTS = {
-	{ { 1, 1 }, { 8, 7 } }, -- 1 -> 2
-	{ { 8, 1 }, { 1, 7 } }, -- 2 -> 3
+	{ { 1, 2 }, { 8, 7 } }, -- 1 -> 2
+	{ { 8, 2 }, { 1, 7 } }, -- 2 -> 3
 	{ { 2, 5 }, { 7, 6 } }, -- 3 -> 4
-	{ { 5, 1 }, { 2, 7 } }, -- 4 -> 5
+	{ { 5, 2 }, { 2, 7 } }, -- 4 -> 5
 }
 local HALL_NAME = { "Hall of the Lion", "Hall of Coffins", "Drowned Hall", "Hall of Columns", "The Deep Hall" }
 
