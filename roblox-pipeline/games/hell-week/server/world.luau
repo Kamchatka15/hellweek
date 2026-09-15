@@ -311,12 +311,13 @@ end
 
 -- ---------------------------------------------------------------- the four worlds
 local function floorOf(color: Color3, material: Enum.Material)
-	-- A cylinder on its side is a vertical-axis disc. 700 studs across.
+	-- A slab, not a disc. It has to be splittable, because two tombs cut their way down
+	-- through it and a cylinder cannot have a rectangle taken out of it. The fog closes
+	-- long before the edge, so the shape of the edge was never visible anyway.
 	return {
-		shape = Enum.PartType.Cylinder,
-		size = Vector3.new(4, 700, 700),
+		shape = Enum.PartType.Block,
+		size = Vector3.new(700, 4, 700),
 		position = Vector3.new(0, -2, 0),
-		rotation = Vector3.new(0, 0, 90),
 		color = color,
 		material = material,
 	}
@@ -577,6 +578,9 @@ local START = "ashen-waste"
 
 return {
 	floor = biomes[START].floor,
+	-- Where the ground opens: the pyramid's stair well and the Sphinx's entry slot.
+	-- Without these the world floor seals both descents and nothing underground exists.
+	floorHoles = { pyramid.opening, sphinx.opening },
 	props = (function()
 		if not vision.on then
 			return fixtures

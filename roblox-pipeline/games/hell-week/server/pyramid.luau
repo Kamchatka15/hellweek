@@ -1039,6 +1039,8 @@ return {
 	half = HALF,
 	height = HEIGHT,
 	door = Vector3.new(AXIS_X, 4, HALF + 6) + ORIGIN,
+	-- the square the spine descends through, so the world floor can be opened for it
+	opening = { ORIGIN.X - 34, ORIGIN.Z - 34, ORIGIN.X + 34, ORIGIN.Z + 34 },
 	parts = parts,
 	route = route,
 	stats = {

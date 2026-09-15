@@ -371,15 +371,52 @@ local function buildWorld(world: any, theme: any)
 	folder.Name = WORLD_FOLDER
 	folder.Parent = workspace
 
-	local floor = block({
-		name = "Floor",
-		shape = world.floor.shape,
-		rotation = world.floor.rotation,
-		size = world.floor.size,
-		position = world.floor.position,
-		color = world.floor.color,
-		material = world.floor.material,
-	}, folder)
+	-- The ground, in as few pieces as it takes. A pack that digs underground has to be
+	-- able to cut a hole in its own floor, or the way down is sealed by the world itself
+	-- and nothing below it can be reached — so `world.floorHoles` lists rectangles in
+	-- world XZ and the slab is split around them.
+	local function subtract(rects: { any }, hole: { number }): { any }
+		local out = {}
+		for _, r in rects do
+			if hole[1] >= r[3] or hole[3] <= r[1] or hole[2] >= r[4] or hole[4] <= r[2] then
+				table.insert(out, r)
+				continue
+			end
+			if hole[1] > r[1] then
+				table.insert(out, { r[1], r[2], hole[1], r[4] })
+			end
+			if hole[3] < r[3] then
+				table.insert(out, { hole[3], r[2], r[3], r[4] })
+			end
+			local x0, x1 = math.max(r[1], hole[1]), math.min(r[3], hole[3])
+			if hole[2] > r[2] then
+				table.insert(out, { x0, r[2], x1, hole[2] })
+			end
+			if hole[4] < r[4] then
+				table.insert(out, { x0, hole[4], x1, r[4] })
+			end
+		end
+		return out
+	end
+
+	local fsize, fat = world.floor.size, world.floor.position
+	local rects = { { fat.X - fsize.X / 2, fat.Z - fsize.Z / 2, fat.X + fsize.X / 2, fat.Z + fsize.Z / 2 } }
+	for _, hole in world.floorHoles or {} do
+		rects = subtract(rects, hole)
+	end
+	local floor: BasePart
+	for index, r in rects do
+		local piece = block({
+			name = if index == 1 then "Floor" else `Floor_{index}`,
+			shape = world.floor.shape,
+			rotation = world.floor.rotation,
+			size = Vector3.new(r[3] - r[1], fsize.Y, r[4] - r[2]),
+			position = Vector3.new((r[1] + r[3]) / 2, fat.Y, (r[2] + r[4]) / 2),
+			color = world.floor.color,
+			material = world.floor.material,
+		}, folder)
+		floor = floor or piece
+	end
 
 	-- Walls keep the flood in the arena. A coin that slides off the edge is a coin the
 	-- player watched disappear, which reads as the game taking something back.

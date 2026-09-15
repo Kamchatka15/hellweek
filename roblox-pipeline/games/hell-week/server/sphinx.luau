@@ -898,6 +898,9 @@ return {
 	-- big enough to cover the lion as well as the grid, so no desert scrub is left
 	-- standing inside the plinth
 	half = 280,
+	-- the slot between the paws that the entry passage runs down, so the world floor
+	-- can be opened for it
+	opening = { ORIGIN.X - 11, ORIGIN.Z - 238, ORIGIN.X + 11, ORIGIN.Z - 146 },
 	parts = parts,
 	route = route,
 	stats = { parts = #parts, cells = cells, levels = LEVELS, grid = N },
