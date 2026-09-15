@@ -307,8 +307,8 @@ local function torch(cf: CFrame)
 			tip = GOLD,
 			rate = 11,
 			sparkRate = 2,
-			range = 32,
-			brightness = 2,
+			range = 44, -- cells are 36 apart, so the pool has to be able to cross one
+			brightness = 2.6,
 		},
 	})
 end
@@ -336,8 +336,8 @@ local function brazier(cf: CFrame)
 			tip = GOLD,
 			rate = 16,
 			sparkRate = 4,
-			range = 56,
-			brightness = 2.4,
+			range = 48,
+			brightness = 3,
 		},
 	})
 end
@@ -666,7 +666,10 @@ local function dressLevel(level: number, plan: any, open: any)
 					table.insert(shut, d)
 				end
 			end
-			if #shut > 0 and rng:NextNumber() < 0.38 then
+			-- A checkerboard, not a dice roll. At 38% the gaps landed wherever they liked
+			-- and 38% of cells had no light within reach at all; every other cell means
+			-- the worst case is always one cell from a flame.
+			if #shut > 0 and (i + j) % 2 == 0 then
 				local d = shut[rng:NextInteger(1, #shut)]
 				torch(
 					CFrame.new(cx(i) + DIR[d][1] * (W / 2 - 0.2), y + 7, cx(j) + DIR[d][2] * (W / 2 - 0.2))
