@@ -15,6 +15,7 @@
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 
 local Core = script.Parent
 local AnalyticsService = require(Core.AnalyticsService)
@@ -48,6 +49,10 @@ local config: any = nil
 local safeRing: Folder? = nil
 local siegeOn = false
 local flickerToken = 0
+-- What feeding has earned the fire this run: extra cap-light range kept, and haze
+-- taken off the sky. Both are re-applied after every mood tween and reset per run.
+local capBonus = 0
+local hazeCut = 0
 local theme: any = nil
 
 local run = {
@@ -283,6 +288,51 @@ local function buildStalker(): Model
 	root.CanTouch = false
 	root.Parent = model
 	model.PrimaryPart = root
+
+	-- A pack may hand over a silhouette: a named list of parts, feet at y = 0, plus
+	-- eye positions. It replaces the block-and-ball body and nothing else: the same
+	-- root, the same service moves it, the same ward holds it off.
+	local sil = c.silhouette
+	if sil then
+		model.Name = sil.name or "Stalker"
+		for _, spec in sil.parts do
+			ContentLoader.block({
+				name = spec.name,
+				shape = spec.shape,
+				size = spec.size,
+				position = spec.position,
+				rotation = spec.rotation,
+				color = spec.color or sil.color,
+				material = spec.material or Enum.Material.SmoothPlastic,
+				canCollide = false,
+				castShadow = true,
+			}, model)
+		end
+		for index, at in sil.eyes or {} do
+			local eye = ContentLoader.block({
+				name = `Eye{index}`,
+				shape = Enum.PartType.Ball,
+				size = Vector3.new(0.22, 0.22, 0.22),
+				position = at,
+				color = sil.eyeColor or Color3.fromRGB(255, 170, 40),
+				material = Enum.Material.Neon,
+				canCollide = false,
+				castShadow = false,
+				light = { color = sil.eyeColor or Color3.fromRGB(255, 170, 40), brightness = 0.6, range = 5 },
+			}, model)
+			local _ = eye
+		end
+		for _, d in model:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.CanQuery = false
+				d.CanTouch = false
+			end
+		end
+		-- Parented with the rest of the visual pass, so it is one thing to find.
+		model.Parent = pack.folder:FindFirstChild("VisionRework") or pack.folder
+		model:PivotTo(CFrame.new(0, -500, 0))
+		return model
+	end
 
 	local body = Instance.new("Part")
 	body.Name = "Body"
@@ -627,7 +677,7 @@ local function setMood(night: boolean)
 	local fireLight = flamePart and flamePart:FindFirstChild("FireLight")
 	if cap and fireLight and fireLight:IsA("PointLight") then
 		local target = if night then cap.night else cap.day
-		TweenService:Create(fireLight, info, { Range = target.range, Brightness = target.brightness }):Play()
+		TweenService:Create(fireLight, info, { Range = target.range + capBonus, Brightness = target.brightness }):Play()
 		local fl = if night then target.flicker else nil
 		if fl then
 			task.delay(seconds, function()
@@ -637,6 +687,16 @@ local function setMood(night: boolean)
 				end
 			end)
 		end
+	end
+	-- The rig tween resets the haze to the biome's number; put the feeding back on
+	-- top of it once the tween has landed.
+	if hazeCut > 0 and cap then
+		task.delay(seconds + 0.05, function()
+			local atm = Lighting:FindFirstChild("Atmosphere")
+			if atm and atm:IsA("Atmosphere") then
+				atm.Haze = math.max(cap.hazeMin or 1.2, atm.Haze - hazeCut)
+			end
+		end)
 	end
 	-- The ring changes material with the phase, so redraw it.
 	drawSafeRing()
@@ -998,6 +1058,8 @@ startRun = function()
 	run.clearedSpots = {}
 	run.downs = 0
 	run.startedAt = os.clock()
+	capBonus = 0
+	hazeCut = 0
 	StalkerService.setMode("hidden")
 	setFogRadius(fogRadiusForLevel(0))
 	SackService.clearAll()
@@ -1005,6 +1067,35 @@ startRun = function()
 end
 
 -- ---------------------------------------------------------------- the verb
+
+--- The feel of a feed on the fire itself: the cap light jumps 6 studs of range for
+--- a second and keeps 2 of it, and the sky loses a little haze. Small, cumulative,
+--- and clamped so a full week of feeding cannot blow the camp out.
+local function capPulse()
+	local cap = config.beacon.capLight
+	local flamePart = pack.folder:FindFirstChild("Beacon_" .. tostring(config.beacon.flameName))
+	local fireLight = flamePart and flamePart:FindFirstChild("FireLight")
+	if not (cap and fireLight and fireLight:IsA("PointLight")) then
+		return
+	end
+	capBonus = math.min(capBonus + 2, cap.bonusCap or 24)
+	local phaseRange = if run.phase == "night" then cap.night.range else cap.day.range
+	local base = math.min(phaseRange + capBonus, cap.rangeMax or 72)
+	local peak = math.min(base + 6, cap.rangeMax or 72)
+	TweenService
+		:Create(fireLight, TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Range = peak })
+		:Play()
+	task.delay(0.15, function()
+		TweenService
+			:Create(fireLight, TweenInfo.new(0.85, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { Range = base })
+			:Play()
+	end)
+	local atm = Lighting:FindFirstChild("Atmosphere")
+	if atm and atm:IsA("Atmosphere") then
+		hazeCut = math.min(hazeCut + 0.15, cap.hazeCutMax or 4)
+		atm.Haze = math.max(cap.hazeMin or 1.2, atm.Haze - 0.15)
+	end
+end
 
 --- Feed the fire. Only fuel burns: cactus and stone are crafting stock and stay in the
 --- sack, because silently eating them would punish a player for walking the wrong way.
@@ -1053,6 +1144,7 @@ local function feed(player: Player)
 		return
 	end
 	run.fuelIn += accepted
+	capPulse()
 	local profile = DataService.get(player)
 	if profile then
 		profile.tutorialComplete = true

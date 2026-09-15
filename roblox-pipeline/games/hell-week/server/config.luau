@@ -295,6 +295,13 @@ return {
 		capLight = {
 			day = { range = 18, brightness = 1.1 },
 			night = { range = 42, brightness = 2.8, flicker = { min = 2.4, max = 3.2, every = 0.3 } },
+			-- Every successful feed pulses the range up 6 for a second and keeps 2 of
+			-- it, and thins the haze by 0.15. These are the clamps so it cannot blow
+			-- out: at most 24 kept, never past 72, haze never under 1.2.
+			bonusCap = 24,
+			rangeMax = 72,
+			hazeMin = 1.2,
+			hazeCutMax = 4,
 		},
 	},
 
@@ -688,7 +695,49 @@ return {
 
 	stalker = {
 		height = 9,
-		standOff = 2,
+		-- Off the disc and in the trees while the vision is on: the watch position is
+		-- safe radius plus this, and the nearest tree cluster starts near 58 studs.
+		standOff = if require(script.Parent.vision).on then 22 else 2,
+		-- VisionRework/Jackal_Placeholder. The body the night threat wears while the
+		-- vision is on: a tall thin charcoal figure with a long muzzle, pointed ears,
+		-- and two small amber eyes. Built from primitives, no rig copied from anything.
+		-- The threat's behaviour is untouched; only its shape is. Feet at y = 0.
+		silhouette = if require(script.Parent.vision).on
+			then {
+				name = "Jackal_Placeholder",
+				color = Color3.fromRGB(28, 26, 24),
+				eyeColor = Color3.fromRGB(255, 170, 40),
+				parts = {
+					{ name = "LegL", size = Vector3.new(0.5, 4.4, 0.5), position = Vector3.new(-0.42, 2.2, 0) },
+					{ name = "LegR", size = Vector3.new(0.5, 4.4, 0.5), position = Vector3.new(0.42, 2.2, 0) },
+					{ name = "Hips", size = Vector3.new(1.3, 0.7, 0.8), position = Vector3.new(0, 4.7, 0) },
+					{ name = "Torso", size = Vector3.new(1.2, 3.4, 0.8), position = Vector3.new(0, 6.7, -0.05) },
+					{ name = "Shoulders", size = Vector3.new(1.9, 0.5, 0.8), position = Vector3.new(0, 8.5, 0) },
+					{ name = "ArmL", size = Vector3.new(0.38, 3.2, 0.38), position = Vector3.new(-1.05, 6.6, 0) },
+					{ name = "ArmR", size = Vector3.new(0.38, 3.2, 0.38), position = Vector3.new(1.05, 6.6, 0) },
+					{
+						name = "Neck",
+						size = Vector3.new(0.45, 1.3, 0.45),
+						position = Vector3.new(0, 9.1, -0.25),
+						rotation = Vector3.new(18, 0, 0),
+					},
+					{ name = "Head", size = Vector3.new(0.8, 0.8, 1.7), position = Vector3.new(0, 9.85, -0.75) },
+					{
+						name = "EarL",
+						size = Vector3.new(0.22, 1.1, 0.32),
+						position = Vector3.new(-0.32, 10.55, -0.35),
+						rotation = Vector3.new(0, 0, 18),
+					},
+					{
+						name = "EarR",
+						size = Vector3.new(0.22, 1.1, 0.32),
+						position = Vector3.new(0.32, 10.55, -0.35),
+						rotation = Vector3.new(0, 0, -18),
+					},
+				},
+				eyes = { Vector3.new(-0.2, 9.95, -1.55), Vector3.new(0.2, 9.95, -1.55) },
+			}
+			else nil,
 		speed = 9,
 		touchDistance = 3.5,
 		sway = 4,

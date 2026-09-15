@@ -96,9 +96,9 @@ return {
 	safeRingNightMaterial = Enum.Material.Neon,
 	safeRingNightTransparency = 0.35,
 
-	accent = Color3.fromRGB(255, 190, 70),
+	accent = Color3.fromRGB(212, 168, 62), -- wick gold: the bars
 	uiBackground = Color3.fromRGB(14, 15, 20),
-	uiPanel = Color3.fromRGB(24, 26, 34),
+	uiPanel = Color3.fromRGB(30, 28, 28), -- charcoal chrome
 	uiText = Color3.fromRGB(236, 236, 240),
 	uiMuted = Color3.fromRGB(150, 154, 166),
 	uiGood = Color3.fromRGB(214, 196, 120),

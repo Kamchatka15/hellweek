@@ -676,6 +676,158 @@ return {
 			end
 		end
 
+		-- The bedroom. A tiny room for the first-join sting, built far above the map
+		-- where no camp frame can see it. The set only: the teleport into and out of
+		-- it is NOT wired, because the current first-join sting is the opening text
+		-- overlay, which is full-screen black, and a room behind it is invisible.
+		-- Sequencing the two is a decision, not a build, and is reported as such.
+		do
+			local O = Vector3.new(640, 400, 640)
+			local WALL = Color3.fromRGB(45, 42, 40)
+			local FLOOR = Color3.fromRGB(145, 125, 95)
+			local WOOD = Color3.fromRGB(90, 76, 58)
+			local PAGE = Color3.fromRGB(210, 200, 180)
+			local function room(spec)
+				spec.name = "Bedroom_" .. spec.name
+				spec.position = O + spec.position
+				add(spec)
+			end
+			room({
+				name = "Floor",
+				size = Vector3.new(14, 0.5, 12),
+				position = Vector3.new(0, -0.25, 0),
+				color = FLOOR,
+				material = Enum.Material.Wood,
+			})
+			room({
+				name = "WallBack",
+				size = Vector3.new(14, 8, 0.5),
+				position = Vector3.new(0, 4, -6.25),
+				color = WALL,
+				material = Enum.Material.Slate,
+			})
+			room({
+				name = "WallLeft",
+				size = Vector3.new(0.5, 8, 12),
+				position = Vector3.new(-7.25, 4, 0),
+				color = WALL,
+				material = Enum.Material.Slate,
+			})
+			room({
+				name = "WallRight",
+				size = Vector3.new(0.5, 8, 12),
+				position = Vector3.new(7.25, 4, 0),
+				color = WALL,
+				material = Enum.Material.Slate,
+			})
+			room({
+				name = "Ceiling",
+				size = Vector3.new(14, 0.5, 12),
+				position = Vector3.new(0, 8.25, 0),
+				color = WALL,
+				material = Enum.Material.Slate,
+			})
+			-- the window: a frame in the back wall and a pale pane behind it
+			room({
+				name = "WindowFrame",
+				size = Vector3.new(4.4, 3.4, 0.7),
+				position = Vector3.new(2.5, 4.6, -6.2),
+				color = WOOD,
+				material = Enum.Material.Wood,
+			})
+			room({
+				name = "WindowPane",
+				size = Vector3.new(3.6, 2.6, 0.2),
+				position = Vector3.new(2.5, 4.6, -6.35),
+				color = Color3.fromRGB(168, 152, 128),
+				material = Enum.Material.Glass,
+				transparency = 0.35,
+				canCollide = false,
+			})
+			room({
+				name = "WindowLight",
+				size = Vector3.new(0.2, 0.2, 0.2),
+				position = Vector3.new(2.5, 4.6, -5.6),
+				transparency = 1,
+				canCollide = false,
+				light = { color = Color3.fromRGB(168, 152, 128), brightness = 0.8, range = 14 },
+			})
+			-- the desk, the book, the backpack
+			room({
+				name = "DeskTop",
+				size = Vector3.new(5, 0.3, 2.4),
+				position = Vector3.new(-3, 2.6, -4.6),
+				color = WOOD,
+				material = Enum.Material.Wood,
+			})
+			room({
+				name = "DeskLegL",
+				size = Vector3.new(0.3, 2.5, 2.2),
+				position = Vector3.new(-5.3, 1.25, -4.6),
+				color = WOOD,
+				material = Enum.Material.Wood,
+			})
+			room({
+				name = "DeskLegR",
+				size = Vector3.new(0.3, 2.5, 2.2),
+				position = Vector3.new(-0.7, 1.25, -4.6),
+				color = WOOD,
+				material = Enum.Material.Wood,
+			})
+			room({
+				name = "Book",
+				size = Vector3.new(1.4, 0.25, 1.8),
+				position = Vector3.new(-3, 2.9, -4.5),
+				rotation = Vector3.new(0, 14, 0),
+				color = PAGE,
+				material = Enum.Material.SmoothPlastic,
+				canCollide = false,
+			})
+			room({
+				name = "BookSpine",
+				size = Vector3.new(0.18, 0.3, 1.8),
+				position = Vector3.new(-3.65, 2.9, -4.35),
+				rotation = Vector3.new(0, 14, 0),
+				color = Color3.fromRGB(212, 168, 62),
+				material = Enum.Material.Metal,
+				canCollide = false,
+			})
+			room({
+				name = "Backpack",
+				size = Vector3.new(1.4, 1.8, 0.9),
+				position = Vector3.new(4.6, 0.9, 3.2),
+				rotation = Vector3.new(0, -24, 0),
+				color = WALL,
+				material = Enum.Material.Fabric,
+				canCollide = false,
+			})
+			room({
+				name = "BackpackFlap",
+				size = Vector3.new(1.5, 0.6, 1.0),
+				position = Vector3.new(4.6, 1.65, 3.2),
+				rotation = Vector3.new(0, -24, 0),
+				color = FLOOR,
+				material = Enum.Material.Fabric,
+				canCollide = false,
+			})
+			-- a bed against the left wall, so it reads as a bedroom in one glance
+			room({
+				name = "Bed",
+				size = Vector3.new(3.2, 1.0, 6.4),
+				position = Vector3.new(-5.4, 0.5, 1.4),
+				color = WALL,
+				material = Enum.Material.Fabric,
+			})
+			room({
+				name = "Pillow",
+				size = Vector3.new(2.2, 0.5, 1.4),
+				position = Vector3.new(-5.4, 1.25, -1.3),
+				color = PAGE,
+				material = Enum.Material.Fabric,
+				canCollide = false,
+			})
+		end
+
 		-- Three loot-looking things on the sand near the disc. Dressing only.
 		add({
 			name = "Dress_BoneSticks",
