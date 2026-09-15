@@ -48,8 +48,11 @@ local staged: { { spec: any, carve: boolean } } = {}
 local air: { { cf: CFrame, size: Vector3 } } = {}
 local marks: { { name: string, at: Vector3 } } = {}
 -- The centre-line of the route, in the order a player walks it. It exists so the walk
--- can be driven and timed by a machine instead of guessed at.
+-- can be driven and timed by a machine instead of guessed at. Recording is switched off
+-- while the spine is built, because the stair is constructed bottom to top and that is
+-- not the order anybody walks it.
 local ways: { Vector3 } = {}
+local recording = true
 local pathLength = 0
 
 local function put(spec: any, carve: boolean?)
@@ -62,6 +65,9 @@ local function hollow(cf: CFrame, size: Vector3)
 end
 
 local function way(at: Vector3)
+	if not recording then
+		return
+	end
 	if #ways == 0 or (ways[#ways] - at).Magnitude > 3 then
 		table.insert(ways, at)
 	end
@@ -789,11 +795,13 @@ local entry = cur
 -- steps is 144 studs of climb in three revolutions of a 36-stud square.
 local starts: { CFrame } = {}
 cur = CFrame.new(AXIS_X, -92, AXIS_Z)
+recording = false
 for i = 1, 12 do
 	starts[i] = cur
 	flight(8, false)
 	turn(1)
 end
+recording = true
 local topLanding = cur
 cur = entry
 
