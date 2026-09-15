@@ -420,7 +420,7 @@ local SHAFTS = {
 	{ { 1, 2 }, { 8, 5 } }, -- 1 -> 2
 	{ { 6, 5 }, { 7, 2 } }, -- 2 -> 3
 	{ { 3, 5 }, { 2, 2 } }, -- 3 -> 4
-	{ { 1, 5 }, { 4, 2 } }, -- 4 -> 5
+	{ { 8, 5 }, { 4, 2 } }, -- 4 -> 5
 }
 local HALL_NAME = { "Hall of the Lion", "Hall of Coffins", "Drowned Hall", "Hall of Columns", "The Deep Hall" }
 
