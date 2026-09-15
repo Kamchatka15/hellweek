@@ -366,7 +366,9 @@ end
 local function pool(at: Vector3, radius: number)
 	local id = nid()
 	local r = radius
-	box(`PoolBed{id}`, Vector3.new(r * 2, 1, r * 2), at + Vector3.new(0, -2.5, 0), DEEP, SLATE)
+	-- a pale bed under pale glass: the light has to come back up out of it or the pool
+	-- reads as a hole in the floor rather than as standing water
+	box(`PoolBed{id}`, Vector3.new(r * 2, 1, r * 2), at + Vector3.new(0, -2.5, 0), BONE, SLATE)
 	for _, e in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
 		local ex, ez = e[1], e[2]
 		box(
@@ -379,10 +381,10 @@ local function pool(at: Vector3, radius: number)
 	end
 	-- the surface: mirror-still, faintly lit from beneath
 	box(`PoolFace{id}`, Vector3.new(r * 2, 0.4, r * 2), at + Vector3.new(0, -0.6, 0), BONE, GLASS, {
-		transparency = 0.45,
-		reflectance = 0.75,
+		transparency = 0.2,
+		reflectance = 0.55,
 		canCollide = false,
-		light = { color = Color3.fromRGB(190, 200, 210), brightness = 1.1, range = 30 },
+		light = { color = Color3.fromRGB(200, 214, 226), brightness = 3, range = 52 },
 	})
 	-- three still rings, so it reads as a surface rather than a pane of glass
 	for k = 1, 3 do
