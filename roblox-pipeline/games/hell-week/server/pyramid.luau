@@ -28,7 +28,7 @@ local STEP_IN = (HALF - 6) / COURSES
 local SHELL_T = 10
 
 local W, T, H = 14, 4, 15 -- corridor: inner width, wall thickness, inner height
-local RISE, RUN = 2, 2.4 -- one step
+local RISE, RUN = 1.5, 3 -- one step: 26 degrees, which a humanoid and the nav mesh both accept
 local SEG = 10 -- wall segment length: the resolution a doorway can be cut at
 local JUNC = W / 2 + T
 
@@ -160,7 +160,10 @@ local function shellBox(at: CFrame, across: number, depth: number, height: numbe
 		end
 	end
 	-- the air inside, run a little past both ends so neighbours open into each other
-	hollow(at * CFrame.new(0, height / 2, 0), Vector3.new(across, height, depth + 2.2 * T))
+	-- The air that CARVES is only ever a doorway wide. A room that registered its full
+	-- width would have its whole end wall deleted by the corridor meeting it, opening it
+	-- into the hollow of the pyramid instead of into the corridor.
+	hollow(at * CFrame.new(0, height / 2, 0), Vector3.new(math.min(across, W), height, depth + 2.2 * T))
 end
 
 local function hall(length: number, torchEvery: number?)
@@ -193,16 +196,22 @@ local function flight(steps: number, down: boolean)
 	flights += 1
 	local id = flights
 	local dir = if down then -1 else 1
+	-- Open both mouths. A landing box puts its wall 2 studs beyond the first and last
+	-- step, and a single step's air reaches only 0.6 studs past itself, so without
+	-- these two volumes every staircase in the pyramid is sealed at both ends.
+	hollow(cur * CFrame.new(0, H / 2, 4), Vector3.new(W, H, 14))
 	for i = 1, steps do
 		local y = dir * RISE * i
 		local at = cur * CFrame.new(0, y, -(RUN * (i - 1) + RUN / 2))
-		box(
-			`Step{id}_{i}`,
-			Vector3.new(W + 2 * T, RISE + 2.5, RUN),
-			at * CFrame.new(0, -(RISE + 2.5) / 2, 0),
-			DEEP,
-			SLATE
-		)
+		put({
+			name = `Step{id}_{i}`,
+			size = Vector3.new(W + 2 * T, RISE + 2.5, RUN),
+			cframe = at * CFrame.new(0, -(RISE + 2.5) / 2, 0),
+			color = DEEP,
+			material = SLATE,
+			canCollide = false,
+			castShadow = false,
+		})
 		box(`StairCeil{id}_{i}`, Vector3.new(W + 2 * T, T, RUN), at * CFrame.new(0, H + T / 2, 0), CHAR, SLATE, true)
 		for _, side in { -1, 1 } do
 			box(
@@ -219,7 +228,22 @@ local function flight(steps: number, down: boolean)
 			torch(at * CFrame.new(W / 2 - 0.2, 6.2, 0) * CFrame.Angles(0, math.pi / 2, 0), true)
 		end
 	end
+	-- The steps above are scenery. This is the surface underfoot: one slab from the
+	-- bottom landing to the top, riding half a rise above the step tops so a player
+	-- glides up rather than catching on every nose.
+	local a = cur.Position + Vector3.new(0, RISE / 2 - 0.5, 0)
 	cur = cur * CFrame.new(0, dir * RISE * steps, -RUN * steps)
+	local b = cur.Position + Vector3.new(0, RISE / 2 - 0.5, 0)
+	put({
+		name = `Ramp{id}`,
+		size = Vector3.new(W + 2 * T, 3, (b - a).Magnitude),
+		cframe = CFrame.lookAt((a + b) / 2, b),
+		color = DEEP,
+		material = SLATE,
+		transparency = 1,
+		castShadow = false,
+	})
+	hollow(cur * CFrame.new(0, H / 2, -4), Vector3.new(W, H, 14))
 	pathLength += RUN * steps
 end
 
@@ -524,7 +548,7 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 				SAND
 			)
 		end
-		for i = 1, 6 do
+		for i = 1, 3 do
 			box(
 				`WellWall{i}`,
 				Vector3.new(r * 2 + 2, 6, 1.2),
@@ -554,9 +578,7 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 				BRICK
 			)
 		end
-		box("WellFloor", Vector3.new(r * 2, 2, r * 2), at * CFrame.new(0, -37, 0), DEEP, SLATE)
-		hollow(at * CFrame.new(0, -18, 0), Vector3.new(r * 2 - 1, 36, r * 2 - 1))
-		bonePile(at * CFrame.new(0, -36, 0), 14)
+		box("WellFloor", Vector3.new(r * 2, 2, r * 2), at * CFrame.new(0, -19, 0), DEEP, SLATE)
 		for _, side in { -1, 1 } do
 			brazier(at * CFrame.new(side * (hx - 4), 0, 0))
 			skeleton(at * CFrame.new(side * (hx - 5), 0, hz - 6) * CFrame.Angles(0, rng:NextNumber(0, 6.2), 0))
@@ -697,8 +719,8 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 	pathLength += depth
 end
 -- ---------------------------------------------------------------- the route
-local AXIS_X, AXIS_Z = -18.2, 7.2 -- the entry axis, chosen so the helix rings the centre
-local FLIGHT_RUN = RUN * 6 + (W + 2 * T) -- one flight plus its landing
+local AXIS_X, AXIS_Z = -23, 12 -- the entry axis, chosen so the helix rings the centre
+local FLIGHT_RUN = RUN * 8 + (W + 2 * T) -- one flight plus its landing
 
 --- Turn whichever way leads away from the pyramid's spine.
 local function faceOutward()
@@ -724,7 +746,7 @@ end
 --- Out from the spine, once around a square ring, and back.
 local function spurAndRing(R: number, kinds: { any })
 	faceOutward()
-	local spur = R - 29
+	local spur = R - 34
 	hall(spur)
 	turn(1)
 	hall(R - JUNC)
@@ -744,7 +766,7 @@ cur = CFrame.new(AXIS_X, 4, 112)
 mark("door", cur)
 hall(26)
 chamber("portal", 30, 26, 18)
-hall(52.8)
+hall(48)
 local entry = cur
 
 -- The spine is built ONCE, bottom to top, and walked many times. Twelve flights of six
@@ -753,7 +775,7 @@ local starts: { CFrame } = {}
 cur = CFrame.new(AXIS_X, -92, AXIS_Z)
 for i = 1, 12 do
 	starts[i] = cur
-	flight(6, false)
+	flight(8, false)
 	turn(1)
 end
 local topLanding = cur

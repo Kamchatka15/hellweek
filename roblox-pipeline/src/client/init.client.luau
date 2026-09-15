@@ -9,7 +9,8 @@ local theme = require(ReplicatedStorage:WaitForChild("Pack").theme)
 
 if theme.loop == "survive" then
 	local SurviveHud = require(script.SurviveHud)
-	SurviveHud.init()
+	local gui = SurviveHud.init()
+	require(script.Compass).init(gui)
 
 	Net.get(Net.S2C_State).OnClientEvent:Connect(SurviveHud.setState)
 	Net.get(Net.S2C_Toast).OnClientEvent:Connect(function(message, tone)
