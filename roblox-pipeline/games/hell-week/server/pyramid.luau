@@ -204,6 +204,10 @@ end
 local function turn(dir: number)
 	cur = cur * CFrame.new(0, 0, -JUNC)
 	shellBox(cur, W, W, H)
+	-- A junction has to open on every side, not just along the way in. shellBox only
+	-- registers air down its own axis, so two turns in a row left a wall standing
+	-- between them: the corner of the burial approach was sealed exactly this way.
+	hollow(cur * CFrame.new(0, H / 2, 0), Vector3.new(W + 2.2 * T, H, W + 2.2 * T))
 	way(cur.Position)
 	cur = cur * CFrame.Angles(0, -dir * math.pi / 2, 0) * CFrame.new(0, 0, -JUNC)
 	way(cur.Position)
@@ -676,9 +680,12 @@ local function chamber(kind: string, across: number, depth: number, height: numb
 		end
 		urn(at * CFrame.new(0, 0, -hz + 4), true)
 	elseif kind == "jackal" then
-		jackal(at * CFrame.new(0, 0, -hz + 9), 1.9)
+		-- Two jackals flanking the way out rather than one blocking it.
 		for _, side in { -1, 1 } do
-			brazier(at * CFrame.new(side * 7, 0, -hz + 14))
+			jackal(at * CFrame.new(side * 11, 0, -hz + 9), 1.3)
+		end
+		for _, side in { -1, 1 } do
+			brazier(at * CFrame.new(side * 13, 0, -hz + 15))
 			column(at * CFrame.new(side * (hx - 5), 0, 2), height - 1)
 			relief(
 				at * CFrame.new(side * (hx - 0.3), height * 0.5, 4) * CFrame.Angles(0, side * math.pi / 2, 0),
