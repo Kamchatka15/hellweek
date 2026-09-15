@@ -669,12 +669,22 @@ local function dressLevel(level: number, plan: any, open: any)
 			-- A checkerboard, not a dice roll. At 38% the gaps landed wherever they liked
 			-- and 38% of cells had no light within reach at all; every other cell means
 			-- the worst case is always one cell from a flame.
-			if #shut > 0 and (i + j) % 2 == 0 then
-				local d = shut[rng:NextInteger(1, #shut)]
-				torch(
-					CFrame.new(cx(i) + DIR[d][1] * (W / 2 - 0.2), y + 7, cx(j) + DIR[d][2] * (W / 2 - 0.2))
-						* CFrame.Angles(0, YAW(d), 0)
-				)
+			if (i + j) % 2 == 0 then
+				if #shut > 0 then
+					local d = shut[rng:NextInteger(1, #shut)]
+					torch(
+						CFrame.new(cx(i) + DIR[d][1] * (W / 2 - 0.2), y + 7, cx(j) + DIR[d][2] * (W / 2 - 0.2))
+							* CFrame.Angles(0, YAW(d), 0)
+					)
+				else
+					-- A cell open on all four sides has no wall to hang a flame on, so it
+					-- goes on the corner pillar instead. Four of these were the last dark
+					-- cells in the whole maze.
+					torch(
+						CFrame.new(cx(i) + (W / 2 - 0.2), y + 7, cx(j) + (W / 2 - 0.2))
+							* CFrame.Angles(0, math.rad(225), 0)
+					)
+				end
 			end
 			-- Anything solid goes against a wall. A coffin parked in the middle of an
 			-- 18-stud tunnel is a squeeze, and a maze is hard enough already.
