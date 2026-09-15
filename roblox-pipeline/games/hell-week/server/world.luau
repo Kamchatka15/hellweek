@@ -29,10 +29,14 @@ local vision = require(script.Parent.vision)
 -- Vision palette pass over generated scenery, by part-name prefix. The chunks on disk
 -- are already regenerated on the six colours; this makes an older chunk still in a
 -- place read the same, and it is idempotent on a new one. Graphics only.
-local function onPalette(specs: { any }): { any }
+local function onPalette(data: any): any
 	if not vision.on then
-		return specs
+		return data
 	end
+	-- A chunk module returns { scenery = {...}, teepees = {...} }. The parts are the
+	-- list under `scenery`; walking the wrapper recolours nothing, which is exactly
+	-- what happened the first time.
+	local specs = data.scenery or data
 	local ASH = Color3.fromRGB(145, 125, 95)
 	local STONE = Color3.fromRGB(45, 42, 40)
 	local BONE = Color3.fromRGB(210, 200, 180)
@@ -60,7 +64,7 @@ local function onPalette(specs: { any }): { any }
 			end
 		end
 	end
-	return specs
+	return data
 end
 
 local function pointBearing(k: number): number
@@ -647,7 +651,9 @@ return {
 		-- One distant stepped pyramid. Large, and meant to be half-lost in the haze:
 		-- a landmark to walk toward, not a place.
 		do
-			local bearing, dist = 118, 330
+			-- Bearing 250: over the obelisk's left shoulder as seen from spawn, so it is
+			-- IN the frame-1 camera rather than behind it.
+			local bearing, dist = 250, 330
 			local px = math.cos(math.rad(bearing)) * dist
 			local pz = math.sin(math.rad(bearing)) * dist
 			local base, tiers, height = 64, 5, 42
