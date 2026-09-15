@@ -766,6 +766,39 @@ local function buildSphinx()
 		brazier(CFrame.new(side * 16, 8, -244))
 	end
 	part("Lintel", Vector3.new(26, 4, 5), Vector3.new(0, 34, -234), GOLD, Enum.Material.Metal)
+
+	-- The way up onto the plinth. Without this the base is a ten-stud kerb all the way
+	-- round and the whole monument is unreachable on foot: you walk up to the paws and
+	-- stop dead. A humanoid climbs two studs, not ten.
+	do
+		local a = Vector3.new(0, -1.5, -286)
+		local c = Vector3.new(0, 9.5 - 1.5, -258)
+		local span = (c - a).Magnitude
+		local cf = CFrame.lookAt((a + c) / 2, c)
+		slab("Approach", Vector3.new(W, 3, span), cf, ASH, SAND)
+		local steps = math.floor(span / RUN)
+		for k = 1, steps - 1 do
+			slab(
+				`ApproachTread{k}`,
+				Vector3.new(W, 0.5, 0.8),
+				cf * CFrame.new(0, 1.6, span / 2 - k * RUN),
+				DEEP,
+				SLATE,
+				{
+					canCollide = false,
+				}
+			)
+		end
+		for _, side in { -1, 1 } do
+			slab(
+				`ApproachKerb{side}`,
+				Vector3.new(2, 2.5, span),
+				cf * CFrame.new(side * (W / 2 + 1), 1.2, 0),
+				GOLD,
+				Enum.Material.Metal
+			)
+		end
+	end
 end
 
 --- The descending passage: from between the paws down into the first level of tunnels.
