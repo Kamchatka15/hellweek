@@ -67,25 +67,30 @@ return {
 	-- The Gift's bloom is the only competing warm, and it is deliberately WRONG — a
 	-- pink-orange that does not belong to the wick.
 	colors = {
-		-- The line painted on the ground at the edge of the safe radius. Bone-pale so
-		-- it reads on sand at noon and on dark ground at midnight.
-		safeRing = Color3.fromRGB(232, 220, 188),
-		sand = Color3.fromRGB(168, 150, 122), -- bleached dead sand, never golden-hour warm
+		-- VISION PALETTE. Six colours and nothing else while `vision.on` is true:
+		-- charcoal stone, ash sand, bone, wick gold, fire orange, night void.
+		safeRing = Color3.fromRGB(212, 168, 62), -- the gold ring IS the safe zone
+		sand = Color3.fromRGB(145, 125, 95), -- ash sand
 		water = Color3.fromRGB(92, 178, 198),
-		post = Color3.fromRGB(70, 62, 56),
-		lip = Color3.fromRGB(46, 46, 50),
-		flame = Color3.fromRGB(255, 190, 70),
-		flameLight = Color3.fromRGB(255, 176, 96),
-		fuel = Color3.fromRGB(226, 224, 212),
-		stalker = Color3.fromRGB(9, 9, 13),
-		lure = Color3.fromRGB(255, 120, 96),
-		lureLight = Color3.fromRGB(255, 96, 120),
-		fog = Color3.fromRGB(104, 96, 92),
-		tree = Color3.fromRGB(104, 90, 74),
-		driftwood = Color3.fromRGB(126, 110, 90),
-		rock = Color3.fromRGB(78, 68, 60),
-		night = Color3.fromRGB(110, 120, 160),
+		post = Color3.fromRGB(45, 42, 40),
+		lip = Color3.fromRGB(45, 42, 40),
+		flame = Color3.fromRGB(255, 138, 48), -- fire orange
+		flameLight = Color3.fromRGB(255, 138, 48),
+		fuel = Color3.fromRGB(212, 168, 62),
+		stalker = Color3.fromRGB(18, 16, 26), -- night void
+		lure = Color3.fromRGB(255, 138, 48),
+		lureLight = Color3.fromRGB(255, 138, 48),
+		fog = Color3.fromRGB(145, 125, 95), -- ash, so any slab that shows reads as haze
+		tree = Color3.fromRGB(45, 42, 40),
+		driftwood = Color3.fromRGB(45, 42, 40),
+		rock = Color3.fromRGB(45, 42, 40),
+		night = Color3.fromRGB(18, 16, 26),
+		bone = Color3.fromRGB(210, 200, 180),
+		gold = Color3.fromRGB(212, 168, 62),
 	},
+	-- The ground ring is gold METAL by day, not neon: inlay, not a glow.
+	safeRingMaterial = Enum.Material.Metal,
+	safeRingTransparency = 0,
 
 	accent = Color3.fromRGB(255, 190, 70),
 	uiBackground = Color3.fromRGB(14, 15, 20),

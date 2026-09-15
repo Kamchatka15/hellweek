@@ -79,7 +79,7 @@ return {
 			note = "Dead wood from the waste. Burns. One fuel.",
 			fuel = 1,
 			size = Vector3.new(1.1, 1.1, 3.4),
-			color = Color3.fromRGB(196, 176, 142),
+			color = Color3.fromRGB(210, 200, 180),
 			material = Enum.Material.Wood,
 		},
 		cactus = {
@@ -87,8 +87,11 @@ return {
 			note = "Wet inside. Will not burn. Two of them press into water.",
 			fuel = 0,
 			size = Vector3.new(1.5, 2.6, 1.5),
-			color = Color3.fromRGB(92, 122, 82),
-			material = Enum.Material.Grass,
+			-- Bone, not green. Green is off the six-colour palette; a bleached dead
+			-- cactus reads correctly in an ash desert and is still a cactus. This is
+			-- a functional pickup, so it is recoloured rather than hidden.
+			color = Color3.fromRGB(210, 200, 180),
+			material = Enum.Material.SmoothPlastic,
 		},
 		stone = {
 			label = "Stone",
@@ -96,7 +99,7 @@ return {
 			fuel = 0,
 			shape = Enum.PartType.Ball,
 			size = Vector3.new(1.9, 1.5, 1.7),
-			color = Color3.fromRGB(108, 96, 84),
+			color = Color3.fromRGB(45, 42, 40),
 			material = Enum.Material.Slate,
 		},
 		water = {
@@ -255,7 +258,13 @@ return {
 	-- ---------------------------------------------------------------- the obelisk
 	beacon = {
 		position = Vector3.new(0, 0, 0),
-		parts = require(script.Parent.obelisk), -- ~19 studs as generated; no extra scaling
+		-- VisionRework: the stone disc and stepped obelisk from `ziggurat.luau`. The
+		-- generated needle in `obelisk.luau` is untouched on disk and comes back the
+		-- moment `vision.on` is false. Both name their flame `CapFlame`, so Feed does
+		-- not know or care which one is standing.
+		parts = if require(script.Parent.vision).on
+			then require(script.Parent.ziggurat)
+			else require(script.Parent.obelisk),
 		flameName = "CapFlame",
 		facing = CFrame.Angles(0, 0, 0),
 		-- The obelisk itself, not the whole stone: the five points each mean something
@@ -276,8 +285,10 @@ return {
 		radiusPerFuel = 8,
 		radiusCap = 90,
 		levelThresholds = { 8, 20 },
-		lightBrightness = 1.25,
-		flameSize = Vector3.new(1.7, 1.7, 1.7),
+		-- 1.1 per the vision profile. Range still tracks the safe radius; only the
+		-- intensity is the brief's.
+		lightBrightness = 1.1,
+		flameSize = Vector3.new(1.4, 1.6, 1.4),
 	},
 
 	-- One row per day. `stalker` is what it does at night: watch (stand still on the
@@ -692,6 +703,10 @@ return {
 		wallHeight = 60,
 		segments = 40,
 		transparency = 0.35,
+		-- The vision hides the slab wall (the "pale cylinder round the map") and lets
+		-- atmosphere haze do the hiding. The slabs still move with the beacon level,
+		-- so the reveal mechanic is unchanged; only its paint is.
+		hidden = require(script.Parent.vision).on,
 	},
 
 	-- NIGHT is its own complete rig, not the day rig dimmed. The sky goes out, the haze

@@ -329,7 +329,10 @@ local function buildFogRing()
 		slab.CastShadow = false
 		slab.Color = theme.colors.fog
 		slab.Material = Enum.Material.SmoothPlastic
-		slab.Transparency = c.transparency
+		-- The vision replaces the slab wall with atmosphere haze. The slabs still move
+		-- with the beacon level so nothing about the reveal changes; they just stop
+		-- being a pale cylinder you can see the seams of.
+		slab.Transparency = if c.hidden then 1 else c.transparency
 		slab.Parent = model
 		table.insert(fogRing, slab)
 	end
@@ -374,7 +377,10 @@ local function drawSafeRing()
 		centre = centre,
 		radius = BeaconService.radius(),
 		color = theme.colors.safeRing or Color3.fromRGB(226, 214, 176),
-		transparency = 0.28,
+		-- Gold metal, not neon. "Safe zone = the stone disc / gold ring": this IS the
+		-- ring, it grows with the fire, and by day it must read as inlay, not a glow.
+		material = theme.safeRingMaterial or Enum.Material.Neon,
+		transparency = theme.safeRingTransparency or 0.28,
 		width = 1.3,
 		y = centre.Y - 1.9,
 	}, pack.folder)

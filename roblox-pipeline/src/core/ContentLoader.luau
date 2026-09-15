@@ -208,7 +208,7 @@ function ContentLoader.fire(part: BasePart, spec: any)
 	light.Color = orange
 	light.Brightness = spec.brightness or 1.4
 	light.Range = spec.range or 12
-	light.Shadows = false
+	light.Shadows = spec.shadows == true
 	light.Parent = part
 end
 
@@ -406,8 +406,22 @@ local function buildWorld(world: any, theme: any)
 		end
 	end
 
+	-- A prop may name a `group`: it is built into a subfolder of that name, so a
+	-- whole visual pass can be found, toggled or thrown away as one thing in Studio.
+	local groups: { [string]: Folder } = {}
+	local function groupFolder(name: string): Folder
+		local existing = groups[name]
+		if existing then
+			return existing
+		end
+		local made = Instance.new("Folder")
+		made.Name = name
+		made.Parent = folder
+		groups[name] = made
+		return made
+	end
 	for _, prop in world.props or {} do
-		block(prop, folder)
+		block(prop, if prop.group then groupFolder(prop.group) else folder)
 	end
 
 	local zoneParts: { [string]: BasePart } = {}

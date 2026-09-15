@@ -24,6 +24,44 @@ local SLAB_R = 30 -- so the obelisk stands INSIDE the pentagram
 local PENT_Y = 0.56
 
 local fixtures = {}
+local vision = require(script.Parent.vision)
+
+-- Vision palette pass over generated scenery, by part-name prefix. The chunks on disk
+-- are already regenerated on the six colours; this makes an older chunk still in a
+-- place read the same, and it is idempotent on a new one. Graphics only.
+local function onPalette(specs: { any }): { any }
+	if not vision.on then
+		return specs
+	end
+	local ASH = Color3.fromRGB(145, 125, 95)
+	local STONE = Color3.fromRGB(45, 42, 40)
+	local BONE = Color3.fromRGB(210, 200, 180)
+	local MAP = {
+		{ "Mound", ASH },
+		{ "Wash", ASH },
+		{ "Mesa", STONE },
+		{ "Rubble", STONE },
+		{ "Ruin", STONE },
+		{ "Scrub", STONE },
+		{ "Tree", STONE },
+		{ "Bone", BONE },
+	}
+	for _, spec in specs do
+		local name = spec.name or ""
+		if string.sub(name, 1, 3) == "Tee" then
+			-- teepees: poles charcoal, hide panels ash
+			spec.color = if string.find(name, "_h") then ASH else STONE
+		else
+			for _, pair in MAP do
+				if string.sub(name, 1, #pair[1]) == pair[1] then
+					spec.color = pair[2]
+					break
+				end
+			end
+		end
+	end
+	return specs
+end
 
 local function pointBearing(k: number): number
 	return math.rad(90 + 72 * (k - 1))
@@ -269,7 +307,7 @@ end
 
 local biomes = {
 	["ashen-waste"] = {
-		data = require(script.Parent.scenery["ashen-waste"]),
+		data = onPalette(require(script.Parent.scenery["ashen-waste"])),
 		floor = floorOf(theme.colors.sand, Enum.Material.Sand),
 		fog = { 200, 290, 350 },
 		-- DAY. The waste is bright and exposed — brighter than the camp at its centre.
@@ -277,31 +315,33 @@ local biomes = {
 		-- gives for free; saturation alone will not take that away. Low sun for long
 		-- hard shadows. Bright AND wrong, not bright and pleasant.
 		day = {
-			ClockTime = 7.1,
-			Brightness = 3.4,
-			Ambient = Color3.fromRGB(116, 110, 102),
-			OutdoorAmbient = Color3.fromRGB(176, 168, 154),
-			ColorShift_Top = Color3.fromRGB(255, 238, 208),
-			ColorShift_Bottom = Color3.fromRGB(132, 120, 102),
+			-- VISION day profile. Grey-beige overcast, low contrast, the horizon dying
+			-- in haze rather than a postcard-blue sky. Numbers are the brief's.
+			ClockTime = 15.2,
+			Brightness = 1.15,
+			Ambient = Color3.fromRGB(88, 78, 68),
+			OutdoorAmbient = Color3.fromRGB(108, 98, 84),
+			ColorShift_Top = Color3.fromRGB(168, 152, 128),
+			ColorShift_Bottom = Color3.fromRGB(145, 125, 95),
 			GlobalShadows = true,
-			EnvironmentDiffuseScale = 0.6,
-			EnvironmentSpecularScale = 0.3,
+			EnvironmentDiffuseScale = 0.5,
+			EnvironmentSpecularScale = 0.2,
 			FogEnd = 1400,
 			atmosphere = {
-				Density = 0.3,
-				Offset = 0.1,
-				Haze = 5,
-				Color = Color3.fromRGB(228, 216, 194),
-				Decay = Color3.fromRGB(198, 182, 158),
-				Glare = 1,
+				Density = 0.38,
+				Offset = 0.18,
+				Haze = 2.4,
+				Glare = 0.08,
+				Color = Color3.fromRGB(168, 152, 128),
+				Decay = Color3.fromRGB(118, 92, 68),
 			},
 			colorCorrection = {
-				Contrast = 0.11,
-				Saturation = -0.36,
-				Brightness = 0.02,
-				TintColor = Color3.fromRGB(255, 250, 240),
+				Saturation = -0.28,
+				Contrast = 0.14,
+				Brightness = -0.04,
+				TintColor = Color3.fromRGB(255, 236, 214),
 			},
-			bloom = { Intensity = 0.35, Size = 24, Threshold = 1.6 },
+			bloom = { Intensity = 0.25, Size = 10, Threshold = 1.15 },
 		},
 		night = {
 			ClockTime = 22.1,
@@ -515,7 +555,159 @@ local START = "ashen-waste"
 
 return {
 	floor = biomes[START].floor,
-	props = fixtures,
+	props = (function()
+		if not vision.on then
+			return fixtures
+		end
+
+		-- HIDE, do not delete. Every neon or bright fixture of the old camp stays as
+		-- an instance, invisible, lightless, in a folder of its own, so it can be
+		-- compared against or restored with one flag.
+		local HIDE = { "Pentagram_", "StarGlow", "ObeliskGlow", "BiomePoint", "OfferingPoint" }
+		for _, spec in fixtures do
+			for _, prefix in HIDE do
+				if string.sub(spec.name or "", 1, #prefix) == prefix then
+					spec.transparency = 1
+					spec.canCollide = false
+					spec.light = nil
+					spec.fire = nil
+					spec.group = "VisionRework_Hidden"
+					break
+				end
+			end
+		end
+
+		local STONE = Color3.fromRGB(45, 42, 40)
+		local BONE = Color3.fromRGB(210, 200, 180)
+		local GOLD_METAL = Color3.fromRGB(212, 168, 62)
+		-- The offering table stays (functional) but joins the palette: lips are gold
+		-- metal rather than neon, and every stone part is charcoal.
+		for _, spec in fixtures do
+			local name = spec.name or ""
+			if string.sub(name, 1, 11) == "OfferingLip" then
+				spec.color = GOLD_METAL
+				spec.material = Enum.Material.Metal
+				spec.castShadow = true
+			elseif string.sub(name, 1, 8) == "Offering" and string.sub(name, 1, 13) ~= "OfferingPoint" then
+				if name ~= "OfferingHollow" then
+					spec.color = STONE
+				end
+			end
+		end
+		local out = table.clone(fixtures)
+		local function add(spec)
+			spec.group = "VisionRework"
+			table.insert(out, spec)
+		end
+
+		-- Dead trees: four clusters of three, no grid, sizes 0.7 to 1.8. Charcoal, as
+		-- burnt wood is in an ash desert. A fixed seed so the camp is the same camp
+		-- every time you open the place.
+		local rng = Random.new(7)
+		local clusters = { 62, 148, 214, 301 } -- bearings, degrees
+		for c, bearing in clusters do
+			local dist = rng:NextNumber(58, 108)
+			local cx = math.cos(math.rad(bearing)) * dist
+			local cz = math.sin(math.rad(bearing)) * dist
+			for t = 1, 3 do
+				local scale = rng:NextNumber(0.7, 1.8)
+				local ox = rng:NextNumber(-9, 9)
+				local oz = rng:NextNumber(-9, 9)
+				local lean = rng:NextNumber(-7, 7)
+				local yaw = rng:NextNumber(0, 360)
+				local h = 11 * scale
+				local x, z = cx + ox, cz + oz
+				add({
+					name = `DeadTree{c}_{t}_trunk`,
+					shape = Enum.PartType.Cylinder,
+					size = Vector3.new(h, 1.1 * scale, 1.1 * scale),
+					position = Vector3.new(x, h / 2, z),
+					rotation = Vector3.new(lean, yaw, 90),
+					color = STONE,
+					material = Enum.Material.Wood,
+				})
+				for b = 1, 2 do
+					local bh = h * rng:NextNumber(0.35, 0.55)
+					local pitch = rng:NextNumber(28, 52) * (if b == 1 then 1 else -1)
+					local by = h * rng:NextNumber(0.55, 0.85)
+					add({
+						name = `DeadTree{c}_{t}_b{b}`,
+						shape = Enum.PartType.Cylinder,
+						size = Vector3.new(bh, 0.55 * scale, 0.55 * scale),
+						position = Vector3.new(x, by, z),
+						rotation = Vector3.new(lean + pitch, yaw + rng:NextNumber(-40, 40), 90 - pitch * 0.6),
+						color = STONE,
+						material = Enum.Material.Wood,
+						canCollide = false,
+					})
+				end
+			end
+		end
+
+		-- One distant stepped pyramid. Large, and meant to be half-lost in the haze:
+		-- a landmark to walk toward, not a place.
+		do
+			local bearing, dist = 118, 330
+			local px = math.cos(math.rad(bearing)) * dist
+			local pz = math.sin(math.rad(bearing)) * dist
+			local base, tiers, height = 64, 5, 42
+			local step = height / tiers
+			local y = 0
+			for i = 1, tiers do
+				local w = base * (1 - (i - 1) / tiers * 0.82)
+				add({
+					name = `Pyramid_{i}`,
+					size = Vector3.new(w, step, w),
+					position = Vector3.new(px, y + step / 2, pz),
+					rotation = Vector3.new(0, 24, 0),
+					color = Color3.fromRGB(90, 82, 72),
+					material = Enum.Material.Slate,
+				})
+				y += step
+			end
+		end
+
+		-- Three loot-looking things on the sand near the disc. Dressing only.
+		add({
+			name = "Dress_BoneSticks",
+			shape = Enum.PartType.Cylinder,
+			size = Vector3.new(3.4, 0.5, 0.5),
+			position = Vector3.new(29, 0.25, 9),
+			rotation = Vector3.new(0, 32, 0),
+			color = BONE,
+			material = Enum.Material.SmoothPlastic,
+			canCollide = false,
+		})
+		add({
+			name = "Dress_BoneSticks2",
+			shape = Enum.PartType.Cylinder,
+			size = Vector3.new(2.6, 0.45, 0.45),
+			position = Vector3.new(30.6, 0.22, 10.4),
+			rotation = Vector3.new(0, 74, 0),
+			color = BONE,
+			material = Enum.Material.SmoothPlastic,
+			canCollide = false,
+		})
+		add({
+			name = "Dress_CharcoalRock",
+			shape = Enum.PartType.Ball,
+			size = Vector3.new(2.2, 1.6, 1.9),
+			position = Vector3.new(-31, 0.7, -14),
+			color = Color3.fromRGB(28, 26, 24),
+			material = Enum.Material.Slate,
+			canCollide = false,
+		})
+		add({
+			name = "Dress_GoldChunk",
+			size = Vector3.new(1.3, 0.9, 1.1),
+			position = Vector3.new(-12, 0.45, 33),
+			rotation = Vector3.new(12, 41, 8),
+			color = Color3.fromRGB(196, 150, 48),
+			material = Enum.Material.Metal,
+			canCollide = false,
+		})
+		return out
+	end)(),
 	biomes = biomes,
 
 	zones = {
@@ -528,7 +720,7 @@ return {
 			rotation = Vector3.new(0, 0, 90),
 			color = GOLD,
 			material = Enum.Material.Neon,
-			transparency = 0.88,
+			transparency = if vision.on then 1 else 0.88,
 			canCollide = false,
 			-- No standing sign. It was two lines of shouting over the table for the
 			-- whole run. Point at the table and press I: there is room there to say
@@ -545,7 +737,8 @@ return {
 			rotation = Vector3.new(0, 0, 90),
 			color = Color3.fromRGB(40, 40, 44),
 			material = Enum.Material.Slate,
-			transparency = 0,
+			-- The vision's disc is the visual; this zone is only the feed trigger now.
+			transparency = if vision.on then 1 else 0,
 			canCollide = true,
 		},
 	},

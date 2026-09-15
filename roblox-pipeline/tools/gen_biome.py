@@ -32,11 +32,11 @@ CORRIDOR_R = 110.0
 BIOMES = {
     "ashen-waste": dict(
         seed=20260912,
-        ground=(168, 150, 122), ground_mat="Sand",
-        rock=(78, 68, 60), rock_pale=(104, 92, 80),
-        wood=(104, 90, 74), bone=(214, 204, 182),
-        scrub=(74, 74, 58), ruin=(92, 84, 74),
-        hide=(150, 122, 96),
+        ground=(145, 125, 95), ground_mat="Sand",
+        rock=(45, 42, 40), rock_pale=(58, 54, 50),
+        wood=(45, 42, 40), bone=(210, 200, 180),
+        scrub=(45, 42, 40), ruin=(45, 42, 40),
+        hide=(145, 125, 95),
         mounds=96, mesas=30, trees=78, scrub_n=150, rubble=110, ruins=16, bones=26,
         teepees=9, wash=True, tree_h=(10, 18),
     ),
