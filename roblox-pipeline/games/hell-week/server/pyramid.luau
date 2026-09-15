@@ -767,9 +767,11 @@ end
 
 --- Out from the spine, once around a square ring, and back.
 local function spurAndRing(R: number, kinds: { any })
+	local landing = cur.Position
 	faceOutward()
 	local spur = R - 34
 	hall(spur)
+	local mouth = cur.Position
 	turn(1)
 	hall(R - JUNC)
 	for s = 1, 3 do
@@ -778,8 +780,12 @@ local function spurAndRing(R: number, kinds: { any })
 	end
 	turn(1)
 	hall(R - JUNC)
-	turn(1) -- now facing back down the spur
-	hall(spur)
+	-- Back at the mouth of the spur, and the way home is the way you came. Building a
+	-- second corridor here was the old mistake: `turn` steps 11 studs along the old
+	-- heading before it rotates, so seven turns do not return to where they started and
+	-- the "return" spur ended 35 studs off the stair, a stub going nowhere.
+	way(mouth)
+	way(landing)
 end
 
 -- The way in: a passage through the masonry, the portal room, then the long walk to
