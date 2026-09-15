@@ -809,11 +809,31 @@ cur = entry
 -- centre-line has to record the landings actually passed through rather than pretend
 -- the player teleported between levels.
 local landingAt = 9 -- the entry passage arrives at the ninth landing, y = +4
+--- Where a flight tops out, and the middle of the landing box above it. A straight line
+--- between two landings cuts through the corner of the stair, so the centre-line has to
+--- bend the way the stair does.
+local function flightTop(i: number): (Vector3, Vector3)
+	local a = starts[i]
+	return (a * CFrame.new(0, RISE * 8, -RUN * 8)).Position, (a * CFrame.new(0, RISE * 8, -RUN * 8 - JUNC)).Position
+end
+
 local function useSpine(target: number)
-	local stepDir = if target > landingAt then 1 else -1
-	for i = landingAt, target, stepDir do
-		way(starts[i].Position)
+	if target > landingAt then
+		for i = landingAt, target - 1 do
+			way(starts[i].Position)
+			local top, corner = flightTop(i)
+			way(top)
+			way(corner)
+		end
+	else
+		for i = landingAt, target + 1, -1 do
+			way(starts[i].Position)
+			local top, corner = flightTop(i - 1)
+			way(corner)
+			way(top)
+		end
 	end
+	way(starts[target].Position)
 	pathLength += math.abs(target - landingAt) * FLIGHT_RUN
 	landingAt = target
 	cur = starts[target]
