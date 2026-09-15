@@ -697,7 +697,7 @@ return {
 		height = 9,
 		-- Off the disc and in the trees while the vision is on: the watch position is
 		-- safe radius plus this, and the nearest tree cluster starts near 58 studs.
-		standOff = if require(script.Parent.vision).on then 22 else 2,
+		standOff = if require(script.Parent.vision).on then 8 else 2,
 		-- VisionRework/Jackal_Placeholder. The body the night threat wears while the
 		-- vision is on: a tall thin charcoal figure with a long muzzle, pointed ears,
 		-- and two small amber eyes. Built from primitives, no rig copied from anything.
@@ -705,7 +705,7 @@ return {
 		silhouette = if require(script.Parent.vision).on
 			then {
 				name = "Jackal_Placeholder",
-				color = Color3.fromRGB(28, 26, 24),
+				color = Color3.fromRGB(45, 42, 40), -- palette charcoal: 28,26,24 vanished at night
 				eyeColor = Color3.fromRGB(255, 170, 40),
 				parts = {
 					{ name = "LegL", size = Vector3.new(0.5, 4.4, 0.5), position = Vector3.new(-0.42, 2.2, 0) },

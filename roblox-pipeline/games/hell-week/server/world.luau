@@ -348,22 +348,23 @@ local biomes = {
 			bloom = { Intensity = 0.25, Size = 10, Threshold = 1.15 },
 		},
 		night = {
-			-- VISION night profile. Almost black except the fire and the gold ring;
-			-- the world past the disc is meant to be hard to read. Numbers are the
-			-- brief's. Bloom is kept from before because the brief does not name one.
+			-- VISION night profile, lifted to moonlight after the brief's numbers rendered
+			-- the world past the disc as pure black and the Jackal could not be seen at
+			-- all. Still the night-void hue; now shapes exist in it. Bloom is kept from
+			-- before because the brief does not name one.
 			ClockTime = 0.4,
-			Brightness = 0.12,
-			Ambient = Color3.fromRGB(18, 16, 26),
-			OutdoorAmbient = Color3.fromRGB(12, 12, 20),
+			Brightness = 0.35,
+			Ambient = Color3.fromRGB(50, 46, 70),
+			OutdoorAmbient = Color3.fromRGB(70, 64, 96),
 			ColorShift_Top = Color3.fromRGB(40, 36, 60),
 			ColorShift_Bottom = Color3.fromRGB(10, 8, 16),
 			EnvironmentDiffuseScale = 0.1,
 			EnvironmentSpecularScale = 0.08,
 			FogEnd = 700,
 			atmosphere = {
-				Density = 0.52,
+				Density = 0.3,
 				Offset = 0.15,
-				Haze = 3.8,
+				Haze = 2.4,
 				Glare = 0,
 				Color = Color3.fromRGB(28, 26, 38),
 				Decay = Color3.fromRGB(16, 12, 20),

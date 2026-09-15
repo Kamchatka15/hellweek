@@ -312,13 +312,13 @@ local function buildStalker(): Model
 			local eye = ContentLoader.block({
 				name = `Eye{index}`,
 				shape = Enum.PartType.Ball,
-				size = Vector3.new(0.22, 0.22, 0.22),
+				size = Vector3.new(0.5, 0.5, 0.5),
 				position = at,
 				color = sil.eyeColor or Color3.fromRGB(255, 170, 40),
 				material = Enum.Material.Neon,
 				canCollide = false,
 				castShadow = false,
-				light = { color = sil.eyeColor or Color3.fromRGB(255, 170, 40), brightness = 0.6, range = 5 },
+				light = { color = sil.eyeColor or Color3.fromRGB(255, 170, 40), brightness = 1, range = 8 },
 			}, model)
 			local _ = eye
 		end
