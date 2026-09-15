@@ -121,9 +121,8 @@ local function inGrid(i: number, j: number): boolean
 	return i >= 1 and i <= N and j >= 1 and j <= N
 end
 
---- A braided maze over the whole grid. Returns open[i][j][dir].
-local function weave(seed: number): { { { boolean } } }
-	local r = Random.new(seed)
+--- The spanning tree: a randomised depth-first search, which reaches every cell.
+local function carve(r: Random): any
 	local open: any = {}
 	local seen: any = {}
 	for i = 1, N do
@@ -133,8 +132,6 @@ local function weave(seed: number): { { { boolean } } }
 			seen[i][j] = false
 		end
 	end
-
-	-- randomised depth-first search: a spanning tree, so every cell is reachable
 	local stack = { { r:NextInteger(1, N), r:NextInteger(1, N) } }
 	seen[stack[1][1]][stack[1][2]] = true
 	while #stack > 0 do
@@ -158,8 +155,14 @@ local function weave(seed: number): { { { boolean } } }
 			table.insert(stack, { ni, nj })
 		end
 	end
+	return open
+end
 
-	-- braid: no cell is left with only one way out
+--- Braiding is what makes the maze worth walking: every dead end gets a second way out,
+--- and a further slice of walls comes down, so there are loops rather than cul-de-sacs.
+--- `locked` names walls that must stay exactly as they are — the sides of the inclined
+--- shafts, which have to be solid rock from one level to the next.
+local function braid(open: any, locked: any, r: Random)
 	local function ways(i: number, j: number): number
 		local n = 0
 		for d = 1, 4 do
@@ -175,13 +178,11 @@ local function weave(seed: number): { { { boolean } } }
 				local shut = {}
 				for d = 1, 4 do
 					local ni, nj = i + DIR[d][1], j + DIR[d][2]
-					if inGrid(ni, nj) and not open[i][j][d] then
+					if inGrid(ni, nj) and not open[i][j][d] and not locked[i][j][d] then
 						table.insert(shut, d)
 					end
 				end
 				if #shut > 0 then
-					-- prefer opening onto a neighbour that is itself well connected,
-					-- so braiding makes loops rather than longer corridors
 					table.sort(shut, function(a, b)
 						local ai, aj = i + DIR[a][1], j + DIR[a][2]
 						local bi, bj = i + DIR[b][1], j + DIR[b][2]
@@ -195,20 +196,17 @@ local function weave(seed: number): { { { boolean } } }
 			end
 		end
 	end
-
-	-- and a further slice of walls, for loops you can run rings around
 	for i = 1, N do
 		for j = 1, N do
-			for d = 1, 2 do -- only +x and +z, so each wall is considered once
+			for d = 1, 2 do
 				local ni, nj = i + DIR[d][1], j + DIR[d][2]
-				if inGrid(ni, nj) and not open[i][j][d] and r:NextNumber() < 0.16 then
+				if inGrid(ni, nj) and not open[i][j][d] and not locked[i][j][d] and r:NextNumber() < 0.16 then
 					open[i][j][d] = true
 					open[ni][nj][BACK[d]] = true
 				end
 			end
 		end
 	end
-	return open
 end
 
 -- ---------------------------------------------------------------- grave goods
@@ -448,7 +446,15 @@ end
 local function buildLevel(level: number)
 	local y = floorY(level)
 	local plan = planOf(level)
-	local open = weave(4100 + level * 31)
+	local r = Random.new(4100 + level * 31)
+	local open = carve(r)
+	local locked: any = {}
+	for i = 1, N do
+		locked[i] = {}
+		for j = 1, N do
+			locked[i][j] = { false, false, false, false }
+		end
+	end
 
 	-- The hall is one room, so every wall inside it comes down.
 	for i = plan.hall[1], plan.hall[1] + 2 do
@@ -464,25 +470,38 @@ local function buildLevel(level: number)
 
 	-- A shaft is entered from its north end and left at its south end, so those two
 	-- ways in are forced rather than left to the dice.
+	--- Stamp an inclined shaft into the graph. Its sides are solid rock, because the
+	--- walls of a slope have to run the full height between two levels; if the maze were
+	--- allowed to open into them it would be opening onto a drop. One way in at the top,
+	--- one way out at the bottom, and nothing through the flanks.
 	local function openShaft(blocks: any, atTop: boolean)
 		if not blocks then
 			return
 		end
-		for _, b in blocks do
-			local i = b[1]
-			local j = if atTop then b[2] else b[2] + 1
-			local d = if atTop then 1 else 3
+		local function set(i: number, j: number, d: number, want: boolean)
 			local ni, nj = i + DIR[d][1], j + DIR[d][2]
+			open[i][j][d] = want
+			locked[i][j][d] = true
 			if inGrid(ni, nj) then
-				open[i][j][d] = true
-				open[ni][nj][BACK[d]] = true
+				open[ni][nj][BACK[d]] = want
+				locked[ni][nj][BACK[d]] = true
 			end
-			open[b[1]][b[2]][3] = true -- the two shaft cells always join each other
-			open[b[1]][b[2] + 1][1] = true
+		end
+		for _, b in blocks do
+			local i, top, bot = b[1], b[2], b[2] + 1
+			set(i, top, 3, true) -- the two cells of the slope always join each other
+			for _, j in { top, bot } do
+				set(i, j, 2, false)
+				set(i, j, 4, false)
+			end
+			set(i, top, 1, atTop)
+			set(i, bot, 3, not atTop)
 		end
 	end
 	openShaft(plan.down, true)
 	openShaft(plan.up, false)
+	-- braid last, so the loops are woven around the shafts rather than through them
+	braid(open, locked, r)
 
 	-- floors and ceilings, a slab per cell, minus the holes the shafts need
 	for i = 1, N do
@@ -762,9 +781,15 @@ for level = 1, LEVELS do
 			for d = 1, 4 do
 				code ..= if open[i][j][d] then "1" else "0"
 			end
+			-- the marker says what kind of cell it is, so a check can skip the shafts:
+			-- a ray across a slope hits its roof, which is correct and not a fault
+			local kind = if isShaft(plan.down, i, j) or isShaft(plan.up, i, j)
+				then "s"
+				elseif isHall(plan, i, j) then "h"
+				else "m"
 			cells += 1
 			box(
-				`Cell_{level}_{i}_{j}_{code}`,
+				`Cell_{level}_{i}_{j}_{code}_{kind}`,
 				Vector3.new(1, 1, 1),
 				Vector3.new(cx(i), floorY(level) + 4, cx(j)),
 				BONE,
