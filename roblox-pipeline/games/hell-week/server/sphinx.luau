@@ -413,13 +413,14 @@ local HALLS = { { 4, 4 }, { 2, 3 }, { 4, 2 }, { 6, 2 }, { 5, 4 } }
 -- at a wall junction gets treated as stuck and thrown clear: three of the eight failed
 -- that way, always at the mouth. The entry passage is 22 degrees and has always worked.
 local SHAFTS = {
-	-- Every shaft sits in rows 2-4 or 5-7. Shafts reaching row 8 were reproducibly
-	-- ejecting a walking player to the surface at the foot of the slope, and rows 2-4
-	-- and 5-7 are both verified to descend cleanly.
+	-- Two rules, both learned the hard way. Every shaft sits in rows 2-4 or 5-7, never
+	-- reaching row 8. And no two shafts on the same level share a column: one slope
+	-- ending where the next begins puts a player onto a ramp where they expected floor,
+	-- and they are thrown out at the foot of it.
 	{ { 1, 2 }, { 8, 5 } }, -- 1 -> 2
-	{ { 8, 2 }, { 1, 5 } }, -- 2 -> 3
+	{ { 6, 5 }, { 7, 2 } }, -- 2 -> 3
 	{ { 3, 5 }, { 2, 2 } }, -- 3 -> 4
-	{ { 3, 2 }, { 2, 5 } }, -- 4 -> 5
+	{ { 1, 5 }, { 4, 2 } }, -- 4 -> 5
 }
 local HALL_NAME = { "Hall of the Lion", "Hall of Coffins", "Drowned Hall", "Hall of Columns", "The Deep Hall" }
 
