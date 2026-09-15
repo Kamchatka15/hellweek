@@ -588,13 +588,12 @@ local function buildShaft(level: number, b: { number })
 	local span = (c - a).Magnitude
 	local mid = (a + c) / 2
 	local cf = CFrame.lookAt(mid, c)
-	-- The ramp runs the full width of the cell and tucks under the walls either side.
-	-- Cut to the width of the tunnel it had an edge flush with the rock, and a player
-	-- drifting into that seam on a slope gets wedged and shot up the outside of the
-	-- wall: three of the eight shafts failed exactly that way.
-	-- Ten studs thick, not three. The underside is never seen, and a thin tilted slab
-	-- at the foot of a long descent is something a walking character can end up beneath.
-	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W + ROCK, 10, span), cf * CFrame.new(0, -3.5, 0), DEEP, SLATE)
+	-- Ten studs thick, and exactly the width of the tunnel. An earlier attempt widened it
+	-- to tuck under the walls; that put nine studs of walkable surface INSIDE solid rock
+	-- on either side, and a character straying onto it was squeezed out and thrown to
+	-- the surface. It showed up as roughly one descent in three failing, at random, on
+	-- shafts that were otherwise fine.
+	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W, 10, span), cf * CFrame.new(0, -3.5, 0), DEEP, SLATE)
 	slab(`RampRoof{level}_{i}_{j}`, Vector3.new(W + ROCK, 3, span), cf * CFrame.new(0, H + 3, 0), CHAR, SLATE)
 	local steps = math.floor(span / RUN)
 	for s = 1, steps - 1 do
