@@ -584,35 +584,29 @@ end
 local function buildShaft(level: number, b: { number })
 	local i, j = b[1], b[2]
 	local yTop, yLow = floorY(level), floorY(level + 1)
-	local a = Vector3.new(cx(i), yTop - 1.5, line(j - 1))
-	-- Stop 8 studs short of the boundary, reaching floor level exactly. Run to the
-	-- boundary and the sloping top surface CROSSES the lower floor's top surface, and
-	-- the zero-thickness wedge where they meet is what was catching players and
-	-- throwing them to the surface - always at the bottom, never on the way down.
-	local c = Vector3.new(cx(i), yLow - 1.5, line(j + 2) - 8)
-	local span = (c - a).Magnitude
-	local mid = (a + c) / 2
-	local cf = CFrame.lookAt(mid, c)
-	-- Ten studs thick, and exactly the width of the tunnel. An earlier attempt widened it
-	-- to tuck under the walls; that put nine studs of walkable surface INSIDE solid rock
-	-- on either side, and a character straying onto it was squeezed out and thrown to
-	-- the surface. It showed up as roughly one descent in three failing, at random, on
-	-- shafts that were otherwise fine.
-	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W, 10, span), cf * CFrame.new(0, -3.5, 0), DEEP, SLATE)
-	slab(`RampRoof{level}_{i}_{j}`, Vector3.new(W + ROCK, 3, span), cf * CFrame.new(0, H + 3, 0), CHAR, SLATE)
-	local steps = math.floor(span / RUN)
-	for s = 1, steps - 1 do
-		slab(
-			`Tread{level}_{i}_{j}_{s}`,
-			Vector3.new(W, 0.5, 0.8),
-			cf * CFrame.new(0, 1.6, span / 2 - s * RUN),
+	local z0, z1 = line(j - 1), line(j + 2) - 8
+	-- Real steps, not a ramp. A tilted slab is a surface a walking character can wedge
+	-- against at the seams, and when Roblox decides it is stuck it throws it to the
+	-- nearest open air, which from down here is the desert a hundred studs up. Steps of
+	-- a stud and a half are something a humanoid climbs natively, and there is no sloped
+	-- collision anywhere in a shaft now.
+	local count = 28
+	local rise = (yTop - yLow) / count
+	local run = (z1 - z0) / count
+	for k = 1, count do
+		local top = yTop - rise * k
+		local z = z0 + run * (k - 0.5)
+		box(`Step{level}_{i}_{j}_{k}`, Vector3.new(W, 10, run + 0.2), Vector3.new(cx(i), top - 5, z), DEEP, SLATE)
+		box(
+			`StepRoof{level}_{i}_{j}_{k}`,
+			Vector3.new(W + 2 * ROCK, 4, run + 0.2),
+			Vector3.new(cx(i), top + H + 2, z),
 			CHAR,
-			SLATE,
-			{ canCollide = false }
+			SLATE
 		)
 	end
-	-- the walls of the slope have to reach from the lower floor to the upper ceiling,
-	-- because the rock between two levels is otherwise nothing at all
+	-- the flanks have to reach from the lower floor to the upper ceiling: the rock
+	-- between two levels is otherwise nothing at all
 	local h = (yTop + H) - yLow
 	for _, side in { -1, 1 } do
 		box(
@@ -623,10 +617,14 @@ local function buildShaft(level: number, b: { number })
 			STONE
 		)
 	end
-	torch(CFrame.new(cx(i) + (W / 2 - 0.2), yTop - 8, cx(j) + P) * CFrame.Angles(0, math.pi / 2, 0))
+	for k = 1, 3 do
+		torch(
+			CFrame.new(cx(i) + (W / 2 - 0.2), yTop - rise * count * (k / 4) + 7, z0 + (z1 - z0) * (k / 4))
+				* CFrame.Angles(0, math.pi / 2, 0)
+		)
+	end
 end
 
--- ---------------------------------------------------------------- dressing a level
 local YAW = function(d: number): number
 	return math.atan2(DIR[d][1], DIR[d][2])
 end
