@@ -47,6 +47,7 @@ local pack: any = nil
 local config: any = nil
 local safeRing: Folder? = nil
 local siegeOn = false
+local flickerToken = 0
 local theme: any = nil
 
 local run = {
@@ -379,8 +380,14 @@ local function drawSafeRing()
 		color = theme.colors.safeRing or Color3.fromRGB(226, 214, 176),
 		-- Gold metal, not neon. "Safe zone = the stone disc / gold ring": this IS the
 		-- ring, it grows with the fire, and by day it must read as inlay, not a glow.
-		material = theme.safeRingMaterial or Enum.Material.Neon,
-		transparency = theme.safeRingTransparency or 0.28,
+		-- By day: gold metal, inlay. By night: the same ring gone slightly neon, so
+		-- the safe radius stays readable when the ground it sits on does not.
+		material = if run.phase == "night"
+			then (theme.safeRingNightMaterial or theme.safeRingMaterial or Enum.Material.Neon)
+			else (theme.safeRingMaterial or Enum.Material.Neon),
+		transparency = if run.phase == "night"
+			then (theme.safeRingNightTransparency or theme.safeRingTransparency or 0.28)
+			else (theme.safeRingTransparency or 0.28),
 		width = 1.3,
 		y = centre.Y - 1.9,
 	}, pack.folder)
@@ -610,6 +617,29 @@ local function setMood(night: boolean)
 
 	local scale = if night then 1 else (c.campGlowByDay or 0.15)
 	local info = TweenInfo.new(seconds, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+
+	-- The cap fire's own light, by phase, plus a slow flicker at night so it reads
+	-- as fire. The token stops an old night's flicker the moment a new phase starts.
+	flickerToken += 1
+	local myToken = flickerToken
+	local cap = config.beacon.capLight
+	local flamePart = pack.folder:FindFirstChild("Beacon_" .. tostring(config.beacon.flameName))
+	local fireLight = flamePart and flamePart:FindFirstChild("FireLight")
+	if cap and fireLight and fireLight:IsA("PointLight") then
+		local target = if night then cap.night else cap.day
+		TweenService:Create(fireLight, info, { Range = target.range, Brightness = target.brightness }):Play()
+		local fl = if night then target.flicker else nil
+		if fl then
+			task.delay(seconds, function()
+				while flickerToken == myToken and run.phase == "night" do
+					fireLight.Brightness = fl.min + math.random() * (fl.max - fl.min)
+					task.wait(fl.every or 0.3)
+				end
+			end)
+		end
+	end
+	-- The ring changes material with the phase, so redraw it.
+	drawSafeRing()
 	for _, part in pack.folder:GetChildren() do
 		local name = part.Name
 		if string.sub(name, 1, 12) == "ObeliskGlow" or string.sub(name, 1, 8) == "StarGlow" then

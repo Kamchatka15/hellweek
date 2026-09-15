@@ -143,6 +143,18 @@ local function buildModel(def: ToolDef): Tool
 			light.Shadows = false
 			light.Parent = part
 		end
+		-- A cone out of the part's front. A held light with a beam is a lantern; one
+		-- without is a glow you carry, and only the first gives you somewhere to look.
+		if spec.spot then
+			local spot = Instance.new("SpotLight")
+			spot.Color = spec.spot.color
+			spot.Angle = spec.spot.angle or 40
+			spot.Range = spec.spot.range or 28
+			spot.Brightness = spec.spot.brightness or 1.6
+			spot.Face = Enum.NormalId.Front
+			spot.Shadows = spec.spot.shadows == true
+			spot.Parent = part
+		end
 		if index == 1 then
 			handle = part
 			part.Parent = tool

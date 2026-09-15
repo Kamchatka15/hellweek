@@ -289,6 +289,13 @@ return {
 		-- intensity is the brief's.
 		lightBrightness = 1.1,
 		flameSize = Vector3.new(1.4, 1.6, 1.4),
+		-- The cap fire's OWN light, by phase. By day it is a warm pool on the top
+		-- steps; at night it is the thing you can see the camp by, with a slow
+		-- flicker so it reads as fire rather than a lamp. Applied by setMood.
+		capLight = {
+			day = { range = 18, brightness = 1.1 },
+			night = { range = 42, brightness = 2.8, flicker = { min = 2.4, max = 3.2, every = 0.3 } },
+		},
 	},
 
 	-- One row per day. `stalker` is what it does at night: watch (stand still on the
@@ -372,6 +379,10 @@ return {
 					color = Color3.fromRGB(255, 168, 52),
 					material = Enum.Material.Neon,
 					light = { color = Color3.fromRGB(255, 150, 60), brightness = 2.4, range = 26 },
+					-- The lantern beam. A narrow warm cone out the front of the held brand,
+					-- so at night there is a direction you can SEE in, which is the only
+					-- reason to carry it out past the ring.
+					spot = { color = Color3.fromRGB(255, 200, 120), angle = 40, range = 28 },
 				},
 			},
 		},

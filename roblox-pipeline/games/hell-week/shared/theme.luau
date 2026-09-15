@@ -91,6 +91,10 @@ return {
 	-- The ground ring is gold METAL by day, not neon: inlay, not a glow.
 	safeRingMaterial = Enum.Material.Metal,
 	safeRingTransparency = 0,
+	-- At night the same ring goes slightly Neon, so the safe radius is readable
+	-- when the ground it is painted on is not.
+	safeRingNightMaterial = Enum.Material.Neon,
+	safeRingNightTransparency = 0.35,
 
 	accent = Color3.fromRGB(255, 190, 70),
 	uiBackground = Color3.fromRGB(14, 15, 20),
