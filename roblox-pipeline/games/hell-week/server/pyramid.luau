@@ -769,6 +769,7 @@ end
 local function spurAndRing(R: number, kinds: { any })
 	local landing = cur.Position
 	faceOutward()
+	local spurFoot = cur.Position -- just past the turn out of the stairwell
 	local spur = R - 34
 	hall(spur)
 	local mouth = cur.Position
@@ -785,6 +786,7 @@ local function spurAndRing(R: number, kinds: { any })
 	-- heading before it rotates, so seven turns do not return to where they started and
 	-- the "return" spur ended 35 studs off the stair, a stub going nowhere.
 	way(mouth)
+	way(spurFoot)
 	way(landing)
 end
 
