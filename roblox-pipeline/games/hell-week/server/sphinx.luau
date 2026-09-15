@@ -630,17 +630,21 @@ local function dressLevel(level: number, plan: any, open: any)
 						* CFrame.Angles(0, YAW(d), 0)
 				)
 			end
+			-- Anything solid goes against a wall. A coffin parked in the middle of an
+			-- 18-stud tunnel is a squeeze, and a maze is hard enough already.
+			local wall = if #shut > 0 then shut[rng:NextInteger(1, #shut)] else nil
 			local roll = rng:NextNumber()
-			if roll < 0.06 then
+			if wall and roll < 0.07 then
+				local push = Vector3.new(DIR[wall][1], 0, DIR[wall][2]) * 5.5
 				coffin(
-					CFrame.new(cx(i), y, cx(j)) * CFrame.Angles(0, rng:NextInteger(0, 1) * math.pi / 2, 0),
-					roll < 0.02
+					CFrame.new(Vector3.new(cx(i), y, cx(j)) + push) * CFrame.Angles(0, YAW(wall) + math.pi / 2, 0),
+					roll < 0.025
 				)
-			elseif roll < 0.11 then
+			elseif roll < 0.12 then
 				bonePile(CFrame.new(cx(i) + rng:NextNumber(-4, 4), y, cx(j) + rng:NextNumber(-4, 4)), 7)
-			elseif roll < 0.15 then
-				urn(CFrame.new(cx(i) + DIR[shut[1]][1] * 6, y, cx(j) + DIR[shut[1]][2] * 6))
-			elseif roll < 0.18 then
+			elseif wall and roll < 0.17 then
+				urn(CFrame.new(cx(i) + DIR[wall][1] * 6.5, y, cx(j) + DIR[wall][2] * 6.5))
+			elseif roll < 0.2 then
 				skeleton(CFrame.new(cx(i), y, cx(j)) * CFrame.Angles(0, rng:NextNumber(0, 6.2), 0))
 			end
 		end
