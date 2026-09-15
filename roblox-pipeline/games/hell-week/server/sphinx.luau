@@ -576,7 +576,11 @@ local function buildShaft(level: number, b: { number })
 	local i, j = b[1], b[2]
 	local yTop, yLow = floorY(level), floorY(level + 1)
 	local a = Vector3.new(cx(i), yTop - 1.5, line(j - 1))
-	local c = Vector3.new(cx(i), yLow - 1.5, line(j + 2))
+	-- Stop 8 studs short of the boundary, reaching floor level exactly. Run to the
+	-- boundary and the sloping top surface CROSSES the lower floor's top surface, and
+	-- the zero-thickness wedge where they meet is what was catching players and
+	-- throwing them to the surface - always at the bottom, never on the way down.
+	local c = Vector3.new(cx(i), yLow - 1.5, line(j + 2) - 8)
 	local span = (c - a).Magnitude
 	local mid = (a + c) / 2
 	local cf = CFrame.lookAt(mid, c)
