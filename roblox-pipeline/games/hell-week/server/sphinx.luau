@@ -406,12 +406,17 @@ end
 -- from one level to the next. Chosen so no two of them share a cell.
 local HALLS = { { 4, 4 }, { 2, 3 }, { 4, 2 }, { 6, 2 }, { 5, 4 } }
 -- A shaft is entered at the north end of its top cell, so that cell may never sit on
--- row 1: the edge of the grid is always rock, and the way down would be walled up.
+-- row 1 (the edge of the grid is always rock), and j may not exceed 7.
+--
+-- Each shaft is one cell wide and THREE long, which puts its slope at 21 degrees. At
+-- two cells it was 30, and a humanoid stepping from flat floor onto a slope that steep
+-- at a wall junction gets treated as stuck and thrown clear: three of the eight failed
+-- that way, always at the mouth. The entry passage is 22 degrees and has always worked.
 local SHAFTS = {
-	{ { 1, 2 }, { 8, 7 } }, -- 1 -> 2
-	{ { 8, 2 }, { 1, 7 } }, -- 2 -> 3
-	{ { 2, 5 }, { 7, 6 } }, -- 3 -> 4
-	{ { 5, 2 }, { 2, 7 } }, -- 4 -> 5
+	{ { 1, 2 }, { 8, 6 } }, -- 1 -> 2
+	{ { 8, 2 }, { 1, 6 } }, -- 2 -> 3
+	{ { 3, 5 }, { 7, 6 } }, -- 3 -> 4
+	{ { 3, 2 }, { 2, 6 } }, -- 4 -> 5
 }
 local HALL_NAME = { "Hall of the Lion", "Hall of Coffins", "Drowned Hall", "Hall of Columns", "The Deep Hall" }
 
@@ -437,7 +442,7 @@ local function isShaft(block: any, i: number, j: number): boolean
 		return false
 	end
 	for _, b in block do
-		if inBlock(i, j, b, 1, 2) then
+		if inBlock(i, j, b, 1, 3) then
 			return true
 		end
 	end
@@ -490,9 +495,10 @@ local function buildLevel(level: number)
 			end
 		end
 		for _, b in blocks do
-			local i, top, bot = b[1], b[2], b[2] + 1
-			set(i, top, 3, true) -- the two cells of the slope always join each other
-			for _, j in { top, bot } do
+			local i, top, mid, bot = b[1], b[2], b[2] + 1, b[2] + 2
+			set(i, top, 3, true) -- the three cells of the slope always join each other
+			set(i, mid, 3, true)
+			for _, j in { top, mid, bot } do
 				set(i, j, 2, false)
 				set(i, j, 4, false)
 			end
@@ -570,7 +576,7 @@ local function buildShaft(level: number, b: { number })
 	local i, j = b[1], b[2]
 	local yTop, yLow = floorY(level), floorY(level + 1)
 	local a = Vector3.new(cx(i), yTop - 1.5, line(j - 1))
-	local c = Vector3.new(cx(i), yLow - 1.5, line(j + 1))
+	local c = Vector3.new(cx(i), yLow - 1.5, line(j + 2))
 	local span = (c - a).Magnitude
 	local mid = (a + c) / 2
 	local cf = CFrame.lookAt(mid, c)
@@ -597,13 +603,13 @@ local function buildShaft(level: number, b: { number })
 	for _, side in { -1, 1 } do
 		box(
 			`ShaftWall{level}_{i}_{j}_{side}`,
-			Vector3.new(ROCK, h, P * 2),
-			Vector3.new(cx(i) + side * (W + ROCK) / 2, yLow + h / 2, cx(j) + P / 2),
+			Vector3.new(ROCK, h, P * 3),
+			Vector3.new(cx(i) + side * (W + ROCK) / 2, yLow + h / 2, cx(j) + P),
 			ASH,
 			STONE
 		)
 	end
-	torch(CFrame.new(cx(i) + (W / 2 - 0.2), yTop - 8, cx(j) + P / 2) * CFrame.Angles(0, math.pi / 2, 0))
+	torch(CFrame.new(cx(i) + (W / 2 - 0.2), yTop - 8, cx(j) + P) * CFrame.Angles(0, math.pi / 2, 0))
 end
 
 -- ---------------------------------------------------------------- dressing a level
