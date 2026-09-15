@@ -97,12 +97,12 @@ return {
 	safeRingNightTransparency = 0.35,
 
 	accent = Color3.fromRGB(212, 168, 62), -- wick gold: the bars
-	uiBackground = Color3.fromRGB(14, 15, 20),
+	uiBackground = Color3.fromRGB(18, 16, 26), -- night void: bar tracks
 	uiPanel = Color3.fromRGB(30, 28, 28), -- charcoal chrome
-	uiText = Color3.fromRGB(236, 236, 240),
-	uiMuted = Color3.fromRGB(150, 154, 166),
-	uiGood = Color3.fromRGB(214, 196, 120),
-	uiWarn = Color3.fromRGB(255, 140, 96),
+	uiText = Color3.fromRGB(210, 200, 180), -- bone
+	uiMuted = Color3.fromRGB(145, 125, 95), -- ash
+	uiGood = Color3.fromRGB(212, 168, 62), -- gold
+	uiWarn = Color3.fromRGB(255, 138, 48), -- fire: the low-fuel bar
 
 	-- Copy. Every line is one sentence a nine-year-old can read at a glance, and there
 	-- are exactly two onboarding lines (brief §4). No scripture, no sermons, no names
