@@ -758,8 +758,12 @@ return {
 	},
 
 	fog = {
-		radiusByLevel = { 200, 290, 350 },
-		pushBackAt = 360,
+		-- The map has to be bigger than the things standing on it. The pyramid reaches
+		-- 388 studs from the beacon at its far corner and the Sphinx 622, and the leash
+		-- below was set at 360 - so walking into either one got you picked up and put
+		-- back near the fire, which read exactly like being thrown out of the tomb.
+		radiusByLevel = { 420, 620, 790 },
+		pushBackAt = 820,
 		wallHeight = 60,
 		segments = 40,
 		transparency = 0.35,

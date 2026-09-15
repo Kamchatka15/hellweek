@@ -316,7 +316,7 @@ local function floorOf(color: Color3, material: Enum.Material)
 	-- long before the edge, so the shape of the edge was never visible anyway.
 	return {
 		shape = Enum.PartType.Block,
-		size = Vector3.new(700, 4, 700),
+		size = Vector3.new(1700, 4, 1700),
 		position = Vector3.new(0, -2, 0),
 		color = color,
 		material = material,
@@ -327,7 +327,7 @@ local biomes = {
 	["ashen-waste"] = {
 		data = onPalette(require(script.Parent.scenery["ashen-waste"])),
 		floor = floorOf(theme.colors.sand, Enum.Material.Sand),
-		fog = { 200, 290, 350 },
+		fog = { 340, 520, 720 },
 		-- DAY. The waste is bright and exposed — brighter than the camp at its centre.
 		-- Heavy sand haze bleaches the sky white-hot instead of the postcard blue Roblox
 		-- gives for free; saturation alone will not take that away. Low sun for long
