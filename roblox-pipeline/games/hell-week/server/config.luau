@@ -184,6 +184,30 @@ return {
 			tool = "Sigil",
 			limit = 1,
 		},
+		{
+			id = "cut_pick",
+			label = "Pickaxe",
+			inputs = { stone = 2, ashwood = 1 },
+			tool = "Pickaxe",
+			limit = 1,
+		},
+		-- The weapon ladder. Club is cheap and weak; Spear costs the deep materials
+		-- and is worth it. You are meant to meet the Herald holding the club first
+		-- and understand that you brought the wrong thing.
+		{
+			id = "cut_club",
+			label = "Club",
+			inputs = { ashwood = 2, stone = 1 },
+			tool = "Club",
+			limit = 1,
+		},
+		{
+			id = "cut_spear",
+			label = "Spear",
+			inputs = { heartwood = 1, chitin = 1 },
+			tool = "Spear",
+			limit = 1,
+		},
 
 		{
 			id = "press_water",
@@ -313,6 +337,71 @@ return {
 					color = Color3.fromRGB(255, 168, 52),
 					material = Enum.Material.Neon,
 					light = { color = Color3.fromRGB(255, 150, 60), brightness = 2.4, range = 26 },
+				},
+			},
+		},
+		{
+			id = "Pickaxe",
+			label = "Pickaxe — stone gives two",
+			effect = "harvest",
+			kind = "stone",
+			bonus = 1,
+			parts = {
+				{
+					size = Vector3.new(0.34, 0.34, 3.2),
+					color = Color3.fromRGB(104, 90, 74),
+					material = Enum.Material.Wood,
+				},
+				{
+					size = Vector3.new(2.3, 0.4, 0.42),
+					offset = Vector3.new(0, 0.1, -1.4),
+					color = Color3.fromRGB(150, 142, 128),
+					material = Enum.Material.Slate,
+				},
+			},
+		},
+		{
+			id = "Club",
+			label = "Club — hits twice as hard",
+			effect = "strike",
+			power = 2,
+			parts = {
+				{
+					size = Vector3.new(0.38, 0.38, 2.6),
+					color = Color3.fromRGB(96, 82, 66),
+					material = Enum.Material.Wood,
+				},
+				{
+					shape = Enum.PartType.Ball,
+					size = Vector3.new(1.1, 1.1, 1.3),
+					offset = Vector3.new(0, 0, -1.5),
+					color = Color3.fromRGB(78, 70, 62),
+					material = Enum.Material.Slate,
+				},
+			},
+		},
+		{
+			id = "Spear",
+			label = "Spear — four hits become one",
+			effect = "strike",
+			power = 4,
+			parts = {
+				{
+					size = Vector3.new(0.3, 0.3, 5),
+					color = Color3.fromRGB(118, 100, 78),
+					material = Enum.Material.Wood,
+				},
+				{
+					size = Vector3.new(0.34, 0.12, 1.9),
+					offset = Vector3.new(0, 0, -2.9),
+					color = Color3.fromRGB(56, 44, 52),
+					material = Enum.Material.Slate,
+				},
+				{
+					size = Vector3.new(0.5, 0.5, 0.22),
+					offset = Vector3.new(0, 0, -1.9),
+					color = Color3.fromRGB(212, 168, 74),
+					material = Enum.Material.Metal,
 				},
 			},
 		},

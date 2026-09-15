@@ -27,10 +27,11 @@ ToolService.equipped = Signal.new() -- (player, toolId?)
 export type ToolDef = {
 	id: string,
 	label: string,
-	effect: string?, -- "harvest" | "ward" | "light"
+	effect: string?, -- "harvest" | "ward" | "light" | "strike"
 	kind: string?, -- for harvest: which resource it helps with ("any" for all)
 	bonus: number?, -- for harvest: extra yield
 	radius: number?, -- for ward: how far it holds the threat off
+	power: number?, -- for strike: hits per swing against living things
 	light: { color: Color3, brightness: number, range: number }?,
 	grip: CFrame?,
 	parts: { any },
@@ -62,6 +63,28 @@ function ToolService.has(player: Player, id: string): boolean
 		end
 	end
 	return false
+end
+
+--- How hard a held tool hits something alive. Bare hands are 1, so a weapon is an
+--- accelerator and never a gate: a new player with nothing still fights, just slowly.
+---
+--- Nothing here touches the stalker. That is the prey-versus-threat line the whole
+--- design rests on: you can put down the things that bite, and you can never put down
+--- the night itself.
+function ToolService.strikePower(player: Player): number
+	local id = held[player]
+	local def = id and defs[id]
+	if not def then
+		return 1
+	end
+	if def.effect == "strike" then
+		return def.power or 2
+	end
+	-- A harvesting tool is a blade or a heavy head; it works, just not as well.
+	if def.effect == "harvest" then
+		return 2
+	end
+	return 1
 end
 
 --- The harvest bonus a player's held tool gives for this resource, or 0.

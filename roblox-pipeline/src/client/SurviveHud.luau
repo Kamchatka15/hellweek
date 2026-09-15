@@ -19,6 +19,7 @@ local Net = require(Shared.Net)
 local theme = require(ReplicatedStorage:WaitForChild("Pack").theme)
 local OpeningAct = require(script.Parent.OpeningAct)
 local UIKit = require(script.Parent.UIKit)
+local Hotbar = require(script.Parent.Hotbar)
 local UserInputService = game:GetService("UserInputService")
 
 local SurviveHud = {}
@@ -33,8 +34,6 @@ local dayFill: Frame
 local weightRow: Frame
 local fuelFill: Frame
 local fuelText: TextLabel
-local sackText: TextLabel
-local sackFill: Frame
 local toastHolder: Frame
 local blackout: Frame
 local vignette: Frame
@@ -311,18 +310,10 @@ function SurviveHud.setState(state: any)
 	refreshRecipes(state.recipes)
 	refreshButtons(state)
 
-	local sackRatio = if state.carryCap > 0 then math.clamp(state.carry / state.carryCap, 0, 1) else 0
-	sackFill.Size = UDim2.fromScale(sackRatio, 1)
-	sackFill.BackgroundColor3 = if sackRatio >= 1 then theme.uiWarn else theme.colors.fuel
-	-- What is in the sack, not just how full it is: a desert carries three kinds and
-	-- "4/6" cannot tell you whether you have the two cactus a recipe wants.
-	local carried = ""
-	for _, entry in state.sack or {} do
-		carried ..= `  {entry.label} {entry.count}`
-	end
-	sackText.Text = if carried == ""
-		then `{string.upper(theme.names.sack)}  {state.carry}/{state.carryCap}`
-		else `{state.carry}/{state.carryCap}{carried}`
+	-- What is in the sack, not just how full it is. The hotbar draws each kind as the
+	-- item itself with its count on the corner, which answers "have I got the two
+	-- cactus the recipe wants" better than a line of words ever did.
+	Hotbar.setSack(state.carry or 0, state.carryCap or 0, state.sack)
 end
 
 -- The phase bar drains locally between packets so it reads as a clock, not a stutter.
@@ -577,21 +568,9 @@ function SurviveHud.init(): ScreenGui
 	})
 	fuelFill = bar(fuelFrame, 40, theme.accent)
 
-	-- sack ------------------------------------------------------------------
-	local sackFrame = panel({
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -16, 0, 16),
-		Size = UDim2.fromOffset(200, 62),
-		Parent = gui,
-	})
-	sackText = text({
-		Position = UDim2.fromOffset(12, 6),
-		Size = UDim2.new(1, -24, 0, 26),
-		Font = Enum.Font.GothamBold,
-		Text = `{string.upper(theme.names.sack)}  0 / 0`,
-		Parent = sackFrame,
-	})
-	sackFill = bar(sackFrame, 40, theme.colors.fuel)
+	-- No sack panel at the top right any more. The hotbar shows the same thing at the
+	-- bottom, as the items themselves rather than as their names, and two readouts of
+	-- one number is exactly the clutter we are trying to be rid of.
 
 	-- the three buttons (bottom right, thumb reach) --------------------------
 	-- PICK UP / ACTION / INFO. Always present, always labelled, dimmed when there is
@@ -606,7 +585,8 @@ function SurviveHud.init(): ScreenGui
 		local button = UIKit.create("TextButton", {
 			Name = name,
 			AnchorPoint = Vector2.new(1, 1),
-			Position = UDim2.new(1, -18, 1, -18 - (order - 1) * 76),
+			-- Lifted clear of the hotbar, which now owns the bottom 76 pixels.
+			Position = UDim2.new(1, -18, 1, -94 - (order - 1) * 76),
 			Size = UDim2.fromOffset(178, 66),
 			BackgroundColor3 = theme.uiPanel,
 			BackgroundTransparency = 0.08,
@@ -636,7 +616,7 @@ function SurviveHud.init(): ScreenGui
 	-- until asked for.
 	inspectPanel = panel({
 		AnchorPoint = Vector2.new(0, 1),
-		Position = UDim2.new(0, 18, 1, -18),
+		Position = UDim2.new(0, 18, 1, -90),
 		Size = UDim2.fromOffset(380, 140),
 		BackgroundTransparency = 0.12,
 		Visible = false,
@@ -921,6 +901,10 @@ function SurviveHud.init(): ScreenGui
 	else
 		fadeFromBlack(1.4)
 	end
+
+	-- The bar along the bottom: every tool the player holds, plus the sack. Built
+	-- last so it sits above the rest of the HUD in the tree.
+	Hotbar.init(gui, theme)
 
 	RunService.RenderStepped:Connect(function()
 		tickClock()

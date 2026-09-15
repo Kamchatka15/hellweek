@@ -1353,11 +1353,9 @@ end
 
 --- Swing at something alive. `power` is swings, not damage: a kid counts swings.
 local function strike(player: Player, record: any)
-	local held = ToolService.holding(player)
-	local def = held and ToolService.definition(held)
 	-- Bare hands work, they are just slow. A tool is an accelerator, never a gate,
 	-- because a gate means a new player stands next to a scorpion doing nothing.
-	local power = if def and def.effect == "harvest" then 2 else 1
+	local power = ToolService.strikePower(player)
 	local killed = CreatureService.strike(record, player, power)
 	if not killed then
 		toast(player, "hit", theme.copy.creatureHit or "It turns on you.", "warn", 1)
@@ -1624,10 +1622,18 @@ local function packet(player: Player, profile: any): any
 			local out = {}
 			for _, entry in order do
 				local def = config.items[entry.kind]
-				table.insert(
-					out,
-					{ kind = entry.kind, label = if def then def.label else entry.kind, count = entry.count }
-				)
+				table.insert(out, {
+					kind = entry.kind,
+					label = if def then def.label else entry.kind,
+					count = entry.count,
+					-- Enough to draw the thing itself in the hotbar. The icon IS the
+					-- item, so no image is ever drawn or uploaded and a resource
+					-- invented next month has a correct icon the moment it exists.
+					color = if def then def.color else nil,
+					size = if def then def.size else nil,
+					shape = if def then def.shape else nil,
+					material = if def then def.material else nil,
+				})
 			end
 			return out
 		end)(),
