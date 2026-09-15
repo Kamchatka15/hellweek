@@ -20,7 +20,10 @@
 -- want a shared tomb-props module; that refactor is worth doing once the second tomb
 -- has settled.
 
-local ORIGIN = Vector3.new(-63, 0, 237) -- across the obelisk from the pyramid
+-- Across the obelisk from the pyramid, and far enough out that the paws are ~170 studs
+-- from the camp. The lion is 250 studs long and lies with its face toward the obelisk,
+-- so the origin has to sit well beyond where you want the front of it to be.
+local ORIGIN = Vector3.new(-30, 0, 430)
 
 -- The grid. P is the cell pitch, W the tunnel width, so the rock between tunnels is
 -- P - W thick. H is headroom, T the thickness of floor and ceiling slabs.
@@ -859,7 +862,9 @@ end
 
 return {
 	origin = ORIGIN,
-	half = (N * P) / 2 + 20,
+	-- big enough to cover the lion as well as the grid, so no desert scrub is left
+	-- standing inside the plinth
+	half = 280,
 	parts = parts,
 	route = route,
 	stats = { parts = #parts, cells = cells, levels = LEVELS, grid = N },
