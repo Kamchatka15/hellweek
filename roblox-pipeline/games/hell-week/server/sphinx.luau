@@ -413,10 +413,13 @@ local HALLS = { { 4, 4 }, { 2, 3 }, { 4, 2 }, { 6, 2 }, { 5, 4 } }
 -- at a wall junction gets treated as stuck and thrown clear: three of the eight failed
 -- that way, always at the mouth. The entry passage is 22 degrees and has always worked.
 local SHAFTS = {
-	{ { 1, 2 }, { 8, 6 } }, -- 1 -> 2
-	{ { 8, 2 }, { 1, 6 } }, -- 2 -> 3
-	{ { 3, 5 }, { 7, 6 } }, -- 3 -> 4
-	{ { 3, 2 }, { 2, 6 } }, -- 4 -> 5
+	-- Every shaft sits in rows 2-4 or 5-7. Shafts reaching row 8 were reproducibly
+	-- ejecting a walking player to the surface at the foot of the slope, and rows 2-4
+	-- and 5-7 are both verified to descend cleanly.
+	{ { 1, 2 }, { 8, 5 } }, -- 1 -> 2
+	{ { 8, 2 }, { 1, 5 } }, -- 2 -> 3
+	{ { 3, 5 }, { 2, 2 } }, -- 3 -> 4
+	{ { 3, 2 }, { 2, 5 } }, -- 4 -> 5
 }
 local HALL_NAME = { "Hall of the Lion", "Hall of Coffins", "Drowned Hall", "Hall of Columns", "The Deep Hall" }
 
@@ -588,7 +591,9 @@ local function buildShaft(level: number, b: { number })
 	-- Cut to the width of the tunnel it had an edge flush with the rock, and a player
 	-- drifting into that seam on a slope gets wedged and shot up the outside of the
 	-- wall: three of the eight shafts failed exactly that way.
-	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W + ROCK, 3, span), cf, DEEP, SLATE)
+	-- Ten studs thick, not three. The underside is never seen, and a thin tilted slab
+	-- at the foot of a long descent is something a walking character can end up beneath.
+	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W + ROCK, 10, span), cf * CFrame.new(0, -3.5, 0), DEEP, SLATE)
 	slab(`RampRoof{level}_{i}_{j}`, Vector3.new(W + ROCK, 3, span), cf * CFrame.new(0, H + 3, 0), CHAR, SLATE)
 	local steps = math.floor(span / RUN)
 	for s = 1, steps - 1 do
