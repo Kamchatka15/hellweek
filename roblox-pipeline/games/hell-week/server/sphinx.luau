@@ -574,8 +574,12 @@ local function buildShaft(level: number, b: { number })
 	local span = (c - a).Magnitude
 	local mid = (a + c) / 2
 	local cf = CFrame.lookAt(mid, c)
-	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W, 3, span), cf, DEEP, SLATE)
-	slab(`RampRoof{level}_{i}_{j}`, Vector3.new(W, 3, span), cf * CFrame.new(0, H + 3, 0), CHAR, SLATE)
+	-- The ramp runs the full width of the cell and tucks under the walls either side.
+	-- Cut to the width of the tunnel it had an edge flush with the rock, and a player
+	-- drifting into that seam on a slope gets wedged and shot up the outside of the
+	-- wall: three of the eight shafts failed exactly that way.
+	slab(`Ramp{level}_{i}_{j}`, Vector3.new(W + ROCK, 3, span), cf, DEEP, SLATE)
+	slab(`RampRoof{level}_{i}_{j}`, Vector3.new(W + ROCK, 3, span), cf * CFrame.new(0, H + 3, 0), CHAR, SLATE)
 	local steps = math.floor(span / RUN)
 	for s = 1, steps - 1 do
 		slab(
@@ -752,7 +756,7 @@ local function buildEntrance()
 	local c = Vector3.new(0, floorY(1) - 1.5, -150)
 	local span = (c - a).Magnitude
 	local cf = CFrame.lookAt((a + c) / 2, c)
-	slab("EntryRamp", Vector3.new(W, 3, span), cf, DEEP, SLATE)
+	slab("EntryRamp", Vector3.new(W + ROCK, 3, span), cf, DEEP, SLATE)
 	slab("EntryRoof", Vector3.new(W + 2 * ROCK, 3, span), cf * CFrame.new(0, H + 3, 0), CHAR, SLATE)
 	local steps = math.floor(span / RUN)
 	for s = 1, steps - 1 do
