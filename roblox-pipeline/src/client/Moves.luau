@@ -24,6 +24,7 @@
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Moves = {}
 
@@ -195,31 +196,23 @@ function Moves.flip(): boolean
 	return true
 end
 
---- Wire the double-jump. Returns nothing; safe to call once per character.
+--- Wire the double-jump.
 ---
---- Roblox gives no "second jump" event, so we watch for the jump request arriving
---- while already airborne. `Humanoid.Jumping` does not fire mid-air, which is exactly
---- why this listens to the request instead.
-function Moves.bindJump(humanoid: Humanoid)
-	humanoid:GetPropertyChangedSignal("Jump"):Connect(function()
-		if humanoid.Jump and airborne(humanoid) then
+--- Roblox has no "second jump" event. `JumpRequest` is the right signal rather than
+--- watching `Humanoid.Jump`, because the default control module will not always set
+--- that property while you are already off the ground -- which is precisely the
+--- moment we care about. JumpRequest fires on every press regardless of state, so
+--- the airborne test is ours to make and cannot be quietly swallowed upstream.
+function Moves.start()
+	UserInputService.JumpRequest:Connect(function()
+		local _, humanoid = characterBits()
+		if humanoid and airborne(humanoid) then
 			Moves.flip()
 		end
 	end)
-end
-
-function Moves.start()
-	local function attach(character: Model)
-		local humanoid = character:FindFirstChildOfClass("Humanoid")
-		if humanoid then
-			Moves.bindJump(humanoid)
-		end
+	player.CharacterAdded:Connect(function()
 		flipping = false
-	end
-	if player.Character then
-		attach(player.Character)
-	end
-	player.CharacterAdded:Connect(attach)
+	end)
 end
 
 return Moves

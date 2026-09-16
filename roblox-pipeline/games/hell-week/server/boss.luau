@@ -123,8 +123,12 @@ return {
 		-- outwalk it and keep your fire lit at the same time.
 		speed = 5,
 		nightSpeed = 6,
-		noticeRadius = 18,
-		nightNoticeRadius = 26,
+		-- It has to SEE you from across the camp, or it never starts walking and the
+		-- whole thing is a statue you can ignore. 18 studs meant you had to walk into
+		-- its face to wake it up. It is still slower than you, so being noticed is a
+		-- problem you solve by moving, not a death sentence.
+		noticeRadius = 55,
+		nightNoticeRadius = 85,
 		biteRadius = 7,
 		-- One fuel every 4.5 seconds. Across a 45-second night that is ten fuel against
 		-- a cap of fifteen, so an unopposed Herald does not quite empty a full beacon

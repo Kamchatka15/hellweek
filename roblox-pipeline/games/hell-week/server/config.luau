@@ -45,7 +45,7 @@ return {
 		-- camp. You are meant to walk out, see the thing that is going to kill you,
 		-- and decide what to do about it -- not meet it on night three.
 		atStart = true,
-		startRing = { inner = 70, outer = 95 },
+		startRing = { inner = 48, outer = 64 },
 		-- ...and it does not evaporate at dawn any more.
 		persist = true,
 		-- How close it has to be before its health bar appears. The bar arriving IS

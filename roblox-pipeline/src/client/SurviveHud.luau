@@ -684,6 +684,8 @@ function SurviveHud.init(): ScreenGui
 		Position = UDim2.fromOffset(0, 8),
 		Size = UDim2.new(1, 0, 0, 20),
 		Font = Enum.Font.GothamBlack,
+		-- `text` defaults to TextScaled, which silently ignores TextSize.
+		TextScaled = false,
 		TextSize = 17,
 		TextColor3 = theme.uiText,
 		TextXAlignment = Enum.TextXAlignment.Center,
