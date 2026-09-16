@@ -108,6 +108,8 @@ export type CreatureDef = {
 	-- and ignoring it is the one thing you cannot do.
 	goalRadius: number?, -- how close counts as arrived
 	boss: boolean?, -- struck to zero it RETREATS rather than dying
+	slayable: boolean?, -- ...unless this is set, and then zero means dead
+	damage: number?, -- Humanoid health taken per bite; nil means it cannot hurt you
 	retreatFor: number?, -- seconds it stays away after being driven off
 }
 
@@ -539,10 +541,11 @@ function CreatureService.strike(record: Record, player: Player, power: number?):
 		return false
 	end
 
-	-- A boss is not killed, it is DRIVEN OFF. It walks away, waits, and comes back,
-	-- which is a better threat than a corpse: the run never gets safe, it only gets
-	-- quiet. It also means the fight can be lost without the run being over.
-	if record.def.boss then
+	-- A boss is not killed, it is DRIVEN OFF -- unless it is marked `slayable`, in
+	-- which case emptying the bar actually ends it. Driving-off makes a better
+	-- long-run threat, but a fight you can never finish teaches a player that hitting
+	-- things does nothing, so a boss you are meant to BEAT must opt in to dying.
+	if record.def.boss and not record.def.slayable then
 		record.health = record.def.health
 		record.retreatUntil = os.clock() + (record.def.retreatFor or 45)
 		record.target = nil

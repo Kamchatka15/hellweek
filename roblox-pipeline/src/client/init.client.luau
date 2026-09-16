@@ -11,6 +11,9 @@ if theme.loop == "survive" then
 	local SurviveHud = require(script.SurviveHud)
 	local gui = SurviveHud.init()
 	require(script.Compass).init(gui)
+	-- Air control and hit feel. Purely cosmetic and purely local: it never speaks to
+	-- the server, so it can be deleted without touching a single rule.
+	require(script.Moves).start()
 
 	Net.get(Net.S2C_State).OnClientEvent:Connect(SurviveHud.setState)
 	Net.get(Net.S2C_Toast).OnClientEvent:Connect(function(message, tone)

@@ -41,7 +41,24 @@ return {
 		drainPerHit = 1, -- fuel taken each time it reaches the obelisk and feeds
 		spawnRing = { inner = 210, outer = 260 },
 		creature = "dry_herald",
+		-- The Herald is on the field from the first second, standing just outside
+		-- camp. You are meant to walk out, see the thing that is going to kill you,
+		-- and decide what to do about it -- not meet it on night three.
+		atStart = true,
+		startRing = { inner = 70, outer = 95 },
+		-- ...and it does not evaporate at dawn any more.
+		persist = true,
+		-- How close it has to be before its health bar appears. The bar arriving IS
+		-- the warning, so it must not be on screen all the time.
+		barRadius = 70,
+		-- Kill it and another walks in after this long, so the fight is something you
+		-- can practise rather than a one-off you either fluff or never see again.
+		respawnAfter = 50,
 	},
+
+	-- How far a swing reaches. Generous on purpose: a miss that was actually a
+	-- range problem reads as a broken button, and a ten-year-old will not forgive it.
+	attackReach = 14,
 
 	-- How much is alive out there, and where it starts. Never inside the first ring:
 	-- a scorpion at the obelisk on the first morning is a different, worse game.
@@ -695,6 +712,10 @@ return {
 
 	stalker = {
 		height = 9,
+		-- It stands on the horizon in daylight instead of being parked 500 studs
+		-- under the map. "Hidden" meant buried, which is why it was never visible;
+		-- a watcher you can see from camp is the entire point of a watcher.
+		visibleByDay = true,
 		-- Off the disc and in the trees while the vision is on: the watch position is
 		-- safe radius plus this, and the nearest tree cluster starts near 58 studs.
 		standOff = if require(script.Parent.vision).on then 8 else 2,

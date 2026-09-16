@@ -841,25 +841,45 @@ end
 ---
 --- This is the beat the game was missing. The stalker keeps you IN; the Herald comes
 --- for what you built, and that is the difference between hiding and defending.
+--- The one Herald on the field, or nil. Both the siege and the health bar need to
+--- ask this, so it lives in one place rather than being re-derived in two.
+local function heraldOnField(): any?
+	local siege = config.siege
+	if not siege then
+		return nil
+	end
+	for _, record in CreatureService.all() do
+		if record.def.id == siege.creature then
+			return record
+		end
+	end
+	return nil
+end
+
+--- Put it on the field inside `ring`, if it is not already there. Only ever one.
+local function placeHerald(ring: any): boolean
+	local siege = config.siege
+	if not siege or CreatureService.definition(siege.creature) == nil then
+		return false
+	end
+	if heraldOnField() then
+		return false
+	end
+	local inner = (ring and ring.inner) or 200
+	local outer = (ring and ring.outer) or 250
+	CreatureService.spawn(siege.creature, randomInRing(inner, outer))
+	return true
+end
+
 local function beginSiege(day: number)
 	local siege = config.siege
 	if not siege or day < siege.firstNight then
 		return
 	end
 	siegeOn = true
-	if CreatureService.definition(siege.creature) == nil then
-		return
+	if placeHerald(siege.spawnRing) then
+		toastAll("herald", theme.copy.heraldComes or "Something is walking toward the light.", "warn")
 	end
-	-- Only ever one on the field.
-	for _, record in CreatureService.all() do
-		if record.def.id == siege.creature then
-			return
-		end
-	end
-	local ring = siege.spawnRing or { inner = 200, outer = 250 }
-	local spot = randomInRing(ring.inner, ring.outer)
-	CreatureService.spawn(siege.creature, spot)
-	toastAll("herald", theme.copy.heraldComes or "Something is walking toward the light.", "warn")
 end
 
 --- Dawn. It withdraws rather than dying, because a thing that leaves on its own is
@@ -868,6 +888,12 @@ local function endSiege()
 	siegeOn = false
 	local siege = config.siege
 	if not siege then
+		return
+	end
+	-- When the Herald is a permanent fixture of the run it does NOT withdraw at
+	-- dawn. Sweeping it away every morning is what made it a night-only set piece
+	-- you could sleep through.
+	if siege.persist then
 		return
 	end
 	for _, record in CreatureService.all() do
@@ -1064,6 +1090,20 @@ startRun = function()
 	StalkerService.setMode("hidden")
 	setFogRadius(fogRadiusForLevel(0))
 	SackService.clearAll()
+	-- The Herald is standing there from the first breath, close enough that you meet
+	-- it before you have anything to meet it with. A survival game whose monster
+	-- shows up on night three spends three nights teaching you there is nothing to
+	-- be afraid of.
+	if config.siege and config.siege.atStart then
+		placeHerald(config.siege.startRing)
+	end
+	-- And the stalker is ON THE HORIZON, not parked 500 studs underground. It was
+	-- invisible all day because "hidden" means buried; watching from the fog edge is
+	-- what actually sells a thing that is waiting for you.
+	if config.stalker and config.stalker.visibleByDay then
+		revealStalker()
+		StalkerService.setMode("watch")
+	end
 	ClockService.start(schedule())
 end
 
@@ -1426,8 +1466,31 @@ local function onProfileLoaded(player: Player, profile: any)
 		end
 	end
 	giveKit()
-	player.CharacterAdded:Connect(function()
+
+	-- Dying has to COST something. Until now nothing on the map could reduce a
+	-- Humanoid to zero, so `Died` was never worth listening for; now the Herald can
+	-- finish you, and finishing you has to end the week. The run restarts from day
+	-- one, which is the whole point of a survive-the-week loop.
+	local function watchDeath(character: Model)
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+			or character:WaitForChild("Humanoid", 10) :: Humanoid?
+		if not humanoid or not humanoid:IsA("Humanoid") then
+			return
+		end
+		humanoid.Died:Connect(function()
+			if not run.active then
+				return
+			end
+			toastAll("died", theme.copy.youDied or "YOU DIED", "warn")
+			endRun(false, "died")
+		end)
+	end
+	if player.Character then
+		task.defer(watchDeath, player.Character)
+	end
+	player.CharacterAdded:Connect(function(character)
 		task.defer(giveKit)
+		task.defer(watchDeath, character)
 	end)
 
 	if not profile.tutorialComplete then
@@ -1503,15 +1566,23 @@ local function strike(player: Player, record: any)
 	-- because a gate means a new player stands next to a scorpion doing nothing.
 	local power = ToolService.strikePower(player)
 	local killed = CreatureService.strike(record, player, power)
+	-- Every swing that connects tells the client, so the hit reads as a hit: a flash
+	-- on the body, a kick on the camera, a number. Silence on contact is the single
+	-- fastest way to make a combat system feel broken.
+	fx(player, "hit", {
+		at = record.position,
+		label = record.def.label,
+		power = power,
+		fatal = killed,
+	})
 	if not killed then
 		toast(player, "hit", theme.copy.creatureHit or "It turns on you.", "warn", 1)
 		return
 	end
-	-- A boss is driven off, not killed. CreatureService.strike returns true for both
-	-- because both mean "that blow finished it", but only one of them is a death:
-	-- the boss keeps its body, drops nothing here, and says its own line through the
-	-- drivenOff signal. Without this it announced "it stops moving" while walking away.
-	if record.def.boss then
+	-- A boss that is NOT slayable was driven off rather than killed: it keeps its
+	-- body, drops nothing here, and says its own line through the drivenOff signal.
+	-- A slayable one falls through and dies like anything else.
+	if record.def.boss and not record.def.slayable then
 		return
 	end
 	local where = record.position
@@ -1788,6 +1859,28 @@ local function packet(player: Player, profile: any): any
 		level = BeaconService.level(),
 		bestDay = profile.bestDay or 0,
 		stalker = run.stalkerSeen,
+		-- The boss bar. Sent only when the thing is close enough to matter, so the
+		-- bar APPEARS when it comes for you and leaves when it does, which is the
+		-- signal itself -- a bar that is always on screen stops being a warning.
+		boss = (function()
+			local record = heraldOnField()
+			local root = rootOf(player)
+			if not record or not root then
+				return nil
+			end
+			local distance = flatDistance(record.position, root.Position)
+			local within = (config.siege and config.siege.barRadius) or 130
+			if distance > within then
+				return nil
+			end
+			return {
+				label = record.def.label,
+				health = math.max(0, record.health),
+				max = record.def.health,
+				distance = math.floor(distance),
+				retreating = record.retreatUntil > os.clock(),
+			}
+		end)(),
 		near = (function()
 			local _, meta = nearestPickable(player)
 			local context = contextFor(player)
@@ -1996,6 +2089,50 @@ function SurviveLoop.start(loaded: any)
 				AnalyticsService.track(player, "herald_driven", 1)
 			end
 		end)
+
+		-- IT BITES BACK. `bit` has been firing into nothing since the day it was
+		-- written, which is why a creature could stand on your face forever and the
+		-- worst that happened was a line of text. A threat that cannot spend your
+		-- health is scenery.
+		CreatureService.bit:connect(function(record, player)
+			if not run.active then
+				return
+			end
+			local damage = record.def.damage
+			if not damage or damage <= 0 then
+				return
+			end
+			local character = player.Character
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			if not humanoid or humanoid.Health <= 0 then
+				return
+			end
+			humanoid:TakeDamage(damage)
+			fx(player, "hurt", { by = record.def.label, damage = damage })
+			toast(player, "bit", theme.copy.creatureBit or `{record.def.label} catches you.`, "warn", 1)
+		end)
+
+		-- Putting the Herald down is the win the fight never had.
+		CreatureService.killed:connect(function(record, player)
+			if not record.def.boss then
+				return
+			end
+			toastAll("slain", theme.copy.heraldSlain or `{record.def.label} falls.`, "good")
+			if player then
+				AnalyticsService.step(player, "first_boss")
+				AnalyticsService.track(player, "herald_slain", 1)
+			end
+			-- Another one walks in. A boss you can kill exactly once per run is a
+			-- cutscene; a boss that keeps coming is something you get good at.
+			local after = config.siege and config.siege.respawnAfter
+			if after then
+				task.delay(after, function()
+					if run.active and config.siege.atStart then
+						placeHerald(config.siege.startRing)
+					end
+				end)
+			end
+		end)
 	end
 
 	local flame, light = buildBeacon()
@@ -2061,7 +2198,7 @@ function SurviveLoop.start(loaded: any)
 		limit = 12,
 		window = 4,
 		validate = function(verb, target)
-			if verb == "pickup" or verb == "action" then
+			if verb == "pickup" or verb == "action" or verb == "attack" then
 				return true
 			end
 			-- ("inspect", Instance). The client names what is under its cursor,
@@ -2097,6 +2234,21 @@ function SurviveLoop.start(loaded: any)
 			end
 			return
 		end
+		-- ATTACK is its own verb, not a context. The old ACTION button only swung if
+		-- the server happened to agree something was in range, so the same press
+		-- sometimes fed the fire instead -- and a combat button that occasionally
+		-- does something else is worse than no button. This one only ever swings.
+		if verb == "attack" then
+			local at = rootOf(player)
+			local creature = at and CreatureService.nearest(at.Position, config.attackReach or 14)
+			if creature then
+				strike(player, creature)
+			else
+				fx(player, "swing", {})
+			end
+			return
+		end
+
 		local context, chest = contextFor(player)
 		local root = rootOf(player)
 		if context == "strike" and root then

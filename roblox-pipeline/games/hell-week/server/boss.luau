@@ -108,9 +108,16 @@ return {
 
 		-- Twelve swings bare-handed, six with a harvest tool. On night three you
 		-- should look at this thing and know you are not ready.
-		health = 12,
+		health = 14,
 		boss = true,
+		-- It CAN be put down. The old Herald restored itself to full every time you
+		-- emptied its health, so the fight had no end and every swing was theatre.
+		-- Now the bar you see is the bar you are emptying, and emptying it kills it.
+		slayable = true,
 		retreatFor = 60,
+		-- What one hit takes off a 100-health player. Five hits and you are gone, so
+		-- standing still in front of it is never the plan.
+		damage = 20,
 
 		-- Slower than a player on purpose. You can always outwalk it. You cannot
 		-- outwalk it and keep your fire lit at the same time.
@@ -158,22 +165,23 @@ return {
 			},
 		},
 
-		-- A slow, long stride. Period 2.2 seconds is deliberately almost twice a human
-		-- walk: it never hurries, because it does not need to.
+		-- A long, heavy stride. These limb names MUST match the rig joint names above.
+		-- The animator looks each one up by exact table key, so a mismatch is not a
+		-- small error: it is the whole body going stiff and sliding like a chess
+		-- piece, which is exactly what this boss was doing.
 		gait = {
-			period = 2.2,
+			period = 1.5,
 			bob = 0.42,
 			idle = 0.22, -- it still sways while standing, so it never reads as a prop
 			limbs = {
-				{ part = "LegL", axis = "X", amplitude = 19, phase = 0 },
-				{ part = "LegR", axis = "X", amplitude = 19, phase = 0.5 },
-				{ part = "ArmL", axis = "X", amplitude = 13, phase = 0.5 },
-				{ part = "ArmR", axis = "X", amplitude = 13, phase = 0 },
-				-- The neck lags the stride, which is what makes a long neck look heavy
+				{ part = "left leg", axis = "X", amplitude = 26, phase = 0 },
+				{ part = "right leg", axis = "X", amplitude = 26, phase = 0.5 },
+				{ part = "left arm", axis = "X", amplitude = 17, phase = 0.5 },
+				{ part = "right arm", axis = "X", amplitude = 17, phase = 0 },
+				-- The head lags the stride, which is what makes a long neck look heavy
 				-- rather than stiff.
-				{ part = "Neck", axis = "X", amplitude = 4.5, phase = 0.28 },
-				{ part = "Head", axis = "X", amplitude = 3, phase = 0.36 },
-				{ part = "Shoulders", axis = "Z", amplitude = 2.6, phase = 0.25 },
+				{ part = "head", axis = "X", amplitude = 5, phase = 0.28 },
+				{ part = "horns", axis = "Z", amplitude = 3.5, phase = 0.36 },
 			},
 		},
 

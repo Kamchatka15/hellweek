@@ -153,7 +153,16 @@ return {
 		actionFeed = "FEED",
 		actionOffer = "OFFER",
 		actionOpen = "OPEN",
+		-- The ACTION button used to render dimmed and say FEED while you were
+		-- swinging, because these two verbs had no word. A button that lies about
+		-- what it does is worse than a button that does nothing.
+		actionStrike = "STRIKE",
+		actionUse = "USE",
+		attackLabel = "ATTACK",
 		infoLabel = "INFO",
+		creatureBit = "IT CATCHES YOU",
+		heraldSlain = "IT FALLS",
+		youDied = "YOU DIED",
 		recipeTitle = "THE OBELISK CAN MAKE",
 		howToPlay = "Feed the fire. Do not go into the dark. Do not take the pile that looks too good.",
 		toolMade = "THE OBELISK MADE YOU SOMETHING",

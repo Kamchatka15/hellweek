@@ -20,6 +20,7 @@ local theme = require(ReplicatedStorage:WaitForChild("Pack").theme)
 local OpeningAct = require(script.Parent.OpeningAct)
 local UIKit = require(script.Parent.UIKit)
 local Hotbar = require(script.Parent.Hotbar)
+local Moves = require(script.Parent.Moves)
 local UserInputService = game:GetService("UserInputService")
 
 local SurviveHud = {}
@@ -45,6 +46,11 @@ local trialRows: { [string]: TextLabel } = {}
 local pickupButton: TextButton
 local actionButton: TextButton
 local infoButton: TextButton
+local attackButton: TextButton
+local bossPanel: Frame
+local bossFill: Frame
+local bossName: TextLabel
+local hurtFlash: Frame
 local recipeRows: Frame
 local trialsOpen = false
 local refreshTrials: (any) -> ()
@@ -293,6 +299,25 @@ function refreshButtons(state: any)
 	actionButton.TextColor3 = if word then Color3.fromRGB(30, 22, 10) else theme.uiMuted
 end
 
+--- Paint the boss bar, or take it away. The server only sends `state.boss` while the
+--- thing is inside its bar radius, so "is it here" and "should the bar show" are the
+--- same question and there is nothing to keep in sync.
+local function refreshBoss(boss: any)
+	if not bossPanel then
+		return
+	end
+	if not boss then
+		bossPanel.Visible = false
+		return
+	end
+	bossPanel.Visible = true
+	local ratio = if boss.max and boss.max > 0 then math.clamp(boss.health / boss.max, 0, 1) else 0
+	bossFill.Size = UDim2.fromScale(ratio, 1)
+	bossFill.BackgroundColor3 = if ratio < 0.3 then theme.uiWarn else theme.accent
+	local suffix = if boss.retreating then "  (DRAWING BACK)" else `  {boss.health}/{boss.max}`
+	bossName.Text = string.upper(boss.label or "") .. suffix
+end
+
 function SurviveHud.setState(state: any)
 	latest = state
 	receivedAt = os.clock()
@@ -309,6 +334,7 @@ function SurviveHud.setState(state: any)
 	paintOffering(state.offeringState)
 	refreshRecipes(state.recipes)
 	refreshButtons(state)
+	refreshBoss(state.boss)
 
 	-- What is in the sack, not just how full it is. The hotbar draws each kind as the
 	-- item itself with its count on the corner, which answers "have I got the two
@@ -412,6 +438,28 @@ local function showEnd(payload: any)
 end
 
 function SurviveHud.fx(kind: string, payload: any?)
+	-- A landed hit. The kick is most of what "impact" means; without it a hit is a
+	-- number changing somewhere off to the side of the screen.
+	if kind == "hit" then
+		local fatal = typeof(payload) == "table" and payload.fatal
+		Moves.kick(if fatal then 3.2 else 1.6)
+		return
+	end
+	-- Something hit YOU. A red wash over everything, because a player looking at
+	-- their own feet will miss anything subtler.
+	if kind == "hurt" then
+		if hurtFlash then
+			hurtFlash.BackgroundTransparency = 0.45
+			TweenService:Create(hurtFlash, TweenInfo.new(0.45), { BackgroundTransparency = 1 }):Play()
+		end
+		Moves.kick(4.5)
+		return
+	end
+	-- A swing that hit nothing. Deliberately quiet: a miss should feel like a miss,
+	-- and the arm has already moved locally.
+	if kind == "swing" then
+		return
+	end
 	if kind == "inspect" then
 		local p = inspectPanel
 		if not p or typeof(payload) ~= "table" then
@@ -579,6 +627,10 @@ function SurviveHud.init(): ScreenGui
 		feed = theme.copy.actionFeed,
 		offer = theme.copy.actionOffer,
 		open = theme.copy.actionOpen,
+		-- These two were missing, so the button sat dimmed and said FEED while the
+		-- press was in fact swinging at whatever was chewing on you.
+		strike = theme.copy.actionStrike,
+		use = theme.copy.actionUse,
 	}
 
 	local function bigButton(name: string, order: number, label: string): TextButton
@@ -604,9 +656,57 @@ function SurviveHud.init(): ScreenGui
 		return button
 	end
 
-	pickupButton = bigButton("PickUp", 3, theme.copy.pickupLabel)
-	actionButton = bigButton("Action", 2, theme.copy.actionFeed)
-	infoButton = bigButton("Info", 1, theme.copy.infoLabel)
+	-- ATTACK owns the bottom slot, nearest the thumb, because it is now the button
+	-- pressed most often by a mile. INFO moves to the top: it opens a panel and is
+	-- read once, not held.
+	attackButton = bigButton("Attack", 1, theme.copy.attackLabel)
+	attackButton.BackgroundColor3 = theme.uiWarn
+	attackButton.TextColor3 = Color3.new(1, 1, 1)
+	attackButton.BackgroundTransparency = 0
+	pickupButton = bigButton("PickUp", 2, theme.copy.pickupLabel)
+	actionButton = bigButton("Action", 3, theme.copy.actionFeed)
+	infoButton = bigButton("Info", 4, theme.copy.infoLabel)
+
+	-- the boss bar (top centre) ----------------------------------------------
+	-- Hidden until something big is close. The bar ARRIVING is the warning, so it
+	-- must never be permanent furniture; a health bar that is always on screen is
+	-- just decoration and stops meaning "look up".
+	bossPanel = panel({
+		Name = "Boss",
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 96),
+		Size = UDim2.fromOffset(440, 62),
+		Visible = false,
+		ZIndex = 5,
+		Parent = gui,
+	})
+	bossName = text({
+		Position = UDim2.fromOffset(0, 8),
+		Size = UDim2.new(1, 0, 0, 20),
+		Font = Enum.Font.GothamBlack,
+		TextSize = 17,
+		TextColor3 = theme.uiText,
+		TextXAlignment = Enum.TextXAlignment.Center,
+		Text = "",
+		ZIndex = 6,
+		Parent = bossPanel,
+	})
+	bossFill = bar(bossPanel, 36, theme.uiWarn)
+	bossFill.Parent.ZIndex = 6
+	bossFill.ZIndex = 7
+
+	-- the damage flash --------------------------------------------------------
+	-- A red wash on the whole screen when something lands a hit on you. This is the
+	-- only feedback that reliably survives a player staring at their own feet.
+	hurtFlash = UIKit.create("Frame", {
+		Name = "Hurt",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.fromRGB(150, 20, 16),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ZIndex = 20,
+		Parent = gui,
+	})
 
 	local function act(verb: string, target: Instance?)
 		Net.get(Net.C2S_Act):FireServer(verb, target)
@@ -713,6 +813,18 @@ function SurviveHud.init(): ScreenGui
 		act("action")
 	end)
 
+	-- One place that swings, so the tap, the key and the mouse all do exactly the
+	-- same thing. The arm moves locally the instant you press it rather than waiting
+	-- for the round trip: input that waits for the server feels broken even when it
+	-- is working perfectly.
+	local function attack()
+		Moves.swing()
+		Moves.kick(0.8)
+		act("attack")
+	end
+	attackButton.Activated:Connect(attack)
+	SurviveHud.attack = attack
+
 	-- the INFO panel: how to play, the trials, and what the obelisk can make ----
 	trialsPanel = panel({
 		Name = "InfoPanel",
@@ -806,11 +918,22 @@ function SurviveHud.init(): ScreenGui
 			act("pickup")
 		elseif input.KeyCode == Enum.KeyCode.F then
 			act("action")
+		elseif input.KeyCode == Enum.KeyCode.Q then
+			SurviveHud.attack()
 		elseif input.KeyCode == Enum.KeyCode.Tab then
 			toggleInfo()
 		elseif input.KeyCode == Enum.KeyCode.I then
 			act("inspect", pointedAt())
 		end
+	end)
+
+	-- Left click swings too, which is the grammar every Roblox fighting game uses.
+	-- `processed` keeps a tap on the HUD itself from double-firing.
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed or input.UserInputType ~= Enum.UserInputType.MouseButton1 then
+			return
+		end
+		SurviveHud.attack()
 	end)
 
 	-- toasts ----------------------------------------------------------------
