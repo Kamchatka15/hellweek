@@ -23,10 +23,10 @@
 | World 1 | **The Ashen Waste** — a 700-stud desert, 1,156 generated scenery parts, three resources (Ashwood / Cactus / Stone) and four recipes run at the obelisk. Replaces The Quiet Shore | 2026-09-12 |
 | Shape of the game | **Offerings:** a bowl beside the stone takes a sack and returns it a tier up at dawn (Ashwood→Emberwood→Heartwood). Craft bench CUT — the obelisk absorbed it. **Four worlds on four pentagram points** (Ashen Waste · Still Wood · Drowned Quarter · Kiln), seven trials each, point dark/red/green; the fifth point is the offering table. Framework built and wired; only world 1 exists (`games/hell-week/server/biomes.luau`) | 2026-09-12 |
 | Active title | **SPACEHEX** (`games/spacehex/`) — promoted 2026-09-20. Buy parts in a warehouse → assemble a rocket → roll out → launch → earn on performance → upgrade. First goal the space station, then the Moon. Brief `games/spacehex/brief.md`, spec `specs/2026-09-20-spacehex-slice.md`, catalogue `games/spacehex/PARTS.md`, validated curve `games/spacehex/economy.md` | 2026-09-20 |
-| SPACEHEX state | **Built end to end, unverified in Studio (2026-09-21 overnight run).** Third loop family `src/core/BuildLoop.luau` + `src/client/BuildHud.luau`: buy → stack → roll out → pad card → launch (trace playback on ClockService, stage separation, hold-down) → payout from `config.payout` → milestones → missions. Schema v2. Generated silhouette (`tools/gen_rocket.py`), lighting rig from data. All gates green (`rojo build`, `selene`, `stylua`, `rbx_guard`), Python cross-check of physics + payout green (`tools/spacehex_flight_check.py`). **Never booted:** Studio may not be driven unattended. Run log `docs/runs/2026-09-21-spacehex-run.md` | 2026-09-21 |
-| SPACEHEX blocker | **The four-beat has not been run.** First attended task: open the built place, press Play, run the four beats in the run log §1, fix what the console says. Second: the `luau` CLI is not installed, so the career sim could not be re-run; the game seeds a player ~$0.9M richer than the sim (`economy.md` 2026-09-21), docking is probably a launch or two earlier than 19 | 2026-09-21 |
+| SPACEHEX state | **Playable. Booted and played over the MCP on 2026-09-21 (attended): four-beat 3 green, persist blocked on the publish.** Third loop family `src/core/BuildLoop.luau` + `src/client/BuildHud.luau`: buy → stack → roll out → pad card → launch (trace playback, stage separation, hold-down) → payout → milestones → missions. First launch paid $834K with a clean console; two-stage stack separated; the Medium-Tank hold-down held. Every number matched the Python cross-check. Run log `docs/runs/2026-09-21-spacehex-run.md` §1 | 2026-09-21 |
+| SPACEHEX blocker | **The publish click.** Persistence runs on the in-memory fallback until the place is published unlisted with API access on. Second: the `luau` CLI is not installed (`rokit add luau-lang/luau`, attended), so the career sim has not been re-run with the game's seed. Third: nobody has looked at the sky rig with eyes yet — screen access was declined this morning | 2026-09-21 |
 | Parked | **Hell Week** (before Gate A, no evidence against it, four worlds built, re-mounts via `default.project.json`) · Fat Man Gets Rich · Layer Mine | 2026-09-20 |
-| Gate position | **Before Gate A.** SPACEHEX: four-beat NOT RUN (no Studio unattended). Hell Week's 3-of-4 four-beat (`docs/runs/2026-09-12-hell-week-mcp.md`) is parked with it | 2026-09-21 |
+| Gate position | **Before Gate A.** SPACEHEX four-beat: 3 green, persist blocked on the publish (`docs/runs/2026-09-21-spacehex-run.md` §1). Hell Week's 3-of-4 is parked with it | 2026-09-21 |
 | Economy | Fuel budget simulated (`games/hell-week/economy.md`): Day 1–2 safe for everyone, Day 3 bites only a slacker, one Gift helps a slacker and costs a casual the week. Wick cap 15 is the Days 4–7 soft spot — a G2 decision after Gate A | 2026-09-12 |
 | Persistence | **Unverified.** Same blocker: unlisted publish + API access (Justin's click, `docs/runs/PERSISTENCE_TEST.md`). SPACEHEX fields to check: `cash`, `parts`, `assembly`, `padTier`, `bestApogee`, `bestDV`, `launches`, `milestones`, `worlds` | 2026-09-21 |
 | Engine | `ToolService` (held things, ward/harvest/light, no combat). `SackService` (typed carry) + `RecipeService` (bag → products, cascading). `OfferingService` (deposit value, return richer goods on a trigger — generic). `ChallengeService` (generic worlds + per-player trials, persisted). Two night-rule fixes synced (last-tick death; zero at nightfall) — rerun the night beats next session. **Three loop families now:** `LoopService` (sweep-and-bank), `SurviveLoop` (clock + beacon + stalker), `BuildLoop` (buy + stack + launch + pay). `EconomyService.setBalanceField`, `ContentLoader` builds a `Sky` from data, `StateSync` push is pcall'd. 16 core modules. R1–R7 clean, no `@rbx-allow` on the books. One engine bug found by the second loop and fixed (`ZoneService` cylinder discs) | 2026-09-12 |
@@ -39,19 +39,18 @@
 
 ## Waiting on Justin (only the irreversible ones)
 
-1. **Press Play on SPACEHEX** (attended, with Claude on the MCP): the four beats in `docs/runs/2026-09-21-spacehex-run.md` §1. This is the only thing standing between the overnight build and "playable".
-2. **Publish an unlisted place + Studio API access on** — unblocks the persist beat and an honest Gate A. `docs/runs/PERSISTENCE_TEST.md` has the clicks. (Hell Week's published place exists; SPACEHEX needs its own or a re-point.)
-3. **`Lighting.Technology = Future`** in the Lighting properties panel (plugin-only). And one look at the sky: it should be black with a hard sun and stars.
-4. **`rokit add luau-lang/luau`** so `tools/spacehex_career.luau` can run again (a download; not done unattended).
-5. **Gate A:** Hunter recruits three kids; the script for this title is not written yet (`brief.md` has the question).
+1. **Publish SPACEHEX unlisted + Studio API access on** — unblocks the persist beat and an honest Gate A. `docs/runs/PERSISTENCE_TEST.md` has the clicks. (Hell Week's published place exists; SPACEHEX needs its own or a re-point.)
+2. **`Lighting.Technology = Future`** in the Lighting properties panel (plugin-only). And one look at the sky: it should be black with a hard sun and stars.
+3. **`rokit add luau-lang/luau`** so `tools/spacehex_career.luau` can run again (a download; not done unattended).
+4. **Gate A:** Hunter recruits three kids; the script for this title is not written yet (`brief.md` has the question).
 
 ## Next real move
 
-**Boot it.** Open Studio on the built place, press Play, run the four beats, fix what the console says, then the two clicks, then Gate A on the launch loop. Nothing in the next attended hour needs a design decision; it needs eyes on a console.
+**Publish it unlisted with API access on, then the persist beat, then Gate A.** The loop is playable and the console is clean; what is left needs Justin's clicks, not code. While in Studio: Plugins → Rojo → Connect (a `rojo serve` is the way disk edits reach the place live).
 
 ## Open gaps named on purpose
 
-- **SPACEHEX has never been booted.** Every check that can run without Studio is green; the one that matters most cannot.
+- **SPACEHEX has been booted once, by Claude over the MCP, with a scripted player.** No human has held the controls yet; the first minute with a mouse is Gate A's question, not this page's.
 - The career sim and the game disagree on the seed (free starters + $1M vs. $88k after buying them); the game's reading is the brief's, the sim needs re-running with it once `luau` exists.
 - The sky is a bet: empty skybox faces are expected to render black; if not, black texture ids.
 - No sound anywhere in SPACEHEX (ignition, staging, the payout). Creator Store audio waits on the publish.

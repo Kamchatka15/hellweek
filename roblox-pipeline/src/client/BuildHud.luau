@@ -1217,7 +1217,7 @@ local function tickRibbon()
 	if flight.stages and flight.stages > 1 then
 		sub ..= `   ·   {copy.stage} {math.min(flight.stage or 1, flight.stages)}/{flight.stages}`
 	end
-	if phase == "descent" or phase == "recovery" then
+	if (phase == "descent" or phase == "recovery") and not flight.held then
 		sub ..= `   ·   {copy.apogeeReached} {altitude(flight.apogee or 0)}`
 	end
 	ribbonSub.Text = sub

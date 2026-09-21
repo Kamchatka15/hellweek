@@ -2,26 +2,32 @@
 
 **Prompt as given:** the overnight brief (`../SPACEHEX-OVERNIGHT-BUILD-PROMPT.txt` at the folder root): *"Make SPACEHEX playable end to end, alone, in Studio, without a human in the room."* Six waves, top down, each with a stop condition; no Studio, no publish, no sim retune, no dead buttons.
 
-**Outcome:** all six waves are written, linted and committed (four commits on `vision-rework`, pushed). The full circuit — join with $1,000,000 → buy → stack → roll out → read the card → launch → watch the altitude → get paid → buy something better — exists in code and is verified **statically and numerically**, not by a boot. Studio was not opened (the brief forbade it unattended), so **"boots with a clean console" is the one stop condition this run could not test.** That is the first attended task, and it is the only thing between this run and Justin pressing Play.
+**Outcome:** all six waves are written, linted and committed (pushed on `vision-rework`). Overnight the full circuit — join with $1,000,000 → buy → stack → roll out → read the card → launch → watch the altitude → get paid → buy something better — was verified statically and numerically only, because Studio may not be driven unattended. **On the morning of 2026-09-21, attended, it booted with a clean console and closed the circuit on the first try: beats 1–3 green, beat 4 blocked on the publish click, staging and the hold-down verified** (§1).
 
 **Questions asked of Justin: zero.** Two design forks were decided for the first session and written to `QUEUE.md`.
 
 ---
 
-## 1. The four-beat, honestly
+## 1. The four-beat — run attended on 2026-09-21, 10:42–11:20
 
-Per `templates/MCP_RUN_LOG.md`. Every beat is **NOT RUN**: Studio may not be driven unattended (`OPERATING_MANUAL.md` §8) and the brief said the same. What each beat needs is written so the attended run takes minutes.
+Per `templates/MCP_RUN_LOG.md`. Justin woke, said "where is my new game, please connect", and the built place (`rojo build -o build.rbxlx`, opened with `open`) was driven over the Studio MCP with every verb fired from the **client** DataModel through the real remote, exactly as the buttons send them. Screen access to Studio was declined, so every reading below is from the DataModel and the console, not a screenshot; Justin was at the screen.
 
-| Beat | Pass? | What to do when attended |
+| Beat | Pass? | Evidence |
 |---|---|---|
-| 1 · Join | NOT RUN | Press Play. Expect: black → fade, CASH $1M top-left, MISSIONS top-right, three nav buttons bottom, the pad ahead with the gantry. Console: `[ContentLoader] pack 'SPACEHEX' loaded — loop 'build', 3 zones`, `[boot] SPACEHEX ready`, and the DataStore fallback warning if API access is off. |
-| 2 · First earn | NOT RUN | Press `1` (WAREHOUSE) → AERO → BUY Tail Fins. Toast *"BOUGHT: Tail Fins — fitted to the stack"*. Press `3` (PAD CARD): green LIFT-OFF 3.36 : 1, EST. APOGEE ~1.6 km. ROLL OUT → the rocket drives from the hangar to the pad in 3 s. LAUNCH → T-3, ignition, the number climbs to 1.6 km, comes down, **PAID $834K — NEW RECORD** inside ~35 s. |
-| 3 · First spend | NOT RUN | Cash after beat 2 should read ~$1.69M ($1M − $108k fins − $38k refurbish + $834k). Buy a Light Decoupler; the assembly screen's + ADD A STAGE then works. R1: the client sends `warehouse:buy:dec_light`, nothing else. |
-| 4 · Upgrade + persist | NOT RUN | Stop, Play again: cash, parts, the stack and the mission ticks must survive. Needs the unlisted place + API access (`docs/runs/PERSISTENCE_TEST.md`); on the in-memory fallback this beat is a lie and says so in the console. |
+| 1 · Join | **GREEN** | Console: `[ContentLoader] pack 'SPACEHEX' loaded — loop 'build', 3 zones` · `[boot] SPACEHEX ready` · `[funnel] HunterV_15 step=join`. World built (floor, walls, six clamps, gantry, hangar shell, four masts, three zones, spawn), character spawned, `PlayerGui.BuildHud` present. No errors. The DataStore fallback warning fired as expected for an unpublished place. |
+| 2 · First earn | **GREEN** | `warehouse:buy:fins_basic` → cash $1M → $892K, `[funnel] step=first_buy`, `[event] buy_fins_basic=108000`. Stepping onto the pad zone opened PAD CARD: THRUST 9 kN · WEIGHT 3 kN · LIFT-OFF 3.36 : 1 · EST. APOGEE 1.6 km · REFURBISH −$38.4K · ROLL OUT green · no red lines (fins auto-fitted). `pad:rollout` → rocket at (0, 1, −30), 32 parts. `pad:launch` → T-3 → ASCENT 19 m at +1.2 s → DESCENT 1.5 km → RECOVERY; camera Scriptable at y=5,575 studs then released to Custom. `[funnel] step=first_launch`, `step=first_record`, `[event] launch_apogee_m=1587`, `launch_pay=834411`, `mission_first_launch=1`. Payout card: **PAID +$834.4K · NEW RECORD**. Cash $1.6M. Board: Upper Atmosphere 1/3. Rocket cleared from the pad. |
+| 3 · First spend | **GREEN** | `warehouse:buy:dec_light` with earned money → cash $1.6M → $1.5M, `[event] buy_dec_light=96000`. `assembly:set` with a two-stage stack → `[funnel] step=first_assembly`; the reopened card read LIFT-OFF 1.77 : 1 · GOOD LIFT-OFF · MASS 0.5 t · EST. APOGEE 2.8 km · REFURBISH −$74.8K. Server-side balance change; the client sent verbs only (R1). |
+| 4 · Upgrade + persist | **BLOCKED** | In-memory fallback: *"You must publish this place to the web to access DataStore."* Same click as every run before it. |
 
-**Persist:** __ / 7 — same blocker as every run before it (Justin's click).
+**Also verified on the same Play:** stage separation (ribbon STAGE 1/2 → STAGE 2/2 at 1.1 km; the stack lost `Stage1` and landed back on the pad; the loose stage was gone after its Debris timer) · the **hold-down** (Medium Tank under one Hopper: ribbon HOLD-DOWN 0 m for the four seconds, payout card **HOLD-DOWN · $0 · IT WILL NOT LIFT — thrust is less than weight.**, cash charged only the −$76.8K refurbish) · every number matched `tools/spacehex_flight_check.py` to the dollar ($834,411; $1,688,011 → "$1.6M").
 
-**The hold-down, which the brief says must survive:** put a Medium Tank under one Hopper (TWR 0.62). The card says *IT WILL NOT LIFT*; launch anyway. Expect the clamps to hold, the bell to fire and shake for 4 s, then *"IT WILL NOT LIFT — thrust is less than weight."* and −$77k refurbish, no pay.
+**Persist 7-row:** __ / 7 — blocked on the publish.
+
+**Bugs found by the attended pass, fixed on disk the same hour:** the payout card printed a minus Δv on a starter stack; the ribbon sat at 61 m after touchdown; a held flight appended "APOGEE 0 m". Nothing else. Zero console errors across four flights.
+
+**One sentence a kid would still not understand:** *"OVERPOWERED — you are burning fuel fighting the air"* on a 3.36 : 1 starter rocket reads as a scolding for a rocket that just flew fine; Gate A should watch whether it lands as information or as a telling-off.
+
+**Gotchas for the next MCP session:** the Studio MCP runs `execute_luau` calls one after another, never in parallel — a "server sampler" issued beside a 25 s client call starts after it ends. `screen_capture` is black in Play and screen access was declined, so read the DataModel instead.
 
 ## 2. What I read before starting
 

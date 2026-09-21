@@ -4,10 +4,10 @@
 > Every unattended session: do the top item(s), tick them, append to `evidence/CHANGELOG.md`, and rewrite the "next attended move" line in `STATE.md`.
 
 ## Next attended move (rewrite this every unattended session)
-**Press Play on SPACEHEX with Claude on the MCP** — the four beats in `docs/runs/2026-09-21-spacehex-run.md` §1, then fix what the console says. After that: the two clicks (unlisted publish + API access; `Lighting.Technology = Future`), `rokit add luau-lang/luau`, then Gate A.
+**Publish SPACEHEX unlisted + API access on** (`docs/runs/PERSISTENCE_TEST.md`), then Claude runs the persist beat; `Lighting.Technology = Future`; `rokit add luau-lang/luau`; then Gate A. The four-beat is done (3 green, 2026-09-21 morning).
 
 ## Now
-- [ ] **SPACEHEX four-beat** (attended — Studio): join · buy fins → launch → paid · buy decoupler · stop/start persist. Run log §1 has the expected numbers
+- [x] 2026-09-21 — **SPACEHEX four-beat** (attended): join · buy fins → launch → paid $834K · buy decoupler · two-stage separation · hold-down. 3 green, persist blocked on the publish — run log §1
 - [ ] **Decide the seed** (2 min, Justin): the game gives $1,000,000 *and* the four starters free (brief.md's words; a new player must be able to afford the $108k fins or they are stuck); the sim deducts the starters and ignores the fins rule. Options: (a) keep the game's seed and re-run the sim with it — docking moves a launch or two earlier than 19, probably fine; (b) match the sim by starting at $88k and putting Tail Fins in the starter kit — the first purchase is then a Cone, not a fix. The overnight run picked (a) for the first session
 - [ ] **Decide the fins** (same 2 min): the starter stack is deliberately missing fins so the first red line is the first purchase; if Gate A shows a kid stalling at that line, move `fins_basic` into `config.startingParts`
 - [ ] `rokit add luau-lang/luau` (attended — a download), then `luau tools/spacehex_career.luau` with the game's seed; paste the table into `economy.md` under a dated heading; delete `tools/spacehex_flight_check.py` or keep it as the second opinion it says it is
