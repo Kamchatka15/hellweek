@@ -1323,7 +1323,9 @@ local function showPayout(payload: any)
 		local lines = {}
 		table.insert(
 			lines,
-			`{copy.apogeeReached} {altitude(payload.apogee or 0)}   ·   {copy.deltaV} {commas(payload.dv or 0)} m/s`
+			`{copy.apogeeReached} {altitude(payload.apogee or 0)}   ·   {copy.deltaV} {commas(
+				math.max(0, payload.dv or 0)
+			)} m/s`
 		)
 		table.insert(
 			lines,
@@ -1388,6 +1390,12 @@ function BuildHud.fx(kind: string, payload: any?)
 	elseif kind == "payout" then
 		if typeof(payload) == "table" then
 			showPayout(payload)
+		end
+	elseif kind == "touchdown" or kind == "held" then
+		-- The last telemetry sample lands a few metres up; the flight is over, so the
+		-- ribbon reads the ground.
+		if telemetry then
+			telemetry.h = 0
 		end
 	elseif kind == "padClear" then
 		telemetry = nil
