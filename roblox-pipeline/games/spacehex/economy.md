@@ -88,3 +88,51 @@ this game that is not ours to tune.
 - Recovery refunds are a flat percentage; a real reuse model would degrade parts.
 - The optimiser buys perfectly. It has no idea what a nine-year-old will actually do.
   **Gate A replaces this sim, it does not confirm it.**
+
+## 2026-09-21 — the loop is built; the sim could not be re-run
+
+The overnight build (`docs/runs/2026-09-21-spacehex-run.md`) wired the payout above
+into the game as data (`server/config.luau` → `payout`) and the loop reads it from
+there. **`parts.luau` and `flight.luau` were not retuned** — the only edits were
+formatting, rule 9 in `assembly.luau` (mass against the pad, which the sim already
+respected via the pad limit), and two drawing constants on `Flight` that the physics
+never reads. The curve above is therefore unchanged by construction.
+
+**The sim itself could not be re-run.** `tools/spacehex_career.luau` needs the `luau`
+CLI, which is not installed on this machine, and the brief said not to install it
+unattended. Two substitutes were run instead:
+
+1. **`tools/spacehex_flight_check.py`** — a Python port of `flight.luau` that reads
+   `parts.luau` live. It reproduces the payout column of the table above from its
+   apogee / Δv columns (launch 1 → $0.86M, launch 7 → $16.18M with the five altitude
+   milestones and the 2,000 m/s bonus, launch 16 → $66.26M with ORBIT) and it played
+   the first six launches of a real session through the game's exact rules:
+
+   | # | Player does | TWR | Apogee | eff. Δv | Pay | Cash after |
+   |---:|---|---:|---:|---:|---|---|
+   | — | joins with $1,000,000 + starters; buys Tail Fins ($108k) because rule 4 blocks the roll-out | | | | | $0.89M |
+   | 1 | Hopper + Micro + Blunt + Open Loop + Fins | 3.36 | 1.59 km | −1,004 | $0.83M | $1.69M |
+   | 2 | + Light Decoupler, two Hopper stages | 1.77 | 2.85 km | −768 | $1.04M | $2.56M |
+   | 3 | + Small Tank below | 1.27 | 5.09 km | −691 | $1.48M (+5 km) | $3.46M |
+   | 4 | same stack again | 1.27 | 5.09 km | −691 | $0.81M (62%) | $4.18M |
+   | 5 | + Medium Tank under ONE Hopper | **0.62** | **held** | 0 | $0 (refurb −$77k) | $2.93M |
+   | 6 | four Hoppers under the Medium | 2.02 | 13.2 km | −372 | $1.87M | $4.63M |
+
+   Cash never went negative; the hold-down on launch 5 is the teaching failure the
+   brief protects, and it costs exactly the refurbish.
+
+2. **Playback timing** from the same port: with the caps in `config.launch`, launch 1
+   is 3 + 14 + 6.7 + 6 + 5 = **34.7 s** from LAUNCH to the payout and no launch in the
+   session exceeded 36 s.
+
+**One discrepancy to settle, not papered over.** The sim seeds a career with
+$1,000,000 *minus* the Hopper and Micro Tank ($88k left) and ignores rule 4 (its
+launch 1 flies without fins). The game — per `brief.md`, "a player joins, has
+$1,000,000 and a few starter parts" — grants the four starters free *and* the full
+$1,000,000, and rule 4 makes Tail Fins the first purchase. The game's player is
+therefore ~$0.9M richer than the sim's optimiser at launch 1, so the real floor is
+likely a launch or two *earlier* than 19. The alternative (seed the sim's $88k) would
+deadlock a new player: fins cost $108k and there is no income without a launch. The
+first session won this fork; re-run the sim with the game's seed (`own` the four
+starters, `cash = 1000000`, require `fins_basic` in `best()`) once `luau` is on the
+machine and record the new docking launch here.

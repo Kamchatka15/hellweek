@@ -107,3 +107,17 @@ You cannot roll out a rocket heavier than the pad allows. This is the gate that 
 10. TWR ≤ 1.00 is shown as **"IT WILL NOT LIFT"** before you spend the launch.
 
 Rule 10 is the important one: the game tells you it will fail *first*. A player who launches anyway learns something; a player who is surprised by it learns nothing.
+
+## The starting kit
+
+A new hangar holds $1,000,000 and four free parts: RM-1 Hopper, Micro Tank, Blunt Cap
+and Open Loop guidance, already stacked. Exactly one thing is wrong with that stack —
+*"Stage 1 has no fins. It will tumble off the pad."* — so the first thing a player buys
+is Tail Fins ($108k), and the loop has taught itself: read the red line, buy the part,
+watch the card go green, launch. A part bought for an empty required slot (fins, nose,
+guidance, a missing decoupler) is fitted to the stack on its own.
+
+One purchase is a design licence: own an engine once and cluster four of them, or put
+the same tank on three stages. What scales with the stack is the **refurbish** — 4% of
+the engines, tanks and nose on every launch (1% on a stage carrying recovery gear),
+never more than you have.
