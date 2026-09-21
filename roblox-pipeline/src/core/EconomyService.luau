@@ -26,6 +26,19 @@ local ledger: { { userId: number, delta: number, reason: string, t: number } } =
 -- in this particular game.
 local capProvider: ((Player) -> number)? = nil
 
+-- Which profile field holds the banked balance. `coins` for the first title; a loop
+-- whose money is dollars in a bank names its own field once at start, and every
+-- grant, spend and read below follows it. There is never a second balance.
+local balanceField = "coins"
+
+function EconomyService.setBalanceField(name: string)
+	balanceField = name
+end
+
+function EconomyService.balanceField(): string
+	return balanceField
+end
+
 function EconomyService.setCapProvider(fn: (Player) -> number)
 	capProvider = fn
 end
@@ -43,7 +56,7 @@ end
 
 function EconomyService.coins(player: Player): number
 	local profile = DataService.get(player)
-	return if profile then profile.coins else 0
+	return if profile then (profile[balanceField] or 0) else 0
 end
 
 function EconomyService.carry(player: Player): number
@@ -81,7 +94,7 @@ function EconomyService.bank(player: Player): number
 		return 0
 	end
 	profile.carry = 0
-	profile.coins += amount
+	profile[balanceField] = (profile[balanceField] or 0) + amount
 	profile.stats.banks += 1
 	record(player, amount, "bank")
 	EconomyService.changed:fire(player)
@@ -113,7 +126,7 @@ function EconomyService.grantCoins(player: Player, amount: number, reason: strin
 	if not profile or amount <= 0 then
 		return
 	end
-	profile.coins += math.floor(amount)
+	profile[balanceField] = (profile[balanceField] or 0) + math.floor(amount)
 	record(player, amount, reason)
 	EconomyService.changed:fire(player)
 end
@@ -123,10 +136,10 @@ function EconomyService.trySpend(player: Player, amount: number, reason: string)
 	if not profile or amount < 0 then
 		return false
 	end
-	if profile.coins < amount then
+	if (profile[balanceField] or 0) < amount then
 		return false
 	end
-	profile.coins -= amount
+	profile[balanceField] -= amount
 	record(player, -amount, reason)
 	EconomyService.changed:fire(player)
 	return true

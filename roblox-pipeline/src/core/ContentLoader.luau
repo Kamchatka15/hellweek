@@ -10,7 +10,8 @@
 --
 -- What this module validates is only the contract EVERY loop family shares: a config,
 -- a world with a floor and a spawn, a theme with a title. Each loop family validates
--- its own numbers at start (`LoopService.validate`, `SurviveLoop.validate`), because
+-- its own numbers at start (`LoopService.validate`, `SurviveLoop.validate`,
+-- `BuildLoop.validate`), because
 -- the loader must not know what a flood cooldown or a burn schedule is.
 
 local Lighting = game:GetService("Lighting")
@@ -533,8 +534,10 @@ function ContentLoader.loopModuleName(config: any): string
 		return "LoopService"
 	elseif loop == "survive" then
 		return "SurviveLoop"
+	elseif loop == "build" then
+		return "BuildLoop"
 	end
-	return fail(`unknown config.loop '{loop}' — engine knows: sweepbank, survive`)
+	return fail(`unknown config.loop '{loop}' — engine knows: sweepbank, survive, build`)
 end
 
 return ContentLoader

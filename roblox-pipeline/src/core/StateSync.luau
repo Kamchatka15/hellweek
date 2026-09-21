@@ -78,7 +78,12 @@ function StateSync.start()
 			task.wait(PUSH_INTERVAL)
 			for player in pending do
 				pending[player] = nil
-				StateSync.push(player)
+				-- A builder that throws must not take the coalescer with it: every other
+				-- player's packets would silently stop for the rest of the session.
+				local ok, err = pcall(StateSync.push, player)
+				if not ok then
+					warn(`[StateSync] push failed for {player.Name}: {err}`)
+				end
 			end
 		end
 	end)

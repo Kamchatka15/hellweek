@@ -18,7 +18,7 @@ local Signal = require(game:GetService("ReplicatedStorage").Shared.Signal)
 local DataService = {}
 
 local STORE_NAME = "PlayerProfiles_v1"
-local SCHEMA_VERSION = 1
+local SCHEMA_VERSION = 2
 local AUTOSAVE_INTERVAL = 60
 local LOCK_TIMEOUT = 90 -- a heartbeat older than this belongs to a dead server
 local LOAD_ATTEMPTS = 4
@@ -40,6 +40,16 @@ local function defaultProfile()
 		carry = 0,
 		upgrades = {},
 		stats = { floods = 0, banks = 0, collected = 0 },
+		-- v2: the build-and-launch loop family. A banked balance of its own, a set of
+		-- owned part ids, the stack on the hangar floor, the pad tier and the records.
+		cash = 0,
+		parts = {},
+		assembly = { stages = {} },
+		padTier = 1,
+		bestApogee = 0,
+		bestDV = 0,
+		launches = 0,
+		milestones = {},
 		firstJoin = now,
 		lastSeen = now,
 		lock = nil,
@@ -49,6 +59,21 @@ end
 -- from-version -> function(record) -> record at version+1.
 -- Add an entry every time SCHEMA_VERSION goes up; never edit an existing one.
 local MIGRATIONS: { [number]: (any) -> any } = {}
+
+-- 1 -> 2: the build loop family's fields. Every v1 field is kept exactly as written
+-- (coins, carry, upgrades, stats, worlds, bestDay, tutorialComplete, ...); the new ones
+-- start empty. A v1 profile reads back as the same player with an empty hangar.
+MIGRATIONS[1] = function(record: any): any
+	record.cash = record.cash or 0
+	record.parts = record.parts or {}
+	record.assembly = record.assembly or { stages = {} }
+	record.padTier = record.padTier or 1
+	record.bestApogee = record.bestApogee or 0
+	record.bestDV = record.bestDV or 0
+	record.launches = record.launches or 0
+	record.milestones = record.milestones or {}
+	return record
+end
 
 local function migrate(record: any): any?
 	local version = record.schemaVersion or 0
