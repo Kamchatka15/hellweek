@@ -1,11 +1,26 @@
 -- Client bootstrap. The client renders what the server says. The pack's theme names
 -- its loop family, and that picks the HUD: sweep-and-bank sends exactly one message
--- back (buy an upgrade id, owned by Hud); the survive loop sends none.
+-- back (buy an upgrade id, owned by Hud); the survive loop sends a verb; the build
+-- loop sends a verb and, for one verb, the stack it wants checked.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Net = require(ReplicatedStorage:WaitForChild("Shared").Net)
 local theme = require(ReplicatedStorage:WaitForChild("Pack").theme)
+
+if theme.loop == "build" then
+	-- Three screens and a ribbon. Sends verbs only; the server owns every number.
+	local BuildHud = require(script.BuildHud)
+	BuildHud.init()
+	Net.get(Net.S2C_State).OnClientEvent:Connect(BuildHud.setState)
+	Net.get(Net.S2C_Toast).OnClientEvent:Connect(function(message, tone)
+		BuildHud.toast(message, tone or "info")
+	end)
+	Net.get(Net.S2C_Fx).OnClientEvent:Connect(function(kind, payload)
+		task.spawn(BuildHud.fx, kind, payload)
+	end)
+	return
+end
 
 if theme.loop == "survive" then
 	local SurviveHud = require(script.SurviveHud)

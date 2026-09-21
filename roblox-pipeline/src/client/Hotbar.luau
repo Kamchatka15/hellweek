@@ -82,6 +82,10 @@ local function iconOf(parent: Instance, source: Instance): ViewportFrame
 	return view
 end
 
+--- Exported: any HUD that wants "the icon IS the thing" can photograph a model or a
+--- part the same way, rather than carrying a second copy of this camera maths.
+Hotbar.iconOf = iconOf
+
 local function slotFrame(index: number, key: string?): Frame
 	local frame = UIKit.create("Frame", {
 		Name = `Slot{index}`,
