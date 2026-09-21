@@ -1,5 +1,10 @@
 std = "roblox"
 
+# games/layer-mine/ is a parked drop from another project, untracked and unmounted.
+# It is not this repo's code style and must not be edited here; excluded so the
+# pre-commit gate judges only the code this repo owns.
+exclude = ["games/layer-mine/**"]
+
 [lints]
 unused_variable = "warn"
 shadowing = "allow"

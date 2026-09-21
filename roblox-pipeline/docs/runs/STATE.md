@@ -10,7 +10,7 @@
 
 ## Standing rule until further notice (2026-09-12, re-pointed)
 
-**No further system work — no new hooks, agents, or restructuring — until Hell Week has been through Gate A with three fresh testers.** Only work that directly unblocks that test is allowed. The test of the factory is a game. (Justin re-pointed the rule from Fat Man Gets Rich to Hell Week by promoting the title in chat.)
+**No further system work — no new hooks, agents, or restructuring — until the ACTIVE TITLE has been through Gate A with three fresh testers.** Only work that directly unblocks that test is allowed. The test of the factory is a game. (2026-09-20: Justin promoted SPACEHEX in chat; the rule re-points to SPACEHEX. It has now survived two title swaps without either title reaching Gate A — that is itself the finding, and it is the one thing on this page worth worrying about.)
 
 ## Where we are
 
@@ -22,8 +22,10 @@
 | Held things | Bone Knife (cactus x2), Brand (9-stud ward + carried light), **Sigil — the artifact of faith, 19-stud ward**. None kill: the Tempter stays unkillable | 2026-09-12 |
 | World 1 | **The Ashen Waste** — a 700-stud desert, 1,156 generated scenery parts, three resources (Ashwood / Cactus / Stone) and four recipes run at the obelisk. Replaces The Quiet Shore | 2026-09-12 |
 | Shape of the game | **Offerings:** a bowl beside the stone takes a sack and returns it a tier up at dawn (Ashwood→Emberwood→Heartwood). Craft bench CUT — the obelisk absorbed it. **Four worlds on four pentagram points** (Ashen Waste · Still Wood · Drowned Quarter · Kiln), seven trials each, point dark/red/green; the fifth point is the offering table. Framework built and wired; only world 1 exists (`games/hell-week/server/biomes.luau`) | 2026-09-12 |
-| Active title | **Hell Week** (`games/hell-week/`) — arrived as a packet, intake fast path, Pass 1 built same day | 2026-09-12 |
-| Parked | Fat Man Gets Rich (before Gate A, no evidence against it, re-mounts via `default.project.json`) · Layer Mine | 2026-09-12 |
+| Active title | **SPACEHEX** (`games/spacehex/`) — promoted 2026-09-20. Buy parts in a warehouse → assemble a rocket → roll out → launch → earn on performance → upgrade. First goal the space station, then the Moon. Brief `games/spacehex/brief.md`, spec `specs/2026-09-20-spacehex-slice.md`, catalogue `games/spacehex/PARTS.md`, validated curve `games/spacehex/economy.md` | 2026-09-20 |
+| SPACEHEX state | Physics, catalogue and assembly rules **built and simulated**: `server/flight.luau` (staged Tsiolkovsky + drag/gravity integration), `server/parts.luau` (30 parts, every stat read by the sim), `server/assembly.luau` (10 rollout rules that name the wrong part). Career sim **docks on launch 19** (`tools/spacehex_career.luau`). World is a grey-box pad + hangar + parts shop. **Not yet playable** — see the blocker below | 2026-09-20 |
+| SPACEHEX blocker | The loop no longer fits `sweepbank` or `survive`. It needs a **third loop family** (`src/core/BuildLoop.luau` + one `elseif` in `ContentLoader.loopModuleName` + one branch in `src/client/init.client.luau` + a warehouse/pad-card HUD). `config.luau` currently carries a sweepbank shell so the place boots; that shell is a placeholder and is marked as one | 2026-09-20 |
+| Parked | **Hell Week** (before Gate A, no evidence against it, four worlds built, re-mounts via `default.project.json`) · Fat Man Gets Rich · Layer Mine | 2026-09-20 |
 | Gate position | **Before Gate A.** Pass 1 slice playable end to end on the scratch place; four-beat: 3 green, persist blocked on the publish click (`docs/runs/2026-09-12-hell-week-mcp.md`) | 2026-09-12 |
 | Economy | Fuel budget simulated (`games/hell-week/economy.md`): Day 1–2 safe for everyone, Day 3 bites only a slacker, one Gift helps a slacker and costs a casual the week. Wick cap 15 is the Days 4–7 soft spot — a G2 decision after Gate A | 2026-09-12 |
 | Persistence | **Unverified.** Same blocker as before: unlisted publish + API access (Justin's click, `docs/runs/PERSISTENCE_TEST.md`). Fields: `bestDay`, `tutorialComplete` | 2026-09-12 |
@@ -44,7 +46,9 @@
 
 ## Next real move
 
-**Justin's two clicks (publish unlisted + API on; Technology = Future), then the persist beat, then Wave 4 dressing from the shelf, then Gate A.** In that order. Nothing in Wave 4 needs a design decision; it needs InsertService.
+**Build the third loop family so SPACEHEX is playable end to end**, then Justin's two clicks (publish unlisted + API on; Technology = Future), then Gate A on the launch loop.
+
+The two clicks still unblock the same three things they did for Hell Week (persistence, InsertService dressing, an honest Gate A) and they are still the only irreversible items waiting on a human.
 
 ## Open gaps named on purpose
 

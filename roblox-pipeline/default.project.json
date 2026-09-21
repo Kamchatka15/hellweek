@@ -1,5 +1,5 @@
 {
-  "name": "hell-week",
+  "name": "spacehex",
   "tree": {
     "$className": "DataModel",
     "ServerScriptService": {
@@ -7,7 +7,7 @@
         "$path": "src/core"
       },
       "Pack": {
-        "$path": "games/hell-week/server"
+        "$path": "games/spacehex/server"
       },
       "Server": {
         "$path": "src/server"
@@ -18,7 +18,7 @@
         "$path": "src/shared"
       },
       "Pack": {
-        "$path": "games/hell-week/shared"
+        "$path": "games/spacehex/shared"
       }
     },
     "StarterPlayer": {

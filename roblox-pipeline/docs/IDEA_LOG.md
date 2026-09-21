@@ -34,9 +34,24 @@ Standing order: **propose freely, switch rarely.** Any genuinely good game idea 
 
 ## Entries
 
-### 2026-09-12 — Hell Week — `Active`
+### 2026-09-20 — SPACEHEX — `Active`
 
-Promoted to Active by Justin on 2026-09-12, arriving as a packet (`inbound/HellWeek-ClaudePack.zip`) worked out with Grok. Brief: `games/hell-week/brief.md`. Pass 1 built the same day (`docs/runs/2026-09-12-run-02.md`).
+Raised and named by Justin in chat 2026-09-20 ("this is a new game i am creating called SPACEHEX") and **promoted to Active** the same session. Hell Week parked. Design revised the same session on Justin's direction: start with $1,000,000, buy parts in a warehouse, assemble a rocket, roll it to the pad, launch, earn on performance, upgrade, repeat — first goal the space station, then the Moon. Research: `research/2026-09-20-space-rocket-comps.md` + `research/patterns/the-space-simulator.md`. Full technical spec: `specs/2026-09-20-make-it-to-space-slice.md`.
+
+- **Hook (1 sentence):** A million dollars, a warehouse full of parts, and nineteen launches between you and the space station.
+- **Why now:** No live competitor. Six "build a rocket and launch it" titles share 141M visits and **63 concurrent players** between them — the demand is proven and nobody is holding it. The one title that holds it (The Space Simulator, 554 CCU, **6.1% favorite rate** — 30× the genre) does so by being a collect-and-upgrade game in a space skin, which is a shape this repo's engine already runs.
+- **First-session moment:** Second launch. The number goes from 2 km to 4 km because you bolted on one part you can see on the pad. Under two minutes in.
+- **Reason to open it tomorrow:** Debris keeps falling while you are logged off — the pad is littered when you come back (`RewardService.grantOffline`, capped, never punished). One mechanic, done properly.
+- **Closest comps:** The Space Simulator (554 CCU, evergreen, updated daily) · Build A Boat For Treasure (16.9K CCU — the structural comp: build, launch, break, return richer) · Launch Into Space Simulator (**80.8M visits, 9 CCU** — the warning label for this entire genre).
+- **Why it is not a clone:** shape only. The launch is a 90-second scored run that triggers a sweep-and-bank loop; no comp's assets, names, NPCs or thumbnails. No free-flight traversal (that is Space Sailors' and Innovation Inc's dead air).
+- **Why it would look better than the comps:** hard black sky, one hard sun, no fog, and the altitude ribbon as the only warm colour on screen. Every comp's thumbnail is a busy blue Earth plate; ours is a small rocket, a lot of black, and a number that reads at 200px.
+- **The wedge nobody on the board has:** real science as the upgrade vocabulary — thrust-to-weight, Δv, payload fraction — shown as two bars and a ratio, so it reads as consequence ("it was too heavy") and never as homework. This is also the honest risk: if it reads as homework to a 10-year-old it is a liability, and Gate A is the test.
+- **Cheapest test:** Wave 3 of the spec — one launch, one debris field, one sweep, one part bought, a visibly taller rocket, second launch. If the second launch does not feel better than the first, the idea is dead and costs three days.
+- **Confidence:** medium-high on the shape (it is this engine's proven sweepbank loop with a new trigger), medium on the wedge (untested), **low on the genre** until Gate A — the graveyard in the comps file is real and the burden of proof sits on us.
+
+### 2026-09-12 — Hell Week — `Parked`
+
+**Parked 2026-09-20** when Justin promoted SPACEHEX. Not a Gate decision and not a kill: the Pass 1 slice is playable, four worlds generated, before Gate A, with zero player evidence and still blocked on the unlisted publish. Everything is retained under `games/hell-week/` and re-mounts by editing two paths in `default.project.json`. Originally promoted to Active by Justin on 2026-09-12, arriving as a packet (`inbound/HellWeek-ClaudePack.zip`) worked out with Grok. Brief: `games/hell-week/brief.md`. Pass 1 built the same day (`docs/runs/2026-09-12-run-02.md`).
 
 - **Hook (1 sentence):** The light thins and a tall silhouette is standing on the edge of it; feed the wick or the dark walks in.
 - **Why now:** 99 Nights in the Forest is the #4 experience on the platform 18 months in (260K CCU, 2026-09-12) and its shape is the safest bet in the survive family; the genre has one anchor and a long tail under 25K, so a same-shape title competes for the floor, not the crown.
