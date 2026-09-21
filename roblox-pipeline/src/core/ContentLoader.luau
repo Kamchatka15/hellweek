@@ -360,6 +360,9 @@ local function applyLighting(spec: any)
 	effect("ColorCorrectionEffect", "ColorCorrection", spec.colorCorrection)
 	effect("BloomEffect", "Bloom", spec.bloom)
 	effect("DepthOfFieldEffect", "DepthOfField", spec.depthOfField)
+	-- The sky itself is data too: a pack that wants black overhead and one hard sun
+	-- names the skybox faces and the star count here instead of in a Studio click.
+	effect("Sky", "Sky", spec.sky)
 end
 
 local function buildWorld(world: any, theme: any)

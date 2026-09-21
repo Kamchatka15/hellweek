@@ -131,6 +131,62 @@ return {
 		},
 	},
 
+	-- THE LIGHTING RIG. Applied from data at boot (ContentLoader.applyLighting); default
+	-- lighting is a fail (docs/OPERATING_MANUAL.md §5). The visual bet: a hard black sky,
+	-- one hard white sun, no fog, and the only warm colour on screen is the fire under
+	-- the rocket and the altitude ribbon. Every comp is a busy blue Earth plate.
+	--
+	-- One property cannot be set from a script: Lighting.Technology = Future is a
+	-- plugin-only click for Justin (games/hell-week/lighting.md found this).
+	lighting = {
+		ClockTime = 13.4,
+		Brightness = 2.6,
+		ExposureCompensation = -0.15,
+		Ambient = Color3.fromRGB(6, 7, 10),
+		OutdoorAmbient = Color3.fromRGB(18, 20, 26),
+		ColorShift_Top = Color3.fromRGB(255, 252, 246),
+		ColorShift_Bottom = Color3.fromRGB(0, 0, 0),
+		ShadowSoftness = 0.08,
+		GlobalShadows = true,
+		EnvironmentDiffuseScale = 0.15,
+		EnvironmentSpecularScale = 0.5,
+		FogStart = 100000,
+		FogEnd = 200000,
+		-- No skybox faces: the renderer draws nothing behind the world, which is the
+		-- black we want, with the sun disc still drawn and a field of stars.
+		sky = {
+			SkyboxBk = "",
+			SkyboxDn = "",
+			SkyboxFt = "",
+			SkyboxLf = "",
+			SkyboxRt = "",
+			SkyboxUp = "",
+			CelestialBodiesShown = true,
+			StarCount = 3000,
+			SunAngularSize = 14,
+			MoonAngularSize = 0,
+		},
+		-- Air with no colour in it: density for the sun's glare to bite, no haze, and
+		-- black scattering so the sky stays black to the horizon.
+		atmosphere = {
+			Density = 0.22,
+			Offset = 0,
+			Haze = 0,
+			Glare = 0.25,
+			Color = Color3.fromRGB(0, 0, 0),
+			Decay = Color3.fromRGB(0, 0, 0),
+		},
+		colorCorrection = {
+			Contrast = 0.15,
+			Saturation = -0.08,
+			Brightness = 0,
+			TintColor = Color3.fromRGB(236, 240, 255),
+		},
+		-- Bloom only where something is actually bright: the exhaust and the neon
+		-- pieces. The steel and the concrete never glow.
+		bloom = { Intensity = 0.35, Size = 24, Threshold = 1.25 },
+	},
+
 	spawn = {
 		position = Vector3.new(0, 0.5, -10),
 		lookAt = PAD, -- face the pad on arrival; the first thing you see is the rocket

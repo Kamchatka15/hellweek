@@ -772,7 +772,7 @@ local function refreshProblems()
 		local card = latest.card
 		if card then
 			miniCard.Text = `{copy.liftoff} {string.format("%.2f", card.twr)} : 1     {copy.deltaV} {commas(
-				card.effectiveDV
+				math.max(0, card.effectiveDV or 0)
 			)} m/s     {copy.apogee} {altitude(card.apogee or 0)}`
 		else
 			miniCard.Text = copy.noCard
@@ -868,7 +868,8 @@ local function refreshCard()
 			elseif (card.twr or 0) < 1.2 or (card.twr or 0) > 3.2 then theme.uiWarn
 			else theme.uiGood
 		local needs = card.orbitNeeds or latest.orbitDV or 7700
-		local effective = card.effectiveDV or 0
+		-- A small stack can have less Δv than its losses; the card shows 0, not a minus.
+		local effective = math.max(0, card.effectiveDV or 0)
 		w.dvValue.Text = `{commas(effective)} m/s   ·   {copy.orbitNeeds} {commas(needs)}`
 		w.dvFill.Size = UDim2.fromScale(math.clamp(effective / needs, 0, 1), 1)
 		w.dvFill.BackgroundColor3 = if effective >= needs then theme.uiGood else theme.accent

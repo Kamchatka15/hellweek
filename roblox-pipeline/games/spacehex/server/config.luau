@@ -40,13 +40,15 @@ return {
 	launch = {
 		prelaunch = 3, -- seconds of countdown
 		holdDown = 4, -- seconds the engine fires against the clamps when TWR <= 1
-		recovery = 6, -- seconds the result stays up before the pad clears
+		recovery = 5, -- seconds the result stays up before the pad clears
 		rolloutSeconds = 3, -- hangar -> pad
-		-- Playback compression. Real time while the engines burn (the clip moment), then
-		-- each later phase is squeezed into at most this many wall seconds.
-		maxAscentWall = 24,
-		maxCoastWall = 12,
-		maxDescentWall = 8,
+		-- Playback compression. Real time while the engines burn (the clip moment) up to
+		-- the ascent cap, then each later phase is squeezed into at most this many wall
+		-- seconds. A first launch is ~35 s from LAUNCH to the payout; a station shot is
+		-- no longer. (The starter burn alone is 20 s of sim; the cap keeps the wait honest.)
+		maxAscentWall = 14,
+		maxCoastWall = 8,
+		maxDescentWall = 6,
 		telemetryHz = 8, -- altitude updates to the HUD per second during a flight
 		debrisSeconds = 14, -- how long a dropped stage lies where it fell
 	},
